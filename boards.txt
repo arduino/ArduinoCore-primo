@@ -1,0 +1,26 @@
+######################################################
+#ARDUINO PRIMO
+
+primo.name=Arduino Primo
+primo.vid.0=0x0d28
+primo.pid.0=0x0204
+primo.upload.tool=openocd
+primo.upload.protocol=sam-ba
+primo.upload.maximum_size=524288
+primo.upload.use_1200bps_touch=false
+primo.upload.speed=115200
+primo.upload.wait_for_upload_port=false
+
+
+primo.build.mcu=cortex-m4
+primo.build.f_cpu=64000000L
+primo.build.usb_product="Arduino Primo"
+primo.build.board=nrF52832
+primo.build.core=arduino
+primo.build.extra_flags=-mthumb
+primo.build.ldscript=linker_scripts/gcc/flash.ld
+primo.build.openocdscript=openocd_scripts/arduino_primo.cfg
+primo.build.variant=arduino_primo
+primo.build.vid=0x0d28
+primo.build.pid=0x0204
+primo.build.nRF52832_api_include= "-I{runtime.ide.path}/hardware/tools/CMSIS/CMSIS/Include" "-I{runtime.ide.path}/hardware/arduino/nrf52/cores/arduino/nrF52832"
