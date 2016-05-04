@@ -42,7 +42,7 @@ compiler.elf2hex.flagx=-O ihex
 # Calculate hex size options
 compiler.size.cmd=arm-none-eabi-size
 
-# RBL_nRF51822 compile patterns
+# nrF52832 compile patterns
 # ------------------------
 
 ## Compile c files
@@ -56,7 +56,6 @@ recipe.S.o.pattern="{compiler.path}{compiler.S.cmd}" {compiler.S.flags} {build.n
 
 
 ## Create archives
-#recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} "{archive_file_path}" "{object_file}"
 recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} "{build.path}/{archive_file}" "{object_file}"
 
 
