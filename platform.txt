@@ -1,0 +1,96 @@
+
+# nrF52 compile variables
+# ----------------------
+
+name=Arduino ARM (32-bits) Boards
+
+# Compile tool path
+compiler.path={runtime.ide.path}/hardware/tools/gcc-arm-none-eabi-4.8.3-2014q1/bin/
+
+
+# Compile s files options
+compiler.S.cmd=arm-none-eabi-gcc 
+compiler.S.flags=-x assembler-with-cpp -DNRF52_PAN_12 -DNRF52_PAN_15 -DNRF52_PAN_58 -DNRF52_PAN_20 -DNRF52_PAN_54 -DNRF52_PAN_31 -DNRF52_PAN_30 -DNRF52_PAN_51 -DNRF52_PAN_36 -DNRF52_PAN_53 -DCONFIG_GPIO_AS_PINRESET -DNRF52_PAN_64 -DNRF52_PAN_55 -DNRF52_PAN_62 -DNRF52_PAN_63 -DBOARD_PCA10040 -DNRF52 -DBSP_DEFINES_ONLY
+
+
+# Compile c files options
+compiler.c.cmd=arm-none-eabi-gcc
+compiler.c.flags=-DNRF52_PAN_12 -DNRF52_PAN_15 -DNRF52_PAN_58 -DNRF52_PAN_20 -DNRF52_PAN_54 -DNRF52_PAN_31 -DNRF52_PAN_30 -DNRF52_PAN_51 -DNRF52_PAN_36 -DNRF52_PAN_53 -DCONFIG_GPIO_AS_PINRESET -DNRF52_PAN_64 -DNRF52_PAN_55 -DNRF52_PAN_62 -DNRF52_PAN_63 -DBOARD_PCA10040 -DNRF52 -DBSP_DEFINES_ONLY -mcpu=cortex-m4 -mthumb -mabi=aapcs --std=gnu99 -Wall -Werror -O3 -g3 -mfpu=fpv4-sp-d16 -ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin --short-enums
+
+# Compile cpp files options
+compiler.cpp.cmd=arm-none-eabi-g++
+compiler.cpp.flags=-DNRF52_PAN_12 -DNRF52_PAN_15 -DNRF52_PAN_58 -DNRF52_PAN_20 -DNRF52_PAN_54 -DNRF52_PAN_31 -DNRF52_PAN_30 -DNRF52_PAN_51 -DNRF52_PAN_36 -DNRF52_PAN_53 -DCONFIG_GPIO_AS_PINRESET -DNRF52_PAN_64 -DNRF52_PAN_55 -DNRF52_PAN_62 -DNRF52_PAN_63 -DBOARD_PCA10040 -DNRF52 -DBSP_DEFINES_ONLY -mcpu=cortex-m4 -mthumb -mabi=aapcs -Wall -Werror -O3 -g3 -mfpu=fpv4-sp-d16 -ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin --short-enums
+
+
+# Create archives options
+compiler.ar.cmd=arm-none-eabi-ar
+compiler.ar.flags=rcs
+
+# Combine to create elf file options
+compiler.c.elf.cmd=arm-none-eabi-g++
+
+# Create bin file options
+compiler.elf2bin.cmd=arm-none-eabi-objcopy
+compiler.elf2bin.flags=-O binary
+
+# Create hex file options
+compiler.elf2hex.cmd=arm-none-eabi-objcopy
+compiler.elf2hex.flags=-O ihex -I binary 
+compiler.elf2hex.flags=-O ihex -I binary
+compiler.elf2hex.flagx=-O ihex
+
+# Calculate hex size options
+compiler.size.cmd=arm-none-eabi-size
+
+# RBL_nRF51822 compile patterns
+# ------------------------
+
+## Compile c files
+recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.c.flags} {build.extra_flags} {build.nRF52832_api_include} {includes} "{source_file}" -c -o "{object_file}"
+
+## Compile c++ files
+recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} {build.extra_flags} {build.nRF52832_api_include} {includes} "{source_file}" -c -o "{object_file}"
+
+## Compile S files
+recipe.S.o.pattern="{compiler.path}{compiler.S.cmd}" {compiler.S.flags} {build.nRF52832_api_include} "{source_file}" -c -o "{object_file}"
+
+
+## Create archives
+#recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} "{archive_file_path}" "{object_file}"
+recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} "{build.path}/{archive_file}" "{object_file}"
+
+
+## Combine gc-sections, archives, and objects
+recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" -Xlinker -Map={build.path}/{build.project_name}.map -mthumb -mabi=aapcs  "-T{build.variant.path}/{build.ldscript}" -mcpu={build.mcu}  -Wl,--gc-sections --specs=nano.specs -mfpu=fpv4-sp-d16 -lc -lnosys -Wl,--start-group {object_files} "{build.path}/{archive_file}" -lm -o "{build.path}/{build.project_name}.elf"
+
+## Create bin
+recipe.objcopy.eep.pattern="{compiler.path}{compiler.elf2bin.cmd}" {compiler.elf2bin.flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.bin"
+
+## Create hex
+recipe.objcopy.hex.pattern="{compiler.path}{compiler.elf2hex.cmd}" {compiler.elf2hex.flags} "{build.path}/{build.project_name}.bin" "{build.path}/{build.project_name}.hex"
+
+## Save hex
+recipe.output.tmp_file={build.project_name}.hex
+recipe.output.save_file={build.project_name}.{build.variant}.hex
+
+## Compute size
+recipe.size.pattern="{compiler.path}{compiler.size.cmd}" -A "{build.path}/{build.project_name}.elf"
+recipe.size.regex=\.text\s+([0-9]+).*
+
+
+# nrF52 Uploader tools
+# -------------------
+
+tools.openocd.cmd=bin/openocd
+tools.openocd.cmd.windows=bin/openocd.exe
+tools.openocd.path={runtime.ide.path}/hardware/tools/OpenOCD-0.9.0-arduino
+tools.openocd.cmd.macosx=bin/openocd
+
+tools.openocd.upload.params.verbose=
+tools.openocd.upload.params.quiet=																											
+tools.openocd.upload.pattern="{path}/{cmd}" -s "{path}/share/openocd/scripts/" -f ../../../../../arduino/nrf52/variants/{build.variant}/{build.openocdscript} -c "program {{{build.path}/{build.project_name}.bin}} verify reset exit"
+
+tools.openocd.erase.params.verbose=
+tools.openocd.erase.params.quiet=
+tools.openocd.erase.pattern=
+
