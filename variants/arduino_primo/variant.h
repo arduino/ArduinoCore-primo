@@ -22,6 +22,7 @@
 /*----------------------------------------------------------------------------
  *        Definitions
  *----------------------------------------------------------------------------*/
+#include "WVariant.h"
 
 /** Frequency of the board main oscillator */
 #define VARIANT_MAINOSC		(32768ul)
@@ -37,12 +38,6 @@
 extern "C"{
 #endif // __cplusplus
 
-/**
- * Libc porting layers
- */
-#if defined (  __GNUC__  )
-#    include <syscalls.h> /** RedHat Newlib minimal stub */
-#endif
 
 /*----------------------------------------------------------------------------
  *        Pins
@@ -55,16 +50,25 @@ extern "C"{
 #define NUM_ANALOG_OUTPUTS   (1u)
 
 #define PIN_LED_13           (13u)
-#define PIN_LED_RXL          (30u)
-#define PIN_LED_TXL          (31u)
 #define PIN_LED              PIN_LED_13
-#define PIN_LED2             PIN_LED_RXL
-#define PIN_LED3             PIN_LED_TXL
 #define LED_BUILTIN          PIN_LED_13
+#define USER2_LED			 (27u)
+#define USER2_BUTTON		 (26u)
 
 #ifdef __cplusplus
 }
 #endif
+
+
+/*
+ * Analog pins
+ */
+static const uint8_t A0  = 18 ;
+static const uint8_t A1  = 19 ;
+static const uint8_t A2  = 20 ;
+static const uint8_t A3  = 21;
+static const uint8_t A4  = 22 ;
+static const uint8_t A5  = 23 ;
 
 
 #define SERIAL_PORT_MONITOR         Serial
