@@ -20,6 +20,7 @@
 #ifndef Arduino_h
 #define Arduino_h
 
+#include "binary.h"
 
 #ifdef __cplusplus
 extern "C"{
@@ -28,7 +29,7 @@ extern "C"{
 #include "nrf_gpio.h"
 #include "nrf_delay.h"
 
-
+#include "wiring_constants.h"
 
 /* sketch */
 void setup( void ) ;
@@ -40,6 +41,7 @@ void loop( void ) ;
 #include "variant.h"
 
 #include "wiring_digital.h"
+#include "wiring_analog.h"
 
 #ifdef __cplusplus
 } // extern "C"
