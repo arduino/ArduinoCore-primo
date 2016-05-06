@@ -1,6 +1,5 @@
 /*
-  Arduino.h - Main include file for the Arduino SDK
-  Copyright (c) 2005-2016 Arduino Team.  All right reserved.
+  Copyright (c) 2016 Arduino.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -9,43 +8,31 @@
 
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef Arduino_h
-#define Arduino_h
-
-#include "binary.h"
+#ifndef _WIRING_
+#define _WIRING_
 
 #ifdef __cplusplus
-extern "C"{
-#endif // __cplusplus
+extern "C" {
+#endif
 
-#include "nrf_gpio.h"
-#include "nrf_delay.h"
+// Exported in CMSIS header file in system_nrf52.h
+//extern uint32_t SystemCoreClock ;
 
-#include "wiring_constants.h"
-
-/* sketch */
-void setup( void ) ;
-void loop( void ) ;
-
-#include "WVariant.h"
-
-// Include board variant
-#include "variant.h"
-
-#include "wiring.h"
-#include "wiring_digital.h"
-#include "wiring_analog.h"
+/**
+ *
+ */
+extern void init( void ) ;
 
 #ifdef __cplusplus
-} // extern "C"
-#endif // __cplusplus
+}
+#endif
 
-#endif //Arduino_h
+#endif /* _WIRING_ */
