@@ -20,6 +20,18 @@
 #ifndef Arduino_h
 #define Arduino_h
 
+
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
+// some libraries and sketches depend on this AVR stuff,
+// assuming Arduino.h or WProgram.h automatically includes it...
+//
+#include "avr/pgmspace.h"
+#include "avr/interrupt.h"
+
 #include "binary.h"
 
 #ifdef __cplusplus
@@ -28,6 +40,7 @@ extern "C"{
 
 #include "nrf_gpio.h"
 #include "nrf_delay.h"
+#include "nrf_rtc.h"
 
 #include "wiring_constants.h"
 
