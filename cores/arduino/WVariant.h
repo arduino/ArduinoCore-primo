@@ -7,9 +7,19 @@
 extern "C"{
 #endif // __cplusplus
 
+#include "nrf_saadc.h"
+
+//every channel can be mapped on all analog pins
+//number of channel: 8
 typedef enum _EAnalogChannel
 {
 	No_ADC_Channel=-1,
+	ADC_A0=NRF_SAADC_INPUT_AIN1,
+	ADC_A1=NRF_SAADC_INPUT_AIN2,
+	ADC_A2=NRF_SAADC_INPUT_AIN4,
+	ADC_A3=NRF_SAADC_INPUT_AIN5,
+	ADC_A4=NRF_SAADC_INPUT_AIN6,
+	ADC_A5=NRF_SAADC_INPUT_AIN7,
 } EAnalogChannel ;
 
 typedef enum _ETCChannel
@@ -18,9 +28,12 @@ typedef enum _ETCChannel
 } ETCChannel ;
 
 // Definitions for PWM channels
+//every channel can be mapped on all pins
+//number of pwm channel: 4
 typedef enum _EPWMChannel
 {
 	NOT_ON_PWM=-1,
+	PWM
 } EPWMChannel ;
 
 
