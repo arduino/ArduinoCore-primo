@@ -37,6 +37,8 @@ void loop( void ) ;
 
 #include "WVariant.h"
 
+#include "delay.h"
+
 // Include board variant
 #include "variant.h"
 
