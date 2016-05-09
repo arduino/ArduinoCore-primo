@@ -51,7 +51,13 @@ void loop( void ) ;
 
 #include "WVariant.h"
 
+
 #include "delay.h"
+
+#ifdef __cplusplus
+} // extern "C"
+#endif // __cplusplus
+
 
 // Include board variant
 #include "variant.h"
@@ -59,9 +65,7 @@ void loop( void ) ;
 #include "wiring.h"
 #include "wiring_digital.h"
 #include "wiring_analog.h"
+#include "WString.h"
 
-#ifdef __cplusplus
-} // extern "C"
-#endif // __cplusplus
 
 #endif //Arduino_h
