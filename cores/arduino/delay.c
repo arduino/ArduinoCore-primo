@@ -1,5 +1,7 @@
 #include "delay.h"
-#include "Arduino.h"
+//#include "Arduino.h"
+#include "nrf_delay.h"
+#include "nrf_rtc.h"
 
 #ifdef __cplusplus
 extern "C" {
