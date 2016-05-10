@@ -27,6 +27,8 @@ extern "C" {
 
 #include "nrf_saadc.h"
 #include "nrf_pwm.h"
+#include "nrf_delay.h"
+
 
 static int _readResolution = 10;
 static int _writeResolution = 10;
@@ -109,16 +111,49 @@ uint32_t analogRead( uint32_t ulPin )
   
 }
 
+
 //in NRF52 pwm works on all pins
 void analogWrite(uint32_t ulPin, uint32_t ulValue) {
-	//configure pwm channel	
-	nrf_pwm_configure(NRF_PWM0, NRF_PWM_CLK_16MHz, NRF_PWM_MODE_UP, (uint16_t) ulValue);
-	//assign pin to pwm channel (only first channel is used)
-	uint32_t pin[NRF_PWM_CHANNEL_COUNT]={ulPin, NRF_PWM_PIN_NOT_CONNECTED, NRF_PWM_PIN_NOT_CONNECTED, NRF_PWM_PIN_NOT_CONNECTED};
+
+	//assuming user uses values from 0 to 255
+	uint16_t val=(uint16_t) (ulValue*10000/255);
+	
+	// This array cannot be allocated on stack (hence "static") and it must
+    // be in RAM (hence no "const", though its content is not changed).
+	static uint16_t /*const*/ seq_values[]={0};
+	seq_values[0]=val;
+	nrf_pwm_sequence_t const seq={
+		.values.p_common = seq_values,
+        .length          = NRF_PWM_VALUES_LENGTH(seq_values),
+        .repeats         = 0,
+        .end_delay       = 0
+    };
+	
+	//assign pin to pwm channel
+	uint32_t pin[NRF_PWM_CHANNEL_COUNT]={g_APinDescription[ulPin].ulPin | 0x80 , NRF_PWM_PIN_NOT_CONNECTED, NRF_PWM_PIN_NOT_CONNECTED, NRF_PWM_PIN_NOT_CONNECTED};
 	nrf_pwm_pins_set(NRF_PWM0, pin);
+	
 	//enable pwm channel
 	nrf_pwm_enable(NRF_PWM0);
+	
+	//configure pwm channel	- Prescaler, mode and counter top
+	nrf_pwm_configure(NRF_PWM0, NRF_PWM_CLK_500kHz, NRF_PWM_MODE_UP, 10000);
+	
+	//set decoder
+	nrf_pwm_decoder_set(NRF_PWM0, NRF_PWM_LOAD_COMMON, NRF_PWM_STEP_AUTO);
+		
+	//set the sequence for the given channel
+	nrf_pwm_sequence_set(NRF_PWM0, 0, &seq);
+	
+	//perform sequence playback just one time
+	nrf_pwm_loop_set(NRF_PWM0, 0UL);
+	
+	//start pwm generation
+	nrf_pwm_task_trigger(NRF_PWM0, NRF_PWM_TASK_SEQSTART0);
+ 
 }
+
+
 
 #ifdef __cplusplus
 }
