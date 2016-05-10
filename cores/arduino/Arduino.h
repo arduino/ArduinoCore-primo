@@ -53,7 +53,6 @@ void loop( void ) ;
 
 
 
-
 #include "delay.h"
 
 #ifdef __cplusplus
@@ -69,5 +68,6 @@ void loop( void ) ;
 #include "wiring_analog.h"
 #include "WString.h"
 #include "HardwareSerial.h"
+#include "WMath.h"
 
 #endif //Arduino_h
