@@ -51,12 +51,18 @@ void loop( void ) ;
 
 #include "WVariant.h"
 
-
-
-#include "delay.h"
-
 #ifdef __cplusplus
 } // extern "C"
+#endif // __cplusplus
+
+
+// The following headers are for C++ only compilation
+#ifdef __cplusplus
+  #include "WCharacter.h"
+  #include "WString.h"
+  #include "WMath.h"
+  #include "HardwareSerial.h"
+  #include "delay.h"
 #endif // __cplusplus
 
 
@@ -66,8 +72,6 @@ void loop( void ) ;
 #include "wiring.h"
 #include "wiring_digital.h"
 #include "wiring_analog.h"
-#include "WString.h"
-#include "HardwareSerial.h"
-#include "WMath.h"
+
 
 #endif //Arduino_h
