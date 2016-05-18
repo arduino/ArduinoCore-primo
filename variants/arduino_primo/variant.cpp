@@ -58,15 +58,20 @@
  * | 24         |                  |  P005  | RX2             |
  * | 25         |                  |  P006  | TX2             |
  * +------------+------------------+--------+-----------------+
+ * |            | STM Connector    |        |                 |
+ * +------------+------------------+--------+-----------------+
+ * | 26         |                  |  P011  | RX1             |
+ * | 27         |                  |  P012  | TX1             |
+ * +------------+------------------+--------+-----------------+
  * |            | USER2            |        |                 |
  * +------------+------------------+--------+-----------------+
- * | 26         |                  |  P007  | USER2_BUTTON    |
- * | 27         |                  |  P008  | USER2_LED       |
+ * | 28         |                  |  P007  | USER2_BUTTON    |
+ * | 29         |                  |  P008  | USER2_LED       |
  * +------------+------------------+--------+-----------------+
  * |            | NFC              |        |                 |
  * +------------+------------------+--------+-----------------+
- * | 28         |                  |  P009  | NFC1            |
- * | 29         |                  |  P010  | NFC2            |
+ * | 30         |                  |  P009  | NFC1            |
+ * | 31         |                  |  P010  | NFC2            |
  * +------------+------------------+--------+-----------------+
  * |            |32.768KHz Crystal |        |                 |
  * +------------+------------------+--------+-----------------+
@@ -128,15 +133,22 @@ const PinDescription g_APinDescription[]=
   // --------------------
   { PORT0, 5, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // RX2
   { PORT0, 6, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // TX2
+
+ //26..27 - STM Connector
+  // --------------------
+  { PORT0, 11, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // RX2
+  { PORT0, 12, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // TX2
   
-  //26..27 - USER2
+  //28..29 - USER2
   // --------------------
   { PORT0, 7, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // button
   { PORT0, 8, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // led
   
-  //28..29 - NFC
+  //30..31 - NFC
   // --------------------
   { PORT0, 9, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // NFC1
   { PORT0, 10, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER} // NFC2
   
 } ;
+
+Uart Serial(26, 27);

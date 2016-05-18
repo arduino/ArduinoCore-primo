@@ -29,9 +29,9 @@ int main(void)
 	
 	setup();
 	
-	for(;;)
+	for(;;){ 
 		loop();
-	
-	
+		if (serialEventRun) serialEventRun();
+	}
 	return 0;
 }

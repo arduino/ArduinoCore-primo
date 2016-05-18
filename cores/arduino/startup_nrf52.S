@@ -392,13 +392,10 @@ Reset_Handler:
 /* Execute SystemInit function. */
     bl SystemInit
 
-/* Call _start function provided by libraries. 
- * If those libraries are not accessible, define __START as your entry point. 
- */
-
-#ifndef __START
-#define __START _start
-#endif
+/* Inizialize C library */
+    bl __libc_init_array
+ 
+ /* Call main function */
     bl main    
     
     .pool

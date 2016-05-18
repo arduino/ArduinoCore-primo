@@ -22,7 +22,7 @@
 /*----------------------------------------------------------------------------
  *        Definitions
  *----------------------------------------------------------------------------*/
-#include "WVariant.h"
+
 
 /** Frequency of the board main oscillator */
 #define VARIANT_MAINOSC		(32768ul)
@@ -34,10 +34,22 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
+#include "WVariant.h"
+
+#ifdef __cplusplus
+ #include "Uart.h"
+#endif // __cplusplus
+
  #ifdef __cplusplus
 extern "C"{
 #endif // __cplusplus
 
+/**
+ * Libc porting layers
+ */
+#if defined (  __GNUC__  )
+#    include <syscalls.h> /** RedHat Newlib minimal stub */
+#endif
 
 /*----------------------------------------------------------------------------
  *        Pins
@@ -70,6 +82,14 @@ static const uint8_t A3  = 21;
 static const uint8_t A4  = 22 ;
 static const uint8_t A5  = 23 ;
 
+/*----------------------------------------------------------------------------
+ *        Arduino objects - C++ only
+ *----------------------------------------------------------------------------*/
+#ifdef __cplusplus
+
+extern Uart Serial;
+
+#endif
 
 #define SERIAL_PORT_MONITOR         Serial
 

@@ -61,4 +61,7 @@ void delayMicroseconds(uint32_t usec)
 {
 	nrf_delay_us(usec);
 }
-      
+
+#ifdef __cplusplus
+}
+#endif

@@ -63,6 +63,7 @@ void loop( void ) ;
   #include "WMath.h"
   #include "HardwareSerial.h"
   #include "delay.h"
+  #include "Uart.h"
 #endif // __cplusplus
 
 
