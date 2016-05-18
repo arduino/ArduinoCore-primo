@@ -20,7 +20,6 @@
 #include "WVariant.h"
 #include "wiring_digital.h"
 
-
 //tx and rx buffer for EasyDMA
 static uint8_t tx_buffer[1];
 static uint8_t rx_buffer[1];
@@ -57,16 +56,28 @@ void Uart::begin(unsigned long baudrate, uint8_t config)
 	nrf_uarte_enable(NRF_UARTE0);
 	
 	//enable rx interrupt
-	// nrf_uarte_int_enable(NRF_UARTE0, NRF_UARTE_INT_ENDRX_MASK);
-	// NVIC_SetPriority(UART0_IRQn, 6);
-    // NVIC_ClearPendingIRQ(UART0_IRQn);
-    // NVIC_EnableIRQ(UART0_IRQn);
+	nrf_uarte_int_enable(NRF_UARTE0, NRF_UARTE_INT_ENDRX_MASK);
+	NVIC_SetPriority(UART0_IRQn, 6);
+    NVIC_ClearPendingIRQ(UART0_IRQn);
+    NVIC_EnableIRQ(UART0_IRQn);
+	nrf_uarte_event_clear(NRF_UARTE0, NRF_UARTE_EVENT_ENDRX);
+	nrf_uarte_shorts_enable(NRF_UARTE0, NRF_UARTE_SHORT_ENDRX_STARTRX);
+	nrf_uarte_task_trigger(NRF_UARTE0, NRF_UARTE_TASK_STARTRX);
+	while(!nrf_uarte_event_check(NRF_UARTE0, NRF_UARTE_EVENT_RXSTARTED))
+		; //wait until rx starts
+	
 }
 
 void Uart::end()
 {
+	//stop rx
+	nrf_uarte_shorts_disable(NRF_UARTE0, NRF_UARTE_SHORT_ENDRX_STARTRX);
+	nrf_uarte_task_trigger(NRF_UARTE0, NRF_UARTE_TASK_STOPRX);
+	//disable interrupt
+	nrf_uarte_int_disable(NRF_UARTE0, NRF_UARTE_INT_ENDRX_MASK);
+	//disable peripheral
 	nrf_uarte_disable(NRF_UARTE0);
-	//TODO: disable interrupt
+	//disconnect pins
 	nrf_uarte_txrx_pins_disconnect(NRF_UARTE0);
 	rxBuffer.clear();
 }
@@ -78,7 +89,8 @@ void Uart::flush()
 
 void Uart::IrqHandler()
 {
-	;//TODO: implement
+	nrf_uarte_event_clear(NRF_UARTE0, NRF_UARTE_EVENT_ENDRX);
+	rxBuffer.store_char(rx_buffer[0]);
 }
 
 int Uart::available()
@@ -169,6 +181,13 @@ nrf_uarte_parity_t Uart::extractParity(uint8_t config)
 	}
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void UARTE0_UART0_IRQHandler(){
-	//Serial.IrqHandler();
+	Serial.IrqHandler();
 }
+#ifdef __cplusplus
+}
+#endif
