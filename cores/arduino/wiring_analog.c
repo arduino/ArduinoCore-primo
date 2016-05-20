@@ -20,22 +20,23 @@
 
 #include "wiring_analog.h"
 #include "wiring_digital.h"
+#include "nrf_saadc.h"
+#include "nrf_pwm.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "nrf_saadc.h"
-#include "nrf_pwm.h"
-#include "nrf_delay.h"
 
 
-static int _readResolution = 10;
-static int _writeResolution = 10;
-static int _reference=NRF_SAADC_REFERENCE_VDD4;
+
+static int readResolution = 10;
+static int writeResolution = 10;
+static int reference=NRF_SAADC_REFERENCE_VDD4;
+static int gain=NRF_SAADC_GAIN1_4;
 
 void analogReadResolution(int res) {
-	_readResolution = res;
+	readResolution = res;
 	
 	if(res == 8) nrf_saadc_resolution_set(NRF_SAADC_RESOLUTION_8BIT); 
 	else if(res == 10) nrf_saadc_resolution_set(NRF_SAADC_RESOLUTION_10BIT);   
@@ -43,7 +44,7 @@ void analogReadResolution(int res) {
 }
 
 void analogWriteResolution(int res) {
-	_writeResolution = res;
+	writeResolution = res;
 }
 
 static inline uint32_t mapResolution(uint32_t value, uint32_t from, uint32_t to) {
@@ -63,53 +64,60 @@ void analogReference( eAnalogReference ulMode )
     case AR_DEFAULT:
       default:
       
-	  _reference=NRF_SAADC_REFERENCE_VDD4;
+	  reference=NRF_SAADC_REFERENCE_VDD4;
+	  gain=NRF_SAADC_GAIN1_4;
 	  break;
     
 	case AR_INTERNAL:
-	  _reference=NRF_SAADC_REFERENCE_INTERNAL;
+	  reference=NRF_SAADC_REFERENCE_INTERNAL;
+	  gain=NRF_SAADC_GAIN1_5;
 	  break;
 
     case AR_EXTERNAL:
-	  _reference=NRF_SAADC_REFERENCE_VDD4;
+	  reference=NRF_SAADC_REFERENCE_VDD4;
+	  gain=NRF_SAADC_GAIN1_4;
 	  break;
   }
   
 }
 
 
+
 uint32_t analogRead( uint32_t ulPin )
 {
-  uint32_t valueRead = 0;
-  //configure buffer to store result
-  nrf_saadc_buffer_init((nrf_saadc_value_t *)&valueRead, 1/*read just one word?*/);
-  //configure ADC channel
-  nrf_saadc_channel_config_t channel0={NRF_SAADC_RESISTOR_DISABLED,
+	static nrf_saadc_value_t valueRead;
+
+	//configure ADC channel
+	nrf_saadc_channel_config_t channel_config={NRF_SAADC_RESISTOR_DISABLED,
 									   NRF_SAADC_RESISTOR_DISABLED,
-									   NRF_SAADC_GAIN1,
-									   _reference,
+									   gain,
+									   reference,
 									   NRF_SAADC_ACQTIME_3US,
 									   NRF_SAADC_MODE_SINGLE_ENDED,
 									   g_APinDescription[ulPin].ulADCChannelNumber,
 									   g_APinDescription[ulPin].ulADCChannelNumber //pin negative ignored in single ended mode
 									   };
-  nrf_saadc_channel_init((uint8_t) 0, &channel0);
-  
-  //enable ADC
-  nrf_saadc_enable();
-  
-  //start conversion
-  nrf_saadc_task_trigger(NRF_SAADC_TASK_START);
-  //wait for a complete conversion
-  while(nrf_saadc_busy_check());
+	//enable channel
+    nrf_saadc_enable();
+	
+	//init channel and start conversion
+	nrf_saadc_channel_init(0, &channel_config);
+	nrf_saadc_buffer_init(&valueRead, 1);
+	nrf_saadc_event_clear(NRF_SAADC_EVENT_END);
+    nrf_saadc_task_trigger(NRF_SAADC_TASK_START);
+	
+	nrf_saadc_task_trigger(NRF_SAADC_TASK_SAMPLE);
 
-  //never stop adc, else reconfigure it each time
-  //disable channel
-  nrf_saadc_disable();
-  
-  return valueRead;
-  
-}
+	while(!nrf_saadc_event_check(NRF_SAADC_EVENT_END))
+		;//wait for a complete conversion
+	
+	if(valueRead<0)
+		return 0;
+	
+	return valueRead;
+}	
+
+
 
 
 //in NRF52 pwm works on all pins

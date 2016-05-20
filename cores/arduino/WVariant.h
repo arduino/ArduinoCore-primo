@@ -73,7 +73,7 @@ typedef struct _PinDescription
   uint32_t ulPin ;
   EPioType ulPinType ;
   uint32_t ulPinAttribute ;
-  EAnalogChannel ulADCChannelNumber ; /* ADC Channel number in the SAM device */
+  EAnalogChannel ulADCChannelNumber ;
   EPWMChannel ulPWMChannel ;
   ETCChannel ulTCChannel ;
 //  EExt_Interrupts ulExtInt ;

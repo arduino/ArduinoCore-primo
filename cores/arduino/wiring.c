@@ -39,23 +39,26 @@ extern "C" {
 
 	//LFCLK needed to be started before using the RTC
 	//select source for LFCLK
-	nrf_clock_lf_src_set(NRF_CLOCK_LFCLK_RC);
+	nrf_clock_xtalfreq_set(NRF_CLOCK_XTALFREQ_Default);
+	nrf_clock_lf_src_set(NRF_CLOCK_LFCLK_Xtal);
 	//start LFCLK
 	nrf_clock_task_trigger(NRF_CLOCK_TASK_LFCLKSTART);
 
 	//set prescaler value befor start RTC
 	//f = 32.768 / (PRESCALER +1)
 	//PRESCALER=32 to have ticks every 1 ms
-	nrf_rtc_prescaler_set(NRF_RTC0, 32);
+	// nrf_rtc_prescaler_set(NRF_RTC0, 1024);
 	
-	//enable tick event
-	nrf_rtc_event_enable(NRF_RTC0, 1);
+	//enable tick event and interrupt
+	// NVIC_SetPriority(RTC0_IRQn, 6); //low priority
+    // NVIC_ClearPendingIRQ(RTC0_IRQn);
+    // NVIC_EnableIRQ(RTC0_IRQn);
+	// nrf_rtc_event_clear(NRF_RTC0, NRF_RTC_EVENT_TICK);
+	// nrf_rtc_event_enable(NRF_RTC0, NRF_RTC_EVENT_TICK);
+	// nrf_rtc_int_enable(NRF_RTC0, NRF_RTC_INT_TICK_MASK);
 	
-	//enable tick interrupt
-	nrf_rtc_int_enable(NRF_RTC0, 1);
-	
-	//start rtc
-	nrf_rtc_task_trigger(NRF_RTC0, NRF_RTC_TASK_START);	
+	// start rtc
+	// nrf_rtc_task_trigger(NRF_RTC0, NRF_RTC_TASK_START);	
 }
 
 #ifdef __cplusplus

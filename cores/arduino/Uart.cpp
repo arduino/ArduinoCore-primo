@@ -57,7 +57,7 @@ void Uart::begin(unsigned long baudrate, uint8_t config)
 	
 	//enable rx interrupt
 	nrf_uarte_int_enable(NRF_UARTE0, NRF_UARTE_INT_ENDRX_MASK);
-	NVIC_SetPriority(UART0_IRQn, 6);
+	NVIC_SetPriority(UART0_IRQn, 6); //low priority
     NVIC_ClearPendingIRQ(UART0_IRQn);
     NVIC_EnableIRQ(UART0_IRQn);
 	nrf_uarte_event_clear(NRF_UARTE0, NRF_UARTE_EVENT_ENDRX);
