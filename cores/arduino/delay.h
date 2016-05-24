@@ -26,6 +26,11 @@ extern "C" {
 #include <stdint.h>
 #include "variant.h"
 
+/** \brief Initialize TickCount to 0
+*
+**/
+extern void resetTickCount( void ) ;
+
 /**
  * \brief Returns the number of milliseconds since the Arduino board began running the current program.
  *

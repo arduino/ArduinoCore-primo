@@ -1,14 +1,17 @@
 #include "delay.h"
-//#include "Arduino.h"
+#include "Arduino.h"
 #include "nrf_delay.h"
-#include "nrf_rtc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /** Tick Counter united by ms */
-static volatile uint32_t _ulTickCount=0 ;
+static volatile uint32_t _ulTickCount;
+
+void resetTickCount(void){
+	_ulTickCount=0;
+}
 
 uint32_t millis( void )
 {
@@ -27,27 +30,26 @@ uint32_t micros( void )
   uint32_t pend, pend2;
   uint32_t count, count2;
 
-  ticks2  = nrf_rtc_counter_get(NRF_RTC0);
-  pend2   = nrf_rtc_event_pending(NRF_RTC0, NRF_RTC_EVENT_TICK);
-  count2  = _ulTickCount;
+  ticks2  = SysTick->VAL;
+  pend2   = !!(SCB->ICSR & SCB_ICSR_PENDSTSET_Msk)  ;
+  count2  = _ulTickCount ;
 
   do
   {
     ticks=ticks2;
     pend=pend2;
     count=count2;
-    ticks2  = nrf_rtc_counter_get(NRF_RTC0);
-    pend2   = nrf_rtc_event_pending(NRF_RTC0, NRF_RTC_EVENT_TICK);
+    ticks2  = SysTick->VAL;
+    pend2   = !!(SCB->ICSR & SCB_ICSR_PENDSTSET_Msk)  ;
     count2  = _ulTickCount ;
   } while ((pend != pend2) || (count != count2) || (ticks < ticks2));
 
-  return ((count+pend) * 1000); //TODO: import row below
-//  return ((count+pend) * 1000) + (((SysTick->LOAD  - ticks)*(1048576/(VARIANT_MCK/1000000)))>>20) ;
+  return ((count+pend) * 1000) + (((SysTick->LOAD  - ticks)*(1048576/(VARIANT_MCK/1000000)))>>20) ;
   // this is an optimization to turn a runtime division into two compile-time divisions and
   // a runtime multiplication and shift, saving a few cycles
 }
 
-void RTC0_IRQHandler(void){
+void SysTick_Handler(void){
   // Increment tick count each ms
   _ulTickCount++ ;
 }
