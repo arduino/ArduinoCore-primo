@@ -20,8 +20,6 @@
 #include "wiring_digital.h"
 #include "wiring.h"
 
-#include "delay.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -34,13 +32,12 @@ extern "C" {
  */
  void init( void )
 {
-	resetTickCount();
 	// Set Systick to 1ms interval, common to all Cortex-M variants
 	if ( SysTick_Config( SystemCoreClock / 1000 ) )
 	{
 		// Capture error
 		while ( 1 ) ;
-	}	
+	}
 }
 
 #ifdef __cplusplus

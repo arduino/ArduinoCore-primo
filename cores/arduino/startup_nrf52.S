@@ -372,7 +372,6 @@ Reset_Handler:
  *
  * All addresses must be aligned to 4 bytes boundary.
  */
-#ifdef __STARTUP_CLEAR_BSS
     ldr r1, =__bss_start__
     ldr r2, =__bss_end__
 
@@ -387,7 +386,7 @@ Reset_Handler:
     bgt .L_loop3
     
 .L_loop3_done:
-#endif /* __STARTUP_CLEAR_BSS */
+
  
 /* Execute SystemInit function. */
     bl SystemInit

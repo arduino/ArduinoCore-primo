@@ -7,11 +7,7 @@ extern "C" {
 #endif
 
 /** Tick Counter united by ms */
-static volatile uint32_t _ulTickCount;
-
-void resetTickCount(void){
-	_ulTickCount=0;
-}
+static volatile uint32_t _ulTickCount=0;
 
 uint32_t millis( void )
 {
