@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2014 Arduino.  All right reserved.
+  Copyright (c) 2016 Arduino.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -22,7 +22,6 @@
 
 #include "nrf_gpiote.h"
 #include "nrf_gpio.h"
-// #include "delay.h" //remove
 
 #include <string.h>
 
@@ -56,7 +55,7 @@ static struct
   uint32_t _mask;
 } callbacksInt[NUMBER_OF_GPIO_TE] ;
 
-/*
+/**
  * \brief ISR called for each event on pins
  *
  */
@@ -75,7 +74,7 @@ void GPIOTE_IRQHandler(void){
     nrf_gpiote_int_enable(callbacksInt[j]._mask);
 }
 
-/*
+/**
  * \brief Specifies a named Interrupt Service Routine (ISR) to call when an interrupt occurs.
  *        Replaces any previous function that was attached to the interrupt.
  */
@@ -97,14 +96,14 @@ void attachInterrupt( uint32_t ulPin, voidFuncPtr callback, uint32_t ulMode )
   if(j==NUMBER_OF_GPIO_TE)
 	return;
 
-  // Assign callback to related interrupt and set the channel as busy
+  //Assign callback to related interrupt and set the channel as busy
   callbacksInt[j]._ulPin = ulPin ;
   callbacksInt[j]._callback = callback ;
   callbacksInt[j]._channel=ch_evt[j];
   callbacksInt[j]._mask=int_msk[j];
   freeChannels[j]=0;
 	
-  // Configure the interrupt mode
+  //Configure the interrupt mode
   switch ( ulMode )
   { //gpiote channel does not support LOW and HIGH mode. These are manteined for compatibility
 	case LOW:
@@ -140,7 +139,7 @@ void attachInterrupt( uint32_t ulPin, voidFuncPtr callback, uint32_t ulMode )
  
 }
 
-/*
+/**
  * \brief Turns off the given interrupt.
  */
 void detachInterrupt( uint32_t ulPin )
