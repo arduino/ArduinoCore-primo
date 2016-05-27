@@ -44,6 +44,12 @@ extern "C"{
 #include "nrf_rtc.h"
 
 #include "wiring_constants.h"
+
+#define clockCyclesPerMicrosecond() ( SystemCoreClock / 1000000L )
+#define clockCyclesToMicroseconds(a) ( ((a) * 1000L) / (SystemCoreClock / 1000L) )
+#define microsecondsToClockCycles(a) ( (a) * (SystemCoreClock / 1000000L) )
+
+
 /* sketch */
 void setup( void ) ;
 void loop( void ) ;
@@ -72,6 +78,7 @@ void loop( void ) ;
 #include "wiring.h"
 #include "wiring_digital.h"
 #include "wiring_analog.h"
+#include "wiring_shift.h"
 #include "WInterrupts.h"
 
 #endif //Arduino_h
