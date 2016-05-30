@@ -40,8 +40,6 @@ extern "C"{
 #endif // __cplusplus
 
 #include "nrf_gpio.h"
-#include "nrf_delay.h"
-#include "nrf_rtc.h"
 
 #include "wiring_constants.h"
 
@@ -49,6 +47,7 @@ extern "C"{
 #define clockCyclesToMicroseconds(a) ( ((a) * 1000L) / (SystemCoreClock / 1000L) )
 #define microsecondsToClockCycles(a) ( (a) * (SystemCoreClock / 1000000L) )
 
+void yield( void ) ;
 
 /* sketch */
 void setup( void ) ;
