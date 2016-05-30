@@ -57,15 +57,31 @@ extern "C"{
 
 // Number of pins defined in PinDescription array
 #define PINS_COUNT           (32u)
-#define NUM_DIGITAL_PINS     (19u)
+#define NUM_DIGITAL_PINS     (14u)
 #define NUM_ANALOG_INPUTS    (5u)
 #define NUM_ANALOG_OUTPUTS   (1u)
 
 #define PIN_LED_13           (13u)
 #define PIN_LED              PIN_LED_13
 #define LED_BUILTIN          PIN_LED_13
-#define USER2_LED			 (27u)
-#define USER2_BUTTON		 (26u)
+#define USER2_LED			 (35u)
+#define USER2_BUTTON		 (34u)
+
+
+/*
+ * SPI Interfaces
+ */
+#define SPI_INTERFACES_COUNT 3
+
+#define PIN_SPI_MOSI         (27u)
+#define PIN_SPI_MISO         (24u)
+#define PIN_SPI_SCK          (26u)
+
+static const uint8_t SS	  = 14;	//GND
+static const uint8_t MOSI = PIN_SPI_MOSI;
+static const uint8_t MISO = PIN_SPI_MISO;
+static const uint8_t SCK  = PIN_SPI_SCK;
+
 
 #ifdef __cplusplus
 }
@@ -75,12 +91,12 @@ extern "C"{
 /*
  * Analog pins
  */
-static const uint8_t A0  = 18 ;
-static const uint8_t A1  = 19 ;
-static const uint8_t A2  = 20 ;
-static const uint8_t A3  = 21;
-static const uint8_t A4  = 22 ;
-static const uint8_t A5  = 23 ;
+static const uint8_t A0  = 14;
+static const uint8_t A1  = 15;
+static const uint8_t A2  = 16;
+static const uint8_t A3  = 17;
+static const uint8_t A4  = 18;
+static const uint8_t A5  = 19;
 
 /*----------------------------------------------------------------------------
  *        Arduino objects - C++ only

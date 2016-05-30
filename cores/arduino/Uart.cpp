@@ -43,9 +43,9 @@ void Uart::begin(unsigned long baudrate, uint8_t config)
 	nrf_uarte_rx_buffer_set(NRF_UARTE0, rx_buffer, 1);
 	
 	//configure TX and RX pins
-	pinMode(uc_pinRX, INPUT);	
-	pinMode(uc_pinTX, OUTPUT);
-	digitalWrite(uc_pinTX, HIGH);
+	pinMode(g_APinDescription[uc_pinRX].ulPin, INPUT);	
+	pinMode(g_APinDescription[uc_pinTX].ulPin, OUTPUT);
+	digitalWrite(g_APinDescription[uc_pinTX].ulPin, HIGH);
 	
 	//set UARTE peripheral
 	nrf_uarte_baudrate_set(NRF_UARTE0, adaptBaudrate(baudrate));	

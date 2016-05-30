@@ -39,19 +39,29 @@
  * | 11         | ~11              |  P023  |                 |
  * | 12         | ~12              |  P024  |                 |
  * | 13         | ~13              |  P025  | LED             |
- * | 14         | GND              |        |                 |
- * | 15         | AREF             |  P002  |                 |
- * | 16         | SDA              |  P026  |                 |
- * | 17         | SCL              |  P027  |                 |
  * +------------+------------------+--------+-----------------+
  * |            | Analog Connector |        |                 |
  * +------------+------------------+--------+-----------------+
- * | 18         | A0               |  P003  |                 |
- * | 19         | A1               |  P004  |                 |
- * | 20         | A2               |  P028  |                 |
- * | 21         | A3               |  P029  |                 |
- * | 22         | A4               |  P030  |                 |
- * | 23         | A5               |  P031  |                 |
+ * | 14         | A0               |  P003  |                 |
+ * | 15         | A1               |  P004  |                 |
+ * | 16         | A2               |  P028  |                 |
+ * | 17         | A3               |  P029  |                 |
+ * | 18         | A4               |  P030  |                 |
+ * | 19         | A5               |  P031  |                 |
+ * +------------+------------------+--------+-----------------+
+ * | 20         | GND              |        |                 |
+ * | 21         | AREF             |  P002  |                 |
+ * | 22         | SDA              |  P026  |                 |
+ * | 23         | SCL              |  P027  |                 |
+  * +------------+------------------+--------+-----------------
+ * |            |SPI (Legacy ICSP) |        |                 |
+ * +------------+------------------+--------+-----------------+
+ * | 24         | 1                |  P024  | MISO            |
+ * | 25         | 2                |        | VDD_nRF         |
+ * | 26         | 3                |  P025  | SCK             |
+ * | 27         | 4                |  P023  | MOSI            |
+ * | 28         | 5                |        | RESET           |
+ * | 29         | 6                |        | GND             |
  * +------------+------------------+--------+-----------------+
  * |            | ESP Connector    |        |                 |
  * +------------+------------------+--------+-----------------+
@@ -109,18 +119,7 @@ const PinDescription g_APinDescription[]=
   // 13 (LED)
   { PORT0,  25, PIO_DIGITAL, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM), No_ADC_Channel, PWM, NOT_ON_TIMER},
 
-  // 14 (GND)
-  { NOT_A_PORT, 0, PIO_NOT_A_PIN, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER},
-
-  // 15 (AREF)
-  { PORT0,  2, PIO_ANALOG, PIN_ATTR_ANALOG, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER },
-
-  // 16..17 I2C pins (SDA/SCL)
-  // ----------------------
-  { PORT0,  26, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // SDA
-  { PORT0,  27, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // SCL
-
-  // 18..23 - Analog pins
+  // 14..19 - Analog pins
   // --------------------
   { PORT0,  3, PIO_ANALOG, (PIN_ATTR_ANALOG|PIN_ATTR_PWM), ADC_A0, PWM, NOT_ON_TIMER },
   { PORT0,  4, PIO_ANALOG, (PIN_ATTR_ANALOG|PIN_ATTR_PWM), ADC_A1, PWM, NOT_ON_TIMER },
@@ -129,26 +128,47 @@ const PinDescription g_APinDescription[]=
   { PORT0,  30, PIO_ANALOG, (PIN_ATTR_ANALOG|PIN_ATTR_PWM), ADC_A4, PWM, NOT_ON_TIMER },
   { PORT0,  31, PIO_ANALOG, (PIN_ATTR_ANALOG|PIN_ATTR_PWM), ADC_A5, PWM, NOT_ON_TIMER },
 
-  //24..25 - ESP Connector
+  // 20 (GND)
+  { NOT_A_PORT, 0, PIO_NOT_A_PIN, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER},
+
+  // 21 (AREF)
+  { PORT0,  2, PIO_ANALOG, PIN_ATTR_ANALOG, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER },
+
+  // 22..23 I2C pins (SDA/SCL)
+  // ----------------------
+  { PORT0,  26, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // SDA
+  { PORT0,  27, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // SCL
+
+  // 24..29 - SPI pins (ICSP:MISO,SCK,MOSI)
+  // ----------------------
+  { PORT0, 24, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // MISO
+  { NOT_A_PORT, 0, PIO_NOT_A_PIN, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // VDD_nRF
+  { PORT0, 25, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // SCK
+  { PORT0, 23, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // MOSI
+  { NOT_A_PORT, 0, PIO_DIGITAL, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // RESET
+  { NOT_A_PORT, 0, PIO_DIGITAL, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // GND
+
+  
+  //30..31 - ESP Connector
   // --------------------
   { PORT0, 5, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // RX2
   { PORT0, 6, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // TX2
 
- //26..27 - STM Connector
+  //32..33 - STM Connector
   // --------------------
   { PORT0, 11, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // RX2
   { PORT0, 12, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // TX2
   
-  //28..29 - USER2
+  //34..35 - USER2
   // --------------------
   { PORT0, 7, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // button
   { PORT0, 8, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // led
   
-  //30..31 - NFC
+  //36..37 - NFC
   // --------------------
   { PORT0, 9, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // NFC1
   { PORT0, 10, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER} // NFC2
   
 } ;
 
-Uart Serial(26, 27);
+Uart Serial(32, 33);
