@@ -92,27 +92,41 @@ uint32_t analogRead( uint32_t ulPin )
 									   NRF_SAADC_RESISTOR_DISABLED,
 									   gain,
 									   reference,
-									   NRF_SAADC_ACQTIME_3US,
+									   NRF_SAADC_ACQTIME_10US,
 									   NRF_SAADC_MODE_SINGLE_ENDED,
 									   g_APinDescription[ulPin].ulADCChannelNumber,
-									   g_APinDescription[ulPin].ulADCChannelNumber //pin negative ignored in single ended mode
+									   /*AREF*/
+									   g_APinDescription[15].ulADCChannelNumber //pin negative ignored in single ended mode
 									   };
+									   
+	
 	//enable channel
     nrf_saadc_enable();
+	
 	
 	//init channel and start conversion
 	nrf_saadc_channel_init(0, &channel_config);
 	nrf_saadc_buffer_init(&valueRead, 1);
+	
+	//calibrate
+	nrf_saadc_task_trigger(NRF_SAADC_TASK_CALIBRATEOFFSET);
+	while(!nrf_saadc_event_check(NRF_SAADC_EVENT_CALIBRATEDONE))
+		;//wait for a complete calibration
+	
+	// set oversample in burst mode
+	nrf_saadc_oversample_set(NRF_SAADC_OVERSAMPLE_256X);
+	NRF_SAADC->CH[0].CONFIG = (SAADC_CH_CONFIG_BURST_Enabled << SAADC_CH_CONFIG_BURST_Pos) & SAADC_CH_CONFIG_BURST_Msk;
+	
+	
 	nrf_saadc_event_clear(NRF_SAADC_EVENT_END);
     nrf_saadc_task_trigger(NRF_SAADC_TASK_START);
-	
 	nrf_saadc_task_trigger(NRF_SAADC_TASK_SAMPLE);
 
 	while(!nrf_saadc_event_check(NRF_SAADC_EVENT_END))
 		;//wait for a complete conversion
 	
-	if(valueRead<0)
-		return 0;
+	// if(valueRead<0)
+		// return 0;
 	
 	return valueRead;
 }	
