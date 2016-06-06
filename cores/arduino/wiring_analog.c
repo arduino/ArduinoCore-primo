@@ -16,8 +16,6 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
- //
-
 #include "wiring_analog.h"
 #include "wiring_digital.h"
 #include "nrf_saadc.h"
@@ -27,20 +25,19 @@
 extern "C" {
 #endif
 
-
-
-
 static int readResolution = 10;
 static int writeResolution = 10;
-static int reference=NRF_SAADC_REFERENCE_VDD4;
-static int gain=NRF_SAADC_GAIN1_4;
+static int reference=SAADC_CH_CONFIG_REFSEL_VDD1_4;
+static int gain=SAADC_CH_CONFIG_GAIN_Gain1_4;
+
 
 void analogReadResolution(int res) {
 	readResolution = res;
 	
-	if(res == 8) nrf_saadc_resolution_set(NRF_SAADC_RESOLUTION_8BIT); 
-	else if(res == 10) nrf_saadc_resolution_set(NRF_SAADC_RESOLUTION_10BIT);   
-	else nrf_saadc_resolution_set(NRF_SAADC_RESOLUTION_12BIT); 
+	if(res==8) nrf_saadc_resolution_set(NRF_SAADC_RESOLUTION_8BIT); 
+	else if(res==10) nrf_saadc_resolution_set(NRF_SAADC_RESOLUTION_10BIT);   
+	else if(res==12) nrf_saadc_resolution_set(NRF_SAADC_RESOLUTION_12BIT);
+	else if(res==14) nrf_saadc_resolution_set(NRF_SAADC_RESOLUTION_14BIT);
 }
 
 void analogWriteResolution(int res) {
@@ -63,72 +60,70 @@ void analogReference( eAnalogReference ulMode )
   {
     case AR_DEFAULT:
       default:
-      
-	  reference=NRF_SAADC_REFERENCE_VDD4;
-	  gain=NRF_SAADC_GAIN1_4;
+	  reference=SAADC_CH_CONFIG_REFSEL_VDD1_4;
+	  gain=SAADC_CH_CONFIG_GAIN_Gain1_4;
 	  break;
     
 	case AR_INTERNAL:
-	  reference=NRF_SAADC_REFERENCE_INTERNAL;
-	  gain=NRF_SAADC_GAIN1_5;
+	  reference=SAADC_CH_CONFIG_REFSEL_Internal;
+	  gain=SAADC_CH_CONFIG_GAIN_Gain1_5;
 	  break;
 
     case AR_EXTERNAL:
-	  reference=NRF_SAADC_REFERENCE_VDD4;
-	  gain=NRF_SAADC_GAIN1_4;
+	  reference=SAADC_CH_CONFIG_REFSEL_VDD1_4;
+	  gain=SAADC_CH_CONFIG_GAIN_Gain1_4;
 	  break;
   }
   
 }
 
 
-
 uint32_t analogRead( uint32_t ulPin )
 {
-	static nrf_saadc_value_t valueRead;
+	static int16_t valueRead[1];  
+	
+	//enable ADC
+    NRF_SAADC->ENABLE = SAADC_ENABLE_ENABLE_Enabled << SAADC_ENABLE_ENABLE_Pos;       
+	 
+	//configure ADC 
+    NRF_SAADC->CH[0].CONFIG = SAADC_CH_CONFIG_BURST_Enabled << SAADC_CH_CONFIG_BURST_Pos | 
+                              gain << SAADC_CH_CONFIG_GAIN_Pos |
+                              SAADC_CH_CONFIG_MODE_SE << SAADC_CH_CONFIG_MODE_Pos | 
+                              reference << SAADC_CH_CONFIG_REFSEL_Pos |
+                              SAADC_CH_CONFIG_RESN_Pulldown << SAADC_CH_CONFIG_RESN_Pos |
+                              SAADC_CH_CONFIG_RESP_Bypass << SAADC_CH_CONFIG_RESP_Pos |
+                              SAADC_CH_CONFIG_TACQ_10us << SAADC_CH_CONFIG_TACQ_Pos;
+    NRF_SAADC->CH[0].PSELN =  SAADC_CH_PSELN_PSELN_NC;
+    NRF_SAADC->CH[0].PSELP =  g_APinDescription[ulPin].ulADCChannelNumber;
+    
+	// calibration
+    // NRF_SAADC->EVENTS_CALIBRATEDONE = 0;
+    // NRF_SAADC->TASKS_CALIBRATEOFFSET = 1;
+    // while(NRF_SAADC->EVENTS_CALIBRATEDONE == 0);   
+	
+	//set oversample
+    NRF_SAADC->OVERSAMPLE = 4;
+      
+	//set result buffer
+    NRF_SAADC->RESULT.MAXCNT = 1;
+    NRF_SAADC->RESULT.PTR = (uint32_t)valueRead;
+	
+	//start ADC conversion
+	NRF_SAADC->EVENTS_STARTED = 0;
+    NRF_SAADC->TASKS_START = 1;
+    while(NRF_SAADC->EVENTS_STARTED == 0);
+ 
+    NRF_SAADC->EVENTS_DONE = 0;
+    NRF_SAADC->TASKS_SAMPLE = 1;
+    while(NRF_SAADC->EVENTS_DONE == 0);
+    	
+	//disable ADC
+	NRF_SAADC->ENABLE = (SAADC_ENABLE_ENABLE_Disabled << SAADC_ENABLE_ENABLE_Pos);
 
-	//configure ADC channel
-	nrf_saadc_channel_config_t channel_config={NRF_SAADC_RESISTOR_DISABLED,
-									   NRF_SAADC_RESISTOR_DISABLED,
-									   gain,
-									   reference,
-									   NRF_SAADC_ACQTIME_10US,
-									   NRF_SAADC_MODE_SINGLE_ENDED,
-									   g_APinDescription[ulPin].ulADCChannelNumber,
-									   /*AREF*/
-									   g_APinDescription[15].ulADCChannelNumber //pin negative ignored in single ended mode
-									   };
-									   
+	if(valueRead[0]<0)
+		return 0;
 	
-	//enable channel
-    nrf_saadc_enable();
-	
-	
-	//init channel and start conversion
-	nrf_saadc_channel_init(0, &channel_config);
-	nrf_saadc_buffer_init(&valueRead, 1);
-	
-	//calibrate
-	nrf_saadc_task_trigger(NRF_SAADC_TASK_CALIBRATEOFFSET);
-	while(!nrf_saadc_event_check(NRF_SAADC_EVENT_CALIBRATEDONE))
-		;//wait for a complete calibration
-	
-	// set oversample in burst mode
-	nrf_saadc_oversample_set(NRF_SAADC_OVERSAMPLE_256X);
-	NRF_SAADC->CH[0].CONFIG = (SAADC_CH_CONFIG_BURST_Enabled << SAADC_CH_CONFIG_BURST_Pos) & SAADC_CH_CONFIG_BURST_Msk;
-	
-	
-	nrf_saadc_event_clear(NRF_SAADC_EVENT_END);
-    nrf_saadc_task_trigger(NRF_SAADC_TASK_START);
-	nrf_saadc_task_trigger(NRF_SAADC_TASK_SAMPLE);
-
-	while(!nrf_saadc_event_check(NRF_SAADC_EVENT_END))
-		;//wait for a complete conversion
-	
-	// if(valueRead<0)
-		// return 0;
-	
-	return valueRead;
+	return valueRead[0];	
 }	
 
 
