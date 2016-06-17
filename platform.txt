@@ -15,7 +15,7 @@ compiler.S.flags=-c -g -x assembler-with-cpp -DNRF52
 
 # Compile c files options
 compiler.c.cmd=arm-none-eabi-gcc
-compiler.c.flags=-DNRF52 -mcpu=cortex-m4 -mthumb -c -g -Os -w -ffunction-sections -fdata-sections -fno-builtin -MMD
+compiler.c.flags=-DNRF52 -mcpu=cortex-m4 -mthumb -c -g -Os -w -std=gnu99 -ffunction-sections -fdata-sections -fno-builtin -MMD
 
 # Compile cpp files options
 compiler.cpp.cmd=arm-none-eabi-g++

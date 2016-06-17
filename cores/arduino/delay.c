@@ -52,7 +52,18 @@ void SysTick_Handler(void){
 
 void delay( uint32_t ms )
 {
-	nrf_delay_ms(ms);
+	//nrf_delay_ms(ms);
+	 if ( ms == 0 )
+  {
+    return ;
+  }
+
+  uint32_t start = _ulTickCount ;
+
+  do
+  {
+    yield() ;
+  } while ( _ulTickCount - start <= (ms-1) ) ;
 }
 
 void delayMicroseconds(uint32_t usec)
