@@ -26,7 +26,9 @@
 int main(void)
 {
 	init();
-	
+		
+	delay(0);	
+		
 	setup();
 	
 	for(;;){ 
