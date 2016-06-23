@@ -82,10 +82,14 @@ static const uint8_t MOSI = PIN_SPI_MOSI;
 static const uint8_t MISO = PIN_SPI_MISO;
 static const uint8_t SCK  = PIN_SPI_SCK;
 
+/*
+ * Wire Interfaces
+ */
+#define WIRE_INTERFACES_COUNT 1
 
-#ifdef __cplusplus
-}
-#endif
+#define PIN_WIRE_SDA         (22u)
+#define PIN_WIRE_SCL         (23u)
+
 
 
 /*
@@ -97,6 +101,12 @@ static const uint8_t A2  = 16;
 static const uint8_t A3  = 17;
 static const uint8_t A4  = 18;
 static const uint8_t A5  = 19;
+
+
+#ifdef __cplusplus
+}
+#endif
+
 
 /*----------------------------------------------------------------------------
  *        Arduino objects - C++ only
