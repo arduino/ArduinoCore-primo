@@ -28,12 +28,24 @@ typedef enum _ETCChannel
 } ETCChannel ;
 
 // Definitions for PWM channels
-//every channel can be mapped on all pins
-//number of pwm channel: 4
+// MSB = PWM module (0 - NRF_PWM0, 1 - NRF_PWM1, 2 - NRF_PWM2)
+// LSB = PWM channel (0 to 3)
+// ex: 0x10 = PWM1 channel 0
 typedef enum _EPWMChannel
 {
 	NOT_ON_PWM=-1,
-	PWM
+	PWM0=0x00,	
+	PWM1=0x01,
+	PWM2=0x02,
+	PWM3=0x03,
+	PWM4=0x10,
+	PWM5=0x11,
+	PWM6=0x12,
+	PWM7=0x13,
+	PWM8=0x20,
+	PWM9=0x21,
+	PWM10=0x22,
+	PWM11=0x23
 } EPWMChannel ;
 
 

@@ -26,7 +26,7 @@ extern "C" {
 #endif
 
 static int readResolution = 10;
-static int writeResolution = 10;
+static int writeResolution = 8;
 static int reference=SAADC_CH_CONFIG_REFSEL_VDD1_4;
 static int gain=SAADC_CH_CONFIG_GAIN_Gain1_4;
 
@@ -82,6 +82,12 @@ uint32_t analogRead( uint32_t ulPin )
 {
 	static int16_t valueRead[1];  
 	
+	if((ulPin >= 0) && (ulPin <= 5))
+		ulPin = ulPin + 14;
+	//no analogRead for digital pin
+	else if(ulPin<=13)
+		return 0;
+	
 	//enable ADC
     NRF_SAADC->ENABLE = SAADC_ENABLE_ENABLE_Enabled << SAADC_ENABLE_ENABLE_Pos;       
 	 
@@ -127,18 +133,22 @@ uint32_t analogRead( uint32_t ulPin )
 }	
 
 
-
-
-//in NRF52 pwm works on all pins
 void analogWrite(uint32_t ulPin, uint32_t ulValue) {
-
-	//assuming user uses values from 0 to 255
-	uint16_t val=(uint16_t) (ulValue*10000/255);
 	
+	uint16_t val;
+	if(writeResolution==8)
+		val=(uint16_t) (ulValue*10000/255);
+	else if(writeResolution==10)
+		val=(uint16_t) (ulValue*10000/1024);
+	else //assuming 12 bit resolution
+		val=(uint16_t) (ulValue*10000/4096);
+		
 	// This array cannot be allocated on stack (hence "static") and it must
     // be in RAM (hence no "const", though its content is not changed).
 	static uint16_t /*const*/ seq_values[]={0};
-	seq_values[0]=val;
+	//In each value, the most significant bit (15) determines the polarity of the output
+	//0x8000 is MSB = 1
+	seq_values[0]=val | 0x8000;
 	nrf_pwm_sequence_t const seq={
 		.values.p_common = seq_values,
         .length          = NRF_PWM_VALUES_LENGTH(seq_values),
@@ -146,27 +156,41 @@ void analogWrite(uint32_t ulPin, uint32_t ulValue) {
         .end_delay       = 0
     };
 	
-	//assign pin to pwm channel
-	uint32_t pin[NRF_PWM_CHANNEL_COUNT]={g_APinDescription[ulPin].ulPin | 0x80 , NRF_PWM_PIN_NOT_CONNECTED, NRF_PWM_PIN_NOT_CONNECTED, NRF_PWM_PIN_NOT_CONNECTED};
-	nrf_pwm_pins_set(NRF_PWM0, pin);
+	//assign pin to pwm channel - look at WVariant.h for details about ulPWMChannel attribute
+	uint8_t pwm_type=g_APinDescription[ulPin].ulPWMChannel;
+	if(pwm_type == NOT_ON_PWM)
+		return;
+	
+	uint32_t pin[NRF_PWM_CHANNEL_COUNT]={NRF_PWM_PIN_NOT_CONNECTED/*g_APinDescription[ulPin].ulPin*/, NRF_PWM_PIN_NOT_CONNECTED, NRF_PWM_PIN_NOT_CONNECTED, NRF_PWM_PIN_NOT_CONNECTED};
+	pin[pwm_type & 0x0F]=g_APinDescription[ulPin].ulPin;
+	NRF_PWM_Type * PWMInstance = NRF_PWM0;
+	switch(pwm_type &0xF0){
+		case 16://0x10
+			PWMInstance = NRF_PWM1;
+			break;
+		case 32://0x20
+			PWMInstance = NRF_PWM2;
+			break;
+	}
+	nrf_pwm_pins_set(PWMInstance, pin);
 	
 	//enable pwm channel
-	nrf_pwm_enable(NRF_PWM0);
+	nrf_pwm_enable(PWMInstance);
 	
 	//configure pwm channel	- Prescaler, mode and counter top
-	nrf_pwm_configure(NRF_PWM0, NRF_PWM_CLK_500kHz, NRF_PWM_MODE_UP, 10000);
+	nrf_pwm_configure(PWMInstance, NRF_PWM_CLK_500kHz, NRF_PWM_MODE_UP, 10000);
 	
 	//set decoder
-	nrf_pwm_decoder_set(NRF_PWM0, NRF_PWM_LOAD_COMMON, NRF_PWM_STEP_AUTO);
+	nrf_pwm_decoder_set(PWMInstance, NRF_PWM_LOAD_COMMON, NRF_PWM_STEP_AUTO);
 		
 	//set the sequence for the given channel
-	nrf_pwm_sequence_set(NRF_PWM0, 0, &seq);
+	nrf_pwm_sequence_set(PWMInstance, 0, &seq);
 	
 	//perform sequence playback just one time
-	nrf_pwm_loop_set(NRF_PWM0, 0UL);
+	nrf_pwm_loop_set(PWMInstance, 0UL);
 	
 	//start pwm generation
-	nrf_pwm_task_trigger(NRF_PWM0, NRF_PWM_TASK_SEQSTART0);
+	nrf_pwm_task_trigger(PWMInstance, NRF_PWM_TASK_SEQSTART0);
  
 }
 
