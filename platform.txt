@@ -15,11 +15,11 @@ compiler.S.flags=-c -g -x assembler-with-cpp -DNRF52
 
 # Compile c files options
 compiler.c.cmd=arm-none-eabi-gcc
-compiler.c.flags=-DNRF52 -mcpu=cortex-m4 -mthumb -c -g -Os -w -std=gnu99 -ffunction-sections -fdata-sections -fno-builtin -MMD
+compiler.c.flags=-DNRF52 -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mthumb -c -g -Os -w -std=gnu99 -ffunction-sections -fdata-sections -fno-builtin -MMD
 
 # Compile cpp files options
 compiler.cpp.cmd=arm-none-eabi-g++
-compiler.cpp.flags=-DNRF52 -mcpu=cortex-m4 -mthumb -c -g -Os -w -ffunction-sections -fdata-sections -fno-rtti -fno-exceptions -fno-builtin -MMD
+compiler.cpp.flags=-DNRF52 -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mthumb -c -g -Os -w -ffunction-sections -fdata-sections -fno-rtti -fno-exceptions -fno-builtin -MMD
 
 
 # Create archives options
@@ -60,7 +60,8 @@ recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} "{build
 
 
 ## Combine gc-sections, archives, and objects
-recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" -Wl,--gc-sections --specs=nano.specs -mcpu={build.mcu} -mthumb "-T{build.variant.path}/{build.ldscript}" "-Wl,-Map={build.path}/{build.project_name}.map" -Wl,--cref -o "{build.path}/{build.project_name}.elf" "-L{build.path}" -Wl,--warn-common -Wl,--start-group {object_files} "{build.path}/{archive_file}"  -Wl,--end-group
+recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Wl,--gc-sections --specs=nano.specs -mcpu={build.mcu} -mthumb "-T{build.variant.path}/{build.ldscript}" "-Wl,-Map={build.path}/{build.project_name}.map" -Wl,--cref -o "{build.path}/{build.project_name}.elf" "-L{build.path}" -Wl,--warn-common -Wl,--start-group {object_files} "{runtime.ide.path}/hardware/arduino/nrf52/cores/arduino/components/nfc/t2t_lib/nfc_t2t_lib_gcc.a" "{build.path}/{archive_file}" -Wl,--end-group
+
 
 ## Create bin
 recipe.objcopy.eep.pattern="{compiler.path}{compiler.elf2bin.cmd}" {compiler.elf2bin.flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.bin"
