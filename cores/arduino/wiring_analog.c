@@ -18,6 +18,7 @@
 
 #include "wiring_analog.h"
 #include "wiring_digital.h"
+#include "wiring_constants.h"
 #include "nrf_saadc.h"
 #include "nrf_pwm.h"
 
@@ -53,44 +54,48 @@ static inline uint32_t mapResolution(uint32_t value, uint32_t from, uint32_t to)
 		return value << (to-from);
 }
 
-void analogReference( eAnalogReference ulMode )
+void analogReference( uint8_t ulMode )
 {
   // for nrf52832 only two reference are provided   
   switch(ulMode)
   {
-    case AR_DEFAULT:
+    case DEFAULT:
       default:
 	  reference=SAADC_CH_CONFIG_REFSEL_VDD1_4;
 	  gain=SAADC_CH_CONFIG_GAIN_Gain1_4;
 	  break;
     
-	case AR_INTERNAL:
+	case INTERNAL:
 	  reference=SAADC_CH_CONFIG_REFSEL_Internal;
 	  gain=SAADC_CH_CONFIG_GAIN_Gain1_5;
 	  break;
 
-    case AR_EXTERNAL:
+	case INTERNAL3V6:
+	  reference=SAADC_CH_CONFIG_REFSEL_Internal;
+	  gain=SAADC_CH_CONFIG_GAIN_Gain1_6;
+	  break;
+	  
+    case EXTERNAL:
+	  //nrf52 does not provide external reference.
+	  //Here default one is used.
 	  reference=SAADC_CH_CONFIG_REFSEL_VDD1_4;
 	  gain=SAADC_CH_CONFIG_GAIN_Gain1_4;
 	  break;
   }
-  
+
 }
-
-
-uint32_t analogRead( uint32_t ulPin )
-{
+uint32_t analogRead( uint32_t ulPin ){
 	static int16_t valueRead[1];  
-	
+
 	if((ulPin >= 0) && (ulPin <= 5))
 		ulPin = ulPin + 14;
 	//no analogRead for digital pin
 	else if(ulPin<=13)
 		return 0;
-	
+
 	//enable ADC
     NRF_SAADC->ENABLE = SAADC_ENABLE_ENABLE_Enabled << SAADC_ENABLE_ENABLE_Pos;       
-	 
+	
 	//configure ADC 
     NRF_SAADC->CH[0].CONFIG = SAADC_CH_CONFIG_BURST_Enabled << SAADC_CH_CONFIG_BURST_Pos | 
                               gain << SAADC_CH_CONFIG_GAIN_Pos |
@@ -199,3 +204,4 @@ void analogWrite(uint32_t ulPin, uint32_t ulValue) {
 #ifdef __cplusplus
 }
 #endif
+

@@ -26,22 +26,11 @@ extern "C" {
 #endif
 
 /*
- * \brief NRF52 products have only two reference for ADC
- */
-typedef enum _eAnalogReference
-{
-  AR_DEFAULT,
-  AR_INTERNAL,
-  AR_EXTERNAL
-} eAnalogReference ;
-
-
-/*
  * \brief Configures the reference voltage used for analog input (i.e. the value used as the top of the input range).
  *
  * \param ulMode
  */
-extern void analogReference( eAnalogReference ulMode ) ;
+extern void analogReference( uint8_t ulMode ) ;
 
 /*
  * \brief Writes an analog value (PWM wave) to a pin.

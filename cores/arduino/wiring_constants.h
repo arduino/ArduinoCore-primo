@@ -42,6 +42,11 @@ enum BitOrder {
 	MSBFIRST = 1
 };
 
+#define DEFAULT  1
+#define EXTERNAL 0
+#define INTERNAL 2
+#define INTERNAL3V6 3
+
 #ifndef min
 #define min(a,b) ((a)<(b)?(a):(b))
 #endif // min
