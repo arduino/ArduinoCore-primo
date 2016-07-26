@@ -26,6 +26,8 @@
 
 #include "Arduino.h"
 #include "nrf_timer.h"
+#include "nrf_rtc.h"
+#include "nrf_clock.h"
 
 #define isGPIOMask 	65536
 #define isNFCMask 	524288
@@ -33,7 +35,7 @@
 typedef enum{
 	CONST_LATENCY = 0,
 	LOW_POWER = 1
-} idleType;
+} standbyType;
 
 class LowPowerClass
 {
@@ -100,27 +102,56 @@ class LowPowerClass
 		/**
 		* @brief
 		* Name:
-		*			Idle
+		*			standby
 		* Description:
 		*			Put nRF52 in idle state. In this state every kind of event
 		*			or interrupt will wake up the board, so make sure you manage
 		*			any other interrupt request you want to use if you don't
 		*			want to use the timer.
 		*			When an interrupt occurs the related ISR will be served and
-		*			then the board will return in idle state.
+		*			then the board will return in standby.
 		*			Two kind of sub power mode are available. Constant latency
 		*			ensure the minimum time of response by keeping some resource
 		*			active. Low power ensure the minimum power consumption for
-		*			Idle mode with a variable response time. See page 78 of
+		*			standby mode with a variable response time. See page 78 of
 		*			datasheet for more information.
+		*			In this function RTC is used as timer to minimizing power
+		*			consumption.
 		* Argument:
-		*			-msec: number of milli seconds to wait in idle
+		*			-sec: number of seconds to wait in idle
 		*			-function: function called when the timer generate an interrupt
 		*			-mode: type of sub power mode (constant latency or low power)
 		*/
-		void Idle(uint32_t msec, void(*function)(void), idleType mode);
-		//idleType set to default mode - Low power
-		void Idle(uint32_t msec, void(*function)(void));
+		void standby(uint32_t sec, void(*function)(void), standbyType mode);
+		//standbyType set to default mode - Low power
+		void standby(uint32_t sec, void(*function)(void));
+
+		
+		/**
+		* @brief
+		* Name:
+		*			standbyMSEC
+		* Description:
+		*			Put nRF52 in idle state. In this state every kind of event
+		*			or interrupt will wake up the board, so make sure you manage
+		*			any other interrupt request you want to use if you don't
+		*			want to use the timer.
+		*			When an interrupt occurs the related ISR will be served and
+		*			then the board will return in standby.
+		*			Two kind of sub power mode are available. Constant latency
+		*			ensure the minimum time of response by keeping some resource
+		*			active. Low power ensure the minimum power consumption for
+		*			standby mode with a variable response time. See page 78 of
+		*			datasheet for more information.
+		*			In this function timer is used to wake up the board.
+		* Argument:
+		*			-msec: number of seconds to wait in idle
+		*			-function: function called when the timer generate an interrupt
+		*			-mode: type of sub power mode (constant latency or low power)
+		*/
+		void standbyMSEC(uint32_t msec, void(*function)(void), standbyType mode);
+		//standbyType set to default mode - Low power
+		void standbyMSEC(uint32_t msec, void(*function)(void));
 
 	
 		// Callback user function

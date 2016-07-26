@@ -6,7 +6,7 @@
   This example for the Arduino Primo board shows how to use
   low power library to enter in power off mode and save power.
   This mode ensure the deepest power saving mode. If you need
-  a faster response from the board use Idle function instead.
+  a faster response from the board use standby function instead.
   
   The functions WakeUpBy.. set the signals that will wake up 
   the board. Comment out this functions if you don't want to
@@ -22,7 +22,6 @@
 #include <LowPower.h>
 
 void setup() {
-  Serial.begin(9600);
 
   pinMode(13, OUTPUT);
   digitalWrite(13, HIGH);
@@ -30,6 +29,8 @@ void setup() {
   digitalWrite(13, LOW);
   delay(500);
 
+  //look for what peripheral woke up the board
+  //reason is 0 at the first execution
   int reason=LowPower.WhoIs();
   if(reason==1) //GPIO caused the wake up
     doMyStuff();
@@ -39,8 +40,11 @@ void setup() {
 
   Serial.println("Hi all, I return to sleep");
 
+  //set digital pin 8 to wake up the board when LOW level is detected
   LowPower.WakeUpByGPIO(8, LOW);
+  //let the board be woken up by any NFC field
   LowPower.WakeUpByNFC();
+  //go in power OFF mode
   LowPower.powerOFF();
 }
 

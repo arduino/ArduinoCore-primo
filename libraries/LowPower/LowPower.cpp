@@ -69,7 +69,7 @@ uint32_t LowPowerClass::WhoIs(){
 	return 0;
 }
 
-void LowPowerClass::Idle(uint32_t msec, void(*function)(void), idleType mode){
+void LowPowerClass::standbyMSEC(uint32_t msec, void(*function)(void), standbyType mode){
 
 	//register callback
 	functionCallback=function;
@@ -107,8 +107,47 @@ void LowPowerClass::Idle(uint32_t msec, void(*function)(void), idleType mode){
 }
 
 
-void LowPowerClass::Idle(uint32_t msec, void(*function)(void)){
-	Idle(msec, function, LOW_POWER);
+void LowPowerClass::standbyMSEC(uint32_t msec, void(*function)(void)){
+	standbyMSEC(msec, function, LOW_POWER);
+}
+
+void LowPowerClass::standby(uint32_t sec, void(*function)(void), standbyType mode){
+	//register callback
+	functionCallback=function;
+	
+	if(sec>0){
+		//LFCLK needed to be started before using the RTC
+		nrf_clock_xtalfreq_set(NRF_CLOCK_XTALFREQ_Default);
+		nrf_clock_lf_src_set((nrf_clock_lfclk_t)NRF_CLOCK_LFCLK_Xtal);
+		nrf_clock_task_trigger(NRF_CLOCK_TASK_LFCLKSTART);
+		nrf_rtc_prescaler_set(NRF_RTC2, 4095);
+		//enable interrupt
+		NVIC_SetPriority(RTC2_IRQn, 2); //high priority
+		NVIC_ClearPendingIRQ(RTC2_IRQn);
+		NVIC_EnableIRQ(RTC2_IRQn);
+		nrf_rtc_event_clear(NRF_RTC2, NRF_RTC_EVENT_COMPARE_0);
+		nrf_rtc_int_enable(NRF_RTC2, NRF_RTC_INT_COMPARE0_MASK);
+		//Ticks every 125 ms -> 8 ticks to get one second
+		nrf_rtc_cc_set(NRF_RTC2, 0, sec*8);
+		
+		//start RTC
+		nrf_rtc_task_trigger(NRF_RTC2, NRF_RTC_TASK_START);
+	}
+	if(mode==CONST_LATENCY)
+		NRF_POWER->TASKS_CONSTLAT=1UL;
+	else
+		NRF_POWER->TASKS_LOWPWR=1UL;
+	
+	while(1){
+		__WFI();
+		__WFE();
+		
+	}
+
+}
+
+void LowPowerClass::standby(uint32_t sec, void(*function)(void)){
+	standby(sec, function, LOW_POWER);
 }
 
 
@@ -120,6 +159,14 @@ extern "C"{
 
 void TIMER0_IRQHandler(void){
 	nrf_timer_event_clear(NRF_TIMER0, NRF_TIMER_EVENT_COMPARE0);
+	if(LowPower.functionCallback)
+		LowPower.functionCallback();		
+}
+
+void RTC2_IRQHandler(void)
+{
+	nrf_rtc_event_clear(NRF_RTC2, NRF_RTC_EVENT_COMPARE_0);
+	nrf_rtc_task_trigger(NRF_RTC2, NRF_RTC_TASK_CLEAR);
 	if(LowPower.functionCallback)
 		LowPower.functionCallback();		
 }
