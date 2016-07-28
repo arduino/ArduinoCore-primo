@@ -25,16 +25,23 @@
 
 #include "nfc_ndef_record.h"
 
+typedef enum{
+        UTF_8   = 0,
+        UTF_16  = 1,
+    }  UTF;    
+
 /**
  * @brief Text record payload descriptor.
  */
 typedef struct
 {
-    enum{
-        UTF_8   = 0,
-        UTF_16  = 1,
-    }               utf;            ///< Type of the Unicode Transformation Format.
+    // enum{
+        // UTF_8   = 0,
+        // UTF_16  = 1,
+    // }               utf;            ///< Type of the Unicode Transformation Format.
 
+	UTF utf;
+	
     uint8_t const * p_lang_code;    ///< Pointer to the IANA language code.
     uint8_t         lang_code_len;  ///< Length of the IANA language code.
 
