@@ -159,6 +159,17 @@ class LowPowerClass
 		//standbyType set to default mode - Low power
 		void standbyMsec(uint32_t msec, void(*function)(void));
 
+		
+		/**
+		* @brief
+		* Name:
+		*			wakeUpNow
+		* Description:
+		*			This funciton must to be called inside external interrupt
+		*			handler to wake up the board if you are using standby
+		*			low power mode.
+		*/
+		void wakeUpNow(void);
 	
 		// Callback user function
 		void (*functionCallback)(void);

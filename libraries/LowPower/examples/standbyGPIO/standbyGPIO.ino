@@ -65,8 +65,8 @@ void loop() {
 
 
 void myFunction(){
- // for interrupt external to LowPower library you need
-  // to set to true the event variable in order to exit
-  // form standby mode
-  event=true;
+  // for interrupt external to LowPower library you need
+  // to call wakeUpNow function in order to exit from
+  // standby mode
+  LowPower.wakeUpNow();
 }

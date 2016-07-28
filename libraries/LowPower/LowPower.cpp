@@ -153,6 +153,9 @@ void LowPowerClass::standby(uint32_t sec, void(*function)(void)){
 	standby(sec, function, LOW_POWER);
 }
 
+void LowPowerClass::wakeUpNow(){
+	event=true;
+}
 
 LowPowerClass LowPower;
 
