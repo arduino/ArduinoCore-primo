@@ -24,6 +24,7 @@
 
 #include "LowPower.h"
 
+volatile bool event = false;
 
 void LowPowerClass::powerOFF(){
 	//Enter in systemOff mode only when no EasyDMA transfer is active
@@ -43,7 +44,7 @@ void LowPowerClass::powerOFF(){
     while(1);
 }
 
-void LowPowerClass::WakeUpByGPIO(uint8_t pinNo, uint8_t level){
+void LowPowerClass::wakeUpByGPIO(uint8_t pinNo, uint8_t level){
 	//Let the pin be sensitive to specified level
 	if(level==LOW)
 		nrf_gpio_cfg_sense_input(g_APinDescription[pinNo].ulPin, NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW);
@@ -51,28 +52,30 @@ void LowPowerClass::WakeUpByGPIO(uint8_t pinNo, uint8_t level){
 		nrf_gpio_cfg_sense_input(g_APinDescription[pinNo].ulPin, NRF_GPIO_PIN_PULLDOWN, NRF_GPIO_PIN_SENSE_HIGH);
 }
 
-void LowPowerClass::WakeUpByNFC(){
+void LowPowerClass::wakeUpByNFC(){
 	NRF_NFCT->TASKS_SENSE=1;
 }
 
-uint32_t LowPowerClass::WhoIs(){
+resetReason LowPowerClass::whoIs(){
 	uint32_t guilty = NRF_POWER->RESETREAS;
 	if(guilty & isGPIOMask){
 		//RESETREAS is a cumulative register. We need to clear it by writing 1 in the relative field
 		NRF_POWER->RESETREAS = (1 << 16);
-		return 1;
+		return GPIOReset;
 	}
 	if(guilty & isNFCMask){
 		NRF_POWER->RESETREAS = (1 << 19);
-		return 2;
+		return NFCReset;
 	}
-	return 0;
+	return OTHER;
 }
 
-void LowPowerClass::standbyMSEC(uint32_t msec, void(*function)(void), standbyType mode){
+void LowPowerClass::standbyMsec(uint32_t msec, void(*function)(void), standbyType mode){
 
 	//register callback
 	functionCallback=function;
+	
+	event=false;
 	
 	if(msec>0){
 		//Configure timer
@@ -99,21 +102,22 @@ void LowPowerClass::standbyMSEC(uint32_t msec, void(*function)(void), standbyTyp
 	else
 		NRF_POWER->TASKS_LOWPWR=1UL;
 	
-	while(1){
+	while(!event){
 		__WFI();
 		__WFE();
-		
 	}
 }
 
 
-void LowPowerClass::standbyMSEC(uint32_t msec, void(*function)(void)){
-	standbyMSEC(msec, function, LOW_POWER);
+void LowPowerClass::standbyMsec(uint32_t msec, void(*function)(void)){
+	standbyMsec(msec, function, LOW_POWER);
 }
 
 void LowPowerClass::standby(uint32_t sec, void(*function)(void), standbyType mode){
 	//register callback
 	functionCallback=function;
+	
+	event=false;
 	
 	if(sec>0){
 		//LFCLK needed to be started before using the RTC
@@ -138,10 +142,9 @@ void LowPowerClass::standby(uint32_t sec, void(*function)(void), standbyType mod
 	else
 		NRF_POWER->TASKS_LOWPWR=1UL;
 	
-	while(1){
+	while(!event){
 		__WFI();
-		__WFE();
-		
+		__WFE();	
 	}
 
 }
@@ -159,14 +162,18 @@ extern "C"{
 
 void TIMER0_IRQHandler(void){
 	nrf_timer_event_clear(NRF_TIMER0, NRF_TIMER_EVENT_COMPARE0);
+	event=true;
 	if(LowPower.functionCallback)
-		LowPower.functionCallback();		
+		LowPower.functionCallback();
+	
 }
 
 void RTC2_IRQHandler(void)
 {
+	event=true;
 	nrf_rtc_event_clear(NRF_RTC2, NRF_RTC_EVENT_COMPARE_0);
 	nrf_rtc_task_trigger(NRF_RTC2, NRF_RTC_TASK_CLEAR);
+	nrf_rtc_task_trigger(NRF_RTC2, NRF_RTC_TASK_STOP);
 	if(LowPower.functionCallback)
 		LowPower.functionCallback();		
 }

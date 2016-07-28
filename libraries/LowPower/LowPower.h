@@ -29,13 +29,19 @@
 #include "nrf_rtc.h"
 #include "nrf_clock.h"
 
-#define isGPIOMask 	65536
-#define isNFCMask 	524288
+#define isGPIOMask 	0x10000//65536
+#define isNFCMask 	0x80000//524288
 
 typedef enum{
 	CONST_LATENCY = 0,
 	LOW_POWER = 1
 } standbyType;
+
+typedef enum{
+	OTHER = 0,
+	GPIOReset = 1,
+	NFCReset = 2
+} resetReason;
 
 class LowPowerClass
 {
@@ -69,7 +75,7 @@ class LowPowerClass
 		*			-pinNo: number of pin
 		*			-level: sense level that wakes up the board [LOW - HIGH]
 		*/
-		void WakeUpByGPIO(uint8_t pinNo, uint8_t level);
+		void wakeUpByGPIO(uint8_t pinNo, uint8_t level);
 		
 		
 		/**
@@ -80,10 +86,10 @@ class LowPowerClass
 		*			Wake up the board from System OFF mode when an NFC field
 		*			is detected.
 		*/
-		void WakeUpByNFC(void);
+		void wakeUpByNFC(void);
 
 		
-		//TODO: Add WakeUpByLPCOMP
+		//TODO: Add wakeUpByLPCOMP
 
 		/**
 		* @brief
@@ -92,11 +98,11 @@ class LowPowerClass
 		* Description:
 		*			Detect the reason of the reset from System OFF mode.
 		* Returned value:
-		*			0 - Power on reset or other reasons.
-		*			1 - GPIO caused the reset.
-		*			2 - NFC caused the reset.
+		*			OTHER - Power on reset or other reasons.
+		*			GPIOReset - GPIO caused the reset.
+		*			NFCReset - NFC caused the reset.
 		*/
-		uint32_t WhoIs(void);
+		resetReason whoIs(void);
 		
 
 		/**
@@ -130,7 +136,7 @@ class LowPowerClass
 		/**
 		* @brief
 		* Name:
-		*			standbyMSEC
+		*			standbyMsec
 		* Description:
 		*			Put nRF52 in idle state. In this state every kind of event
 		*			or interrupt will wake up the board, so make sure you manage
@@ -145,19 +151,20 @@ class LowPowerClass
 		*			datasheet for more information.
 		*			In this function timer is used to wake up the board.
 		* Argument:
-		*			-msec: number of seconds to wait in idle
+		*			-msec: number of milli seconds to wait in idle
 		*			-function: function called when the timer generate an interrupt
 		*			-mode: type of sub power mode (constant latency or low power)
 		*/
-		void standbyMSEC(uint32_t msec, void(*function)(void), standbyType mode);
+		void standbyMsec(uint32_t msec, void(*function)(void), standbyType mode);
 		//standbyType set to default mode - Low power
-		void standbyMSEC(uint32_t msec, void(*function)(void));
+		void standbyMsec(uint32_t msec, void(*function)(void));
 
 	
 		// Callback user function
 		void (*functionCallback)(void);
 };
 
+extern volatile bool event;
 extern LowPowerClass LowPower;
 
 #endif //LowPower_h

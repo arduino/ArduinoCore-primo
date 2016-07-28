@@ -8,12 +8,12 @@
   This mode ensure the deepest power saving mode. If you need
   a faster response from the board use standby function instead.
   
-  The functions WakeUpBy.. set the signals that will wake up 
+  The functions wakeUpBy.. set the signals that will wake up 
   the board. Comment out this functions if you don't want to
   use one of them in order to get the minimum power consumption.
   The board will be reset when it wakes up from power off.
-  You can use WhoIs() function to find out what signals woke up
-  the board if you use more than one WakeUpBy.. function.
+  You can use whoIs() function to find out what signals woke up
+  the board if you use more than one wakeUpBy.. function.
   
   This example code is in the public domain.
   
@@ -22,6 +22,7 @@
 #include <LowPower.h>
 
 void setup() {
+  Serial.begin(9600);
 
   pinMode(13, OUTPUT);
   digitalWrite(13, HIGH);
@@ -31,19 +32,19 @@ void setup() {
 
   //look for what peripheral woke up the board
   //reason is 0 at the first execution
-  int reason=LowPower.WhoIs();
-  if(reason==1) //GPIO caused the wake up
+  resetReason reason=LowPower.whoIs();
+  if(reason==GPIOReset) //GPIO caused the wake up
     doMyStuff();
   else
-    if(reason==2) //NFC caused the wake up
+    if(reason==NFCReset) //NFC caused the wake up
       doMyStuffWithNFC();
 
   Serial.println("Hi all, I return to sleep");
 
-  //set digital pin 8 to wake up the board when LOW level is detected
-  LowPower.WakeUpByGPIO(8, LOW);
+  //set digital button USER2 to wake up the board when LOW level is detected
+  LowPower.wakeUpByGPIO(USER2_BUTTON, LOW);
   //let the board be woken up by any NFC field
-  LowPower.WakeUpByNFC();
+  LowPower.wakeUpByNFC();
   //go in power OFF mode
   LowPower.powerOFF();
 }

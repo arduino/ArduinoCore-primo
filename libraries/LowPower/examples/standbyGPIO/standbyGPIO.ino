@@ -28,19 +28,45 @@
 void setup() {
 
   Serial.begin(9600);
-  
-  pinMode(8, INPUT);
-  //attach an interrupt on pin 8 to wake up the board when an high level is detected
-  attachInterrupt(8, myFunction, HIGH); 
-  //enter in standby mode
-  LowPower.standby(0, NULL); //Low power mode - default
-//  LowPower.standby(0, NULL, CONST_LATENCY); //constant latency mode
+
+  pinMode(13, OUTPUT);
+  pinMode(USER2_BUTTON, INPUT);
+  //attach an interrupt on button USER2 to wake up the board when a low level is detected
+  attachInterrupt(USER2_BUTTON, myFunction, LOW); 
+
 }
 
 
-void loop() {}	//loop is never executed in this example
+void loop() {
+  digitalWrite(13, HIGH);
+  delay(200);
+  digitalWrite(13, LOW);
+  delay(200);
+  digitalWrite(13, HIGH);
+  delay(100);
+  digitalWrite(13, LOW);
+  delay(100);
+  Serial.println("Ready to go to bed...");
+
+  //enter in standby mode
+  LowPower.standby(0, NULL); //Low power mode - default
+  //  LowPower.standby(0, NULL, CONST_LATENCY); //constant latency mode
+	
+  Serial.println("Good morning to all!");
+  digitalWrite(13, HIGH);
+  delay(1000);
+  digitalWrite(13, LOW);
+  delay(1000);
+  digitalWrite(13, HIGH);
+  delay(500);
+  digitalWrite(13, LOW);
+  delay(500);	
+}	
 
 
 void myFunction(){
-   Serial.println("Hey there, I'm still alive!");
+ // for interrupt external to LowPower library you need
+  // to set to true the event variable in order to exit
+  // form standby mode
+  event=true;
 }
