@@ -38,6 +38,9 @@ void setup() {
   else
     if(reason==NFCReset) //NFC caused the wake up
       doMyStuffWithNFC();
+  else
+    if(reason==CompReset) //Comparator caused the wake up
+      doOtherStuff();
 
   Serial.println("Hi all, I return to sleep");
 
@@ -45,6 +48,8 @@ void setup() {
   LowPower.wakeUpByGPIO(USER2_BUTTON, LOW);
   //let the board be woken up by any NFC field
   LowPower.wakeUpByNFC();
+  //wake up the board when the voltage on pin A0 goes below the voltage on pin AREF
+  LowPower.wakeUpByComp(A0, AREF, DOWN);
   //go in power OFF mode
   LowPower.powerOFF();
 }
@@ -60,3 +65,6 @@ void doMyStuffWithNFC(){
   //insert your code here
 }
 
+void doOtherStuff(){
+  //insert your code here
+}

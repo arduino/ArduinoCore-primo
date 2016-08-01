@@ -28,9 +28,11 @@
 #include "nrf_timer.h"
 #include "nrf_rtc.h"
 #include "nrf_clock.h"
+#include "nrf_lpcomp.h"
 
-#define isGPIOMask 	0x10000//65536
-#define isNFCMask 	0x80000//524288
+#define isGPIOMask 	0x10000
+#define isNFCMask 	0x80000
+#define isCompMask	0x20000
 
 typedef enum{
 	CONST_LATENCY = 0,
@@ -40,8 +42,41 @@ typedef enum{
 typedef enum{
 	OTHER = 0,
 	GPIOReset = 1,
-	NFCReset = 2
+	NFCReset = 2,
+	CompReset = 3
 } resetReason;
+
+//avoid to define again this macro if Comparator library is included
+#ifndef Comparator_h
+
+#define REF_VDD_1_8 NRF_LPCOMP_REF_SUPPLY_1_8
+#define REF_VDD_1_4 NRF_LPCOMP_REF_SUPPLY_2_8
+#define REF_VDD_3_8 NRF_LPCOMP_REF_SUPPLY_3_8
+#define REF_VDD_1_2 NRF_LPCOMP_REF_SUPPLY_4_8
+#define REF_VDD_5_8 NRF_LPCOMP_REF_SUPPLY_5_8
+#define REF_VDD_3_4 NRF_LPCOMP_REF_SUPPLY_6_8
+#define REF_VDD_7_8 NRF_LPCOMP_REF_SUPPLY_7_8
+#define REF_VDD_1_16 NRF_LPCOMP_REF_SUPPLY_1_16
+#define REF_VDD_3_16 NRF_LPCOMP_REF_SUPPLY_3_16
+#define REF_VDD_5_16 NRF_LPCOMP_REF_SUPPLY_5_16
+#define REF_VDD_7_16 NRF_LPCOMP_REF_SUPPLY_7_16
+#define REF_VDD_9_16 NRF_LPCOMP_REF_SUPPLY_9_16
+#define REF_VDD_11_16 NRF_LPCOMP_REF_SUPPLY_11_16
+#define REF_VDD_13_16 NRF_LPCOMP_REF_SUPPLY_13_16
+#define REF_VDD_15_16 NRF_LPCOMP_REF_SUPPLY_15_16
+#define AREF NRF_LPCOMP_REF_EXT_REF0
+
+typedef enum{
+	UP = NRF_LPCOMP_DETECT_UP,
+	DOWN = NRF_LPCOMP_DETECT_DOWN,
+	CROSS = NRF_LPCOMP_DETECT_CROSS
+}detect_mode;
+
+
+#endif //Comparator_h
+
+
+
 
 class LowPowerClass
 {
@@ -89,7 +124,17 @@ class LowPowerClass
 		void wakeUpByNFC(void);
 
 		
-		//TODO: Add wakeUpByLPCOMP
+		/**
+		* @brief
+		* Name:
+		*			WakeUpByComp
+		* Description:
+		*			Wake up the board from System OFF mode when an the specified
+		*			event on the selected analog pin is detected.
+		* Arguments:
+		*			-
+		*/
+		void wakeUpByComp(uint8_t pin, nrf_lpcomp_ref_t reference, detect_mode mode);
 
 		/**
 		* @brief
@@ -101,6 +146,7 @@ class LowPowerClass
 		*			OTHER - Power on reset or other reasons.
 		*			GPIOReset - GPIO caused the reset.
 		*			NFCReset - NFC caused the reset.
+		*			CompReset - Comparator caused the reset.
 		*/
 		resetReason whoIs(void);
 		

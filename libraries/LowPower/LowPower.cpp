@@ -26,6 +26,8 @@
 
 volatile bool event = false;
 
+nrf_lpcomp_input_t aPin[]={NRF_LPCOMP_INPUT_1, NRF_LPCOMP_INPUT_2, NRF_LPCOMP_INPUT_4, NRF_LPCOMP_INPUT_5, NRF_LPCOMP_INPUT_6, NRF_LPCOMP_INPUT_7};
+
 void LowPowerClass::powerOFF(){
 	//Enter in systemOff mode only when no EasyDMA transfer is active
 	//this is achieved by disabling all peripheral that use it
@@ -56,6 +58,17 @@ void LowPowerClass::wakeUpByNFC(){
 	NRF_NFCT->TASKS_SENSE=1;
 }
 
+void LowPowerClass::wakeUpByComp(uint8_t pin, nrf_lpcomp_ref_t reference, detect_mode mode){
+	nrf_lpcomp_config_t config={reference, (nrf_lpcomp_detect_t)mode};
+	nrf_lpcomp_configure(&config);
+	if(pin<14 && pin>19)
+		return;	//no analog pin is choosen
+	nrf_lpcomp_input_select(aPin[pin-14]);
+	nrf_lpcomp_enable();
+	nrf_lpcomp_task_trigger(NRF_LPCOMP_TASK_START);
+	while(!nrf_lpcomp_event_check(NRF_LPCOMP_EVENT_READY));
+}
+
 resetReason LowPowerClass::whoIs(){
 	uint32_t guilty = NRF_POWER->RESETREAS;
 	if(guilty & isGPIOMask){
@@ -66,6 +79,10 @@ resetReason LowPowerClass::whoIs(){
 	if(guilty & isNFCMask){
 		NRF_POWER->RESETREAS = (1 << 19);
 		return NFCReset;
+	}
+	if(guilty & isCompMask){	
+		NRF_POWER->RESETREAS = (1 << 17);
+		return CompReset;
 	}
 	return OTHER;
 }
