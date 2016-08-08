@@ -8,8 +8,8 @@ extern "C"{
 #endif // __cplusplus
 
 #include "nrf_saadc.h"
+#include "nrf_lpcomp.h"
 
-//every channel can be mapped on all analog pins
 //number of channel: 8
 typedef enum _EAnalogChannel
 {
@@ -93,6 +93,31 @@ typedef struct _PinDescription
 
 /* Pins table to be instantiated into variant.cpp */
 extern const PinDescription g_APinDescription[] ;
+
+// reference voltages for LPCOMP
+#define REF_VDD_1_8 NRF_LPCOMP_REF_SUPPLY_1_8
+#define REF_VDD_1_4 NRF_LPCOMP_REF_SUPPLY_2_8
+#define REF_VDD_3_8 NRF_LPCOMP_REF_SUPPLY_3_8
+#define REF_VDD_1_2 NRF_LPCOMP_REF_SUPPLY_4_8
+#define REF_VDD_5_8 NRF_LPCOMP_REF_SUPPLY_5_8
+#define REF_VDD_3_4 NRF_LPCOMP_REF_SUPPLY_6_8
+#define REF_VDD_7_8 NRF_LPCOMP_REF_SUPPLY_7_8
+#define REF_VDD_1_16 NRF_LPCOMP_REF_SUPPLY_1_16
+#define REF_VDD_3_16 NRF_LPCOMP_REF_SUPPLY_3_16
+#define REF_VDD_5_16 NRF_LPCOMP_REF_SUPPLY_5_16
+#define REF_VDD_7_16 NRF_LPCOMP_REF_SUPPLY_7_16
+#define REF_VDD_9_16 NRF_LPCOMP_REF_SUPPLY_9_16
+#define REF_VDD_11_16 NRF_LPCOMP_REF_SUPPLY_11_16
+#define REF_VDD_13_16 NRF_LPCOMP_REF_SUPPLY_13_16
+#define REF_VDD_15_16 NRF_LPCOMP_REF_SUPPLY_15_16
+#define AREF NRF_LPCOMP_REF_EXT_REF0
+
+typedef enum{
+	UP = NRF_LPCOMP_DETECT_UP,
+	DOWN = NRF_LPCOMP_DETECT_DOWN,
+	CROSS = NRF_LPCOMP_DETECT_CROSS
+}detect_mode;
+
 
 #ifdef __cplusplus
 } // extern "C"
