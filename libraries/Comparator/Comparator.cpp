@@ -44,7 +44,19 @@ void Comparator::begin(){
 	if(_input_pin<14 && _input_pin>19)
 		return;	//no analog pin is choosen
 	nrf_lpcomp_input_select(analog_pin[_input_pin-14]);
+
+	//enable hysteresis
+	NRF_LPCOMP->HYST=1;
 	
+	//start comparator module
+	nrf_lpcomp_enable();
+	nrf_lpcomp_task_trigger(NRF_LPCOMP_TASK_START);
+	while(!nrf_lpcomp_event_check(NRF_LPCOMP_EVENT_READY));
+}
+
+void Comparator::compare(void(*function)(void)){
+	Callback=function;
+
 	//enable interrupt
 	NVIC_SetPriority(COMP_LPCOMP_IRQn, 6); //low priority
 	NVIC_ClearPendingIRQ(COMP_LPCOMP_IRQn);
@@ -53,17 +65,14 @@ void Comparator::begin(){
 	//cross event will be always generate for both up and down event
 	nrf_lpcomp_event_clear(NRF_LPCOMP_EVENT_CROSS);
 	nrf_lpcomp_int_enable(1<<3);
-	
-	//enable hysteresis
-	NRF_LPCOMP->HYST=1;
 }
 
-void Comparator::compare(void(*function)(void)){
-	Callback=function;
-	//start comparator module
-	nrf_lpcomp_enable();
-	nrf_lpcomp_task_trigger(NRF_LPCOMP_TASK_START);
-	while(!nrf_lpcomp_event_check(NRF_LPCOMP_EVENT_READY));
+uint32_t Comparator::status(){
+	nrf_lpcomp_task_trigger(NRF_LPCOMP_TASK_SAMPLE);
+	while(!nrf_lpcomp_event_check(NRF_LPCOMP_EVENT_READY))
+		;	//wait until sample is ready
+
+	return nrf_lpcomp_result_get();
 }
 
 void Comparator::stop(){

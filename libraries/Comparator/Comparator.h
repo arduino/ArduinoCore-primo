@@ -54,7 +54,7 @@ class Comparator{
 		* Name:
 		*			begin
 		* Description:
-		*			function to inizialize the module
+		*			function to inizialize and start the module
 		*/
 		void begin(void);
 		
@@ -64,12 +64,23 @@ class Comparator{
 		* Name:
 		*			compare
 		* Description:
-		*			start the comparator function with the previous initialization.
+		*			enable interrupt on the compare event previously selected.
 		* Argument:
 		*			-function: callback function called when the target compare event occurs.
 		*/
 		void compare(void(*function)(void));
 		
+		
+		/**
+		* @brief
+		* Name:
+		*			status
+		* Description:
+		*			Indicates whether the voltage is higher or lower than the reference
+		* Returned vaule:
+		*			1 if higher - 0 if lower.
+		*/
+		uint32_t status(void);
 		
 		/**
 		* @brief
