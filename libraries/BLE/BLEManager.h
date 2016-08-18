@@ -18,7 +18,7 @@
 */
 
 
-class BLEManager {
+class BLEManager  {
 public:
 	BLEManager();
 	
