@@ -197,6 +197,10 @@ static void uart_bb_check_for_bytes_in_buffers(void)
     NVIC_SetPendingIRQ(UART_BB_SW_IRQn);
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void UART_BB_SW_IRQHandler(void) 
 {
     static uint8_t byte_from_buf;
@@ -233,6 +237,10 @@ void UART_BB_SW_IRQHandler(void)
         }
     }
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 static void uart_bb_putchar(uint8_t data)
 {
@@ -296,6 +304,10 @@ void uart_bb_run(uint16_t *envelope_list, uint32_t envelope_num)
     }   
     UART_BB_TX_TIMER->TASKS_START = 1;
 }
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void UART_BB_TX_TIMER_IRQHandler(void)
 {
@@ -361,3 +373,6 @@ void UART_BB_RX_TIMER_IRQHandler(void)
     }
 }
 
+#ifdef __cplusplus
+}
+#endif
