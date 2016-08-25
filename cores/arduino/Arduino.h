@@ -69,6 +69,7 @@ void loop( void ) ;
   #include "HardwareSerial.h"
   #include "delay.h"
   #include "Uart.h"
+  #include "SoftDeviceManager.h"
 #endif // __cplusplus
 
 
