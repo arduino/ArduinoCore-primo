@@ -20,9 +20,6 @@
 #ifndef SoftDeviceManager_h
 #define SoftDeviceManager_h
 
-#define BLE_STACK_SUPPORT_REQD
-#define SOFTDEVICE_PRESENT
-
 #include <stdint.h>
 
 #ifdef __cplusplus
