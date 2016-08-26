@@ -29,8 +29,6 @@ public:
     void setAppearance(const unsigned short appearance);
     void setPreferredConnectionParameters(uint16_t minConnInterval, uint16_t maxConnInterval, uint16_t slaveLatency, uint16_t supervisingTimeout);
 
-	void addService(BLEService &service);
-	
     void setEventHandler(BLEPeripheralEvent event, BLEPeripheralEventHandler callback);
 
     bool begin(void);

@@ -46,10 +46,6 @@ void BLEPeripheral::setAppearance(const unsigned short appearance){
 void BLEPeripheral::setPreferredConnectionParameters(uint16_t minConnInterval, uint16_t maxConnInterval, uint16_t slaveLatency, uint16_t supervisingTimeout){
 //
 }
-
-void BLEPeripheral::addService(BLEService &service){
-//
-}
 	
 void BLEPeripheral::setEventHandler(BLEPeripheralEvent event, BLEPeripheralEventHandler callback){
 //
