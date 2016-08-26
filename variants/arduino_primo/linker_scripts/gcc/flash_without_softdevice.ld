@@ -48,8 +48,8 @@ GROUP(-lgcc -lc -lnosys)
 
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x1c000, LENGTH = 0x64000
-  RAM (rwx) :  ORIGIN = 0x200013c8, LENGTH = 0xec38
+  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 0x00080000
+  RAM (rwx) :  ORIGIN = 0x20000000, LENGTH = 0x00010000
 }
 
 ENTRY(Reset_Handler)
