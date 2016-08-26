@@ -34,6 +34,12 @@ extern "C"{
 }
 #endif
 
+struct errors{
+	uint32_t errCode;
+	char * file;
+	char * msg;
+};
+
 class SoftDeviceManager{
 
 	public:
@@ -68,8 +74,13 @@ class SoftDeviceManager{
 
 		// Error handling
 		const char *getErrorDescription(uint32_t errorCode);
-		void registerError(uint8_t *file, uint32_t errCode, uint8_t *msg);
-		void setErrorHandler(void (*errorHandlerCallback)(uint8_t *file, uint32_t errCode, uint8_t *msg));
+		void registerError(char *file, uint32_t errCode, char *msg);
+		void setErrorHandler(void (*errorHandlerCallback)(char *file, uint32_t errCode, char *msg));
+
+	private:
+		// Callback user function
+		void (*errorCallback)(char *file, uint32_t errCode, char *msg);		
+		
 };
 
 extern SoftDeviceManager SDManager;
