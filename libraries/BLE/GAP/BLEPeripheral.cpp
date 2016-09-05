@@ -18,6 +18,8 @@
 */
 
 #include "BLEPeripheral.h"
+#include <string.h>
+#include "ble_gap.h"
 
 BLEPeripheral::BLEPeripheral(void){
 //
@@ -31,12 +33,14 @@ void BLEPeripheral::setAdvertisement(BLEAdvertisement &advertisement){
 //
 }
 
-BLEAdvertisement BLEPeripheral::&getAdvertisement(){
+BLEAdvertisement &BLEPeripheral::getAdvertisement(){
 //
 }
 
 void BLEPeripheral::setDeviceName(const char *deviceName){
-//
+    ble_gap_conn_sec_mode_t writePermission;
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&writePermission);
+    sd_ble_gap_device_name_set(&writePermission, (const uint8_t *)deviceName, strlen(deviceName));
 }
     
 void BLEPeripheral::setAppearance(const unsigned short appearance){
@@ -47,7 +51,7 @@ void BLEPeripheral::setPreferredConnectionParameters(uint16_t minConnInterval, u
 //
 }
 	
-void BLEPeripheral::setEventHandler(BLEPeripheralEvent event, BLEPeripheralEventHandler callback){
+void BLEPeripheral::setEventHandler(BLEPeripheralEventType event, BLEPeripheralEventHandler callback){
 //
 }
 

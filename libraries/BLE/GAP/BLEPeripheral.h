@@ -26,7 +26,7 @@
 #include "BLEAdvertisement.h"
 
 typedef enum {BLEPeripheralEventConnected, BLEPeripheralEventDisconnected} BLEPeripheralEventType;
-typedef void (*BLEPeripheralEventHandler)(void);
+typedef void (*BLEPeripheralEventHandler)(void); 
 
 class BLEPeripheral : public BLEGattServer, BLELinkStatus, BLEAdvertisement {
 public:
