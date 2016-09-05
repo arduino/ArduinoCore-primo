@@ -28,7 +28,7 @@
 typedef enum {BLEPeripheralEventConnected, BLEPeripheralEventDisconnected} BLEPeripheralEventType;
 typedef void (*BLEPeripheralEventHandler)(void); 
 
-class BLEPeripheral : public BLEGattServer, BLELinkStatus, BLEAdvertisement {
+class BLEPeripheral : public BLEGattServer, public BLELinkStatus, public BLEAdvertisement {
 public:
     BLEPeripheral(void);
 

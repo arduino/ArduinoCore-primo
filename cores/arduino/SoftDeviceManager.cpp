@@ -50,8 +50,7 @@ void SoftDeviceManager::begin(){
 
     // Enable BLE stack.
     err_code = softdevice_enable(&ble_enable_params);
-    APP_ERROR_CHECK(err_code);
-
+    if(err_code != 0) registerError("SoftDeviceManager::begin()", err_code, "softdevice_enable() returned an error");
 }
 
 uint8_t SoftDeviceManager::isEnabled(){
@@ -59,6 +58,7 @@ uint8_t SoftDeviceManager::isEnabled(){
 	uint32_t err_code;
 	
 	err_code = sd_softdevice_is_enabled(&enable);
+    if(err_code != 0) registerError("SoftDeviceManager::isEnabled()", err_code, "sd_softdevice_is_enabled() returned an error");
 	APP_ERROR_CHECK(err_code);
 
 	return enable;
@@ -85,12 +85,12 @@ const char * SoftDeviceManager::getErrorDescription(uint32_t errorCode){
 	return NULL;
 }
 void SoftDeviceManager::registerError(char *file, uint32_t errCode, char *msg){
-	struct errors newError={errCode, file, msg};
+	errorCallback(file, errCode, msg);
+    /*struct errors newError={errCode, file, msg};
 	if(err_index==20)
 		return;
 	errorsList[err_index]=newError;
-	err_index++;
-	
+	err_index++;*/	
 }
 
 void SoftDeviceManager::setErrorHandler(void (*errorHandlerCallback)(char *file, uint32_t errCode, char *msg)){

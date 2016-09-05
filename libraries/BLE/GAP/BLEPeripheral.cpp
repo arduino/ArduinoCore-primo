@@ -26,7 +26,20 @@ BLEPeripheral::BLEPeripheral(void){
 }
 
 bool BLEPeripheral::begin(void){
-//
+    // Configure the advertise packets in the SoftDevice
+    pushAdvPacketsToSD();
+    
+    // Start advertising
+    ble_gap_adv_params_t advParams;
+    advParams.type = BLE_GAP_ADV_TYPE_ADV_IND;
+    advParams.p_peer_addr = 0;
+    advParams.fp = BLE_GAP_ADV_FP_ANY;
+    advParams.interval = 250;
+    advParams.timeout = 60;
+    advParams.channel_mask.ch_37_off = 0;
+    advParams.channel_mask.ch_38_off = 0;
+    advParams.channel_mask.ch_39_off = 0;
+    sd_ble_gap_adv_start(&advParams);
 }
 
 void BLEPeripheral::setAdvertisement(BLEAdvertisement &advertisement){

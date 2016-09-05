@@ -21,6 +21,7 @@
 #define __BLEADVERTISEMENT_H
 
 #include <stdint.h>
+#include "ble_gap.h"
 
 class BLEAdvertisement {
 public:
@@ -32,9 +33,18 @@ public:
 	bool setAdvertisedServiceUUID(const char* serviceUuid);
 	bool setTxPower(int8_t txPower);
 	void enableScanResponse(bool enable);
-	
+
+protected:
+    void pushAdvPacketsToSD(void);
+    
 private:
-	bool scanResponseEnabled = true;
+    int availableBytes(uint8_t *advPacket);
+    int lastByteInPacket(uint8_t *advPacket);
+    bool adTypePresent(uint8_t *advPacket, uint8_t adType);
+    
+	bool scanResponseEnabled;
+    uint8_t advPacket[BLE_GAP_ADV_MAX_SIZE + 1];
+    uint8_t scanRspPacket[BLE_GAP_ADV_MAX_SIZE + 1];
 };
 
 #endif
