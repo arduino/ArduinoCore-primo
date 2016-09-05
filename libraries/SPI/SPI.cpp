@@ -320,4 +320,4 @@ void SPIClass::detachInterrupt(void)
 	// Should be disableInterrupt()
 }
 
-SPIClass SPI(NRF_SPI0, PIN_SPI_MISO, PIN_SPI_SCK, PIN_SPI_MOSI);
+SPIClass SPI(NRF_SPI2, PIN_SPI_MISO, PIN_SPI_SCK, PIN_SPI_MOSI);
