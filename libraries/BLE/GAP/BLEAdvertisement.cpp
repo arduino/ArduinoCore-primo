@@ -22,8 +22,8 @@
 
 BLEAdvertisement::BLEAdvertisement(void){
 	// By default, include the flags type in the advPacket
-    advPacket[0] = BLE_GAP_AD_TYPE_FLAGS;
-    advPacket[1] = 2;
+    advPacket[0] = 2;
+    advPacket[1] = BLE_GAP_AD_TYPE_FLAGS;
     advPacket[2] = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED;
     advPacket[3] = 0;
     
@@ -45,8 +45,8 @@ bool BLEAdvertisement::setLocalName(const char* localName){
     else{
         int endOfPacket = lastByteInPacket(advPacket);
         if((BLE_GAP_ADV_MAX_SIZE - endOfPacket) >= (strlen(localName) + 2)){
-            advPacket[endOfPacket] = BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME;
-            advPacket[endOfPacket + 1] = strlen(localName) + 1;
+            advPacket[endOfPacket] = strlen(localName) + 1;
+            advPacket[endOfPacket + 1] = BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME;
             memcpy(&advPacket[endOfPacket + 2], localName, strlen(localName));
         }
     }
@@ -72,7 +72,7 @@ void BLEAdvertisement::enableScanResponse(bool enable){
 int BLEAdvertisement::lastByteInPacket(uint8_t *advPacket){
     int positionInPacket = 0;
     while(advPacket[positionInPacket] != 0 && positionInPacket < BLE_GAP_ADV_MAX_SIZE){
-        positionInPacket += advPacket[positionInPacket + 1] + 1;
+        positionInPacket += advPacket[positionInPacket] + 1;
     }
     return positionInPacket;     
 }
@@ -80,7 +80,7 @@ int BLEAdvertisement::lastByteInPacket(uint8_t *advPacket){
 int BLEAdvertisement::availableBytes(uint8_t *advPacket){
     int positionInPacket = 0;
     while(advPacket[positionInPacket] != 0 && positionInPacket < BLE_GAP_ADV_MAX_SIZE){
-        positionInPacket += advPacket[positionInPacket + 1] + 1;
+        positionInPacket += (advPacket[positionInPacket] + 1);
     }
     if(positionInPacket < BLE_GAP_ADV_MAX_SIZE) return BLE_GAP_ADV_MAX_SIZE - positionInPacket;
     else return 0;
@@ -89,8 +89,8 @@ int BLEAdvertisement::availableBytes(uint8_t *advPacket){
 bool BLEAdvertisement::adTypePresent(uint8_t *advPacket, uint8_t adType){
     int positionInPacket = 0;
     while(advPacket[positionInPacket] != 0 && positionInPacket < BLE_GAP_ADV_MAX_SIZE){
-        if(advPacket[positionInPacket] == adType) return true;
-        positionInPacket += advPacket[positionInPacket + 1] + 1;
+        if(advPacket[positionInPacket + 1] == adType) return true;
+        positionInPacket += (advPacket[positionInPacket] + 1);
     }
     return false;
 }
@@ -98,5 +98,5 @@ bool BLEAdvertisement::adTypePresent(uint8_t *advPacket, uint8_t adType){
 void BLEAdvertisement::pushAdvPacketsToSD(void){
     uint32_t errorCode;
     errorCode = sd_ble_gap_adv_data_set(advPacket, (uint8_t)(BLE_GAP_ADV_MAX_SIZE - availableBytes(advPacket)), scanRspPacket, (uint8_t)(BLE_GAP_ADV_MAX_SIZE - availableBytes(scanRspPacket)));
-    if(errorCode != 0) SDManager.registerError("BLEAdvertisement.cpp", errorCode, "sd_ble_gap_adv_data_set() return not OK");
+    if(errorCode != 0) SDManager.registerError("BLEAdvertisement::pushAdvPacketsToSD()", errorCode, "sd_ble_gap_adv_data_set() returned an error");
 }

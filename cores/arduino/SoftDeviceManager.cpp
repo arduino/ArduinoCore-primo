@@ -59,7 +59,6 @@ uint8_t SoftDeviceManager::isEnabled(){
 	
 	err_code = sd_softdevice_is_enabled(&enable);
     if(err_code != 0) registerError("SoftDeviceManager::isEnabled()", err_code, "sd_softdevice_is_enabled() returned an error");
-	APP_ERROR_CHECK(err_code);
 
 	return enable;
 }
