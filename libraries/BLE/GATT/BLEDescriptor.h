@@ -17,10 +17,18 @@
   
 */
 
+#ifndef __BLEDESCRIPTOR_H
+#define __BLEDESCRIPTOR_H
+
+#include <stdint.h>
+#include "BLEAttribute.h"
+#include "BLEUuid.h"
 
 class BLEDescriptor : public BLEAttribute {
 	public:
-		BLEDescriptor(BLEUUID uuid, uint8_t *data, uint16_t dataLength);
+		BLEDescriptor(BLEUuid uuid, uint8_t *data, uint16_t dataLength);
 	private:
-		BLEDescriptor *nextDescriptor = null;
+		BLEDescriptor *nextDescriptor = 0;
 };
+
+#endif

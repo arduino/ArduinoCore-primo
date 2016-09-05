@@ -17,6 +17,12 @@
   
 */
 
+#ifndef __BLEADDRESS_H
+#define __BLEADDRESS_H
+
+#include <stdint.h>
+
+typedef enum {BLEAddressTypePublic, BLEAddressTypeRandomStatic, BLEAddressTypePrivateResolvable, BLEAddressTypePrivateNonResolvable} BLEAddressType;
 
 class BLEAddress{
 public:	
@@ -24,3 +30,5 @@ public:
 	BLEAddressType getAddressType();
 	uint8_t *toString(void);
 };
+
+#endif

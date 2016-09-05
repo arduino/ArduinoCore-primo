@@ -17,19 +17,13 @@
   
 */
 
-#ifndef __BLEUUID_H
-#define __BLEUUID_H
+#ifndef __BLEPROPERTIES_H
+#define __BLEPROPERTIES_H
 
-#include <stdint.h>
-
-typedef enum {BLEUuidType_16Bit, BLEUuidType_128Bit} BLEUuidType;
-
-class BLEUuid{
-public:
-    BLEUuid(const char * str);
-	BLEUuidType getType(void);
-	uint16_t getAlias(void);
-	uint8_t *toString(void);
+class BLEProperties {
+    public:
+    
+    private:
 };
 
 #endif

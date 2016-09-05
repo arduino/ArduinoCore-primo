@@ -17,6 +17,15 @@
   
 */
 
+#ifndef __BLELINKSTATUS_H
+#define __BLELINKSTATUS_H
+
+#include <stdint.h>
+#include "BLEAddress.h"
+
+typedef uint16_t BLEConParams;
+typedef uint16_t BLESecurityLevel;
+
 class BLELinkStatus {
 public:
 	bool isConnected();
@@ -26,3 +35,5 @@ public:
 	BLEConParams &getConParams();
 	BLESecurityLevel &getSecurityLevel();
 };
+
+#endif

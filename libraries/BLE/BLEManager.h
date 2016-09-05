@@ -17,13 +17,10 @@
   
 */
 
+#include <BLEPeripheral.h>
 
 class BLEManager  {
 public:
 	BLEManager();
 	
-	BLEPeripheral &getPeripheral(void);
-	BLECentral &getCentral(void);
-	BLEBroadcaster &getBroadcaster(void);
-	BLEObserver &getObserver(void);
 };

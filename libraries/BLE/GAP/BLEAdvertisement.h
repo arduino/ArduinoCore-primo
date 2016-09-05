@@ -17,6 +17,11 @@
   
 */
 
+#ifndef __BLEADVERTISEMENT_H
+#define __BLEADVERTISEMENT_H
+
+#include <stdint.h>
+
 class BLEAdvertisement {
 public:
 	BLEAdvertisement(void);
@@ -31,3 +36,5 @@ public:
 private:
 	bool scanResponseEnabled = true;
 };
+
+#endif

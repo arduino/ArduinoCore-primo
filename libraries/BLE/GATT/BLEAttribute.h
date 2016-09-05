@@ -17,10 +17,17 @@
   
 */
 
+#ifndef __BLEATTRIBUTE_H
+#define __BLEATTRIBUTE_H
+
+#include <stdint.h>
+#include "BLEUuid.h"
+
+typedef uint16_t BLEPermissions;
 
 class BLEAttribute {
 	public:
-		BLEUUID getUuid(void);
+		BLEUuid getUuid(void);
 		uint16_t getHandle(void);
 		uint8_t getValue(void);
 		uint16_t getValueLength(void);
@@ -30,9 +37,11 @@ class BLEAttribute {
 		void setHandle(uint16_t handle);
 		
 	private:
-		BLEUUID uuid;
+		BLEUuid uuid;
 		uint16_t handle;
 		BLEPermissions permissions;
 		uint8_t *value;
 		uint16_t data_length;
 };
+
+#endif

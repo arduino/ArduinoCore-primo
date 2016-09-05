@@ -17,9 +17,16 @@
   
 */
 
+#ifndef __BLEGATTSERVER_H
+#define __BLEGATTSERVER_H
+
+#include "BLEService.h"
+
 class BLEGattServer {
 public:
 	BLEGattServer();
 	
 	void addService(BLEService &service);
 };
+
+#endif 

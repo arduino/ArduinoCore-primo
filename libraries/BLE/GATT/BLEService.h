@@ -17,13 +17,20 @@
   
 */
 
+#ifndef __BLESERVICE_H
+#define __BLESERVICE_H
 
-class BLEService : public BLEAttribute {
+#include "BLEUuid.h"
+#include "BLECharacteristic.h"
+
+class BLEService {
 public:	
-	BLEService(BLEUUID uuid);
+	BLEService(BLEUuid uuid);
 	void addCharacteristic(BLECharacteristic &characteristic);
 	
 private:
 	uint16_t handle;
-	BLECharacteristic *firstCharacteristic = null;
+	BLECharacteristic *firstCharacteristic = 0;
 };
+
+#endif

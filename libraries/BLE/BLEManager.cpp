@@ -19,25 +19,25 @@
 
 #include "BLEManager.h"
 
+
 BLEManager::BLEManager(){
 	//
 }
 	
-BLEPeripheral BLEManager::&getPeripheral(void){
+/*BLEPeripheral &BLEManager::getPeripheral(void){
 	//
 }
 
-BLECentral BLEManager::&getCentral(void){
+BLECentral &BLEManager::getCentral(void){
 	//
 }
 
-BLEBroadcaster BLEManager::&getBroadcaster(void){
+BLEBroadcaster &BLEManager::getBroadcaster(void){
 	//
 }
 
-BLEObserver BLEManager::&getObserver(void){
+BLEObserver &BLEManager::getObserver(void){
 	//
-}
-	
+}*/
 	
 	

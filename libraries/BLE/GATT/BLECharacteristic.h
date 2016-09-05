@@ -17,11 +17,23 @@
   
 */
 
+#ifndef __BLECHARACTERISTIC_H
+#define __BLECHARACTERISTIC_H
+
+#include <stdint.h>
+#include "BLEUuid.h"
+#include "BLEProperties.h"
+#include "BLEDescriptor.h"
+
+typedef void (*BLECharacteristicEventHandlerType)(void);
+
+typedef enum {SET, NOTIFICATION, INDICATION} BLESetType;
+
 class BLECharacteristic {
 	public:
-		BLECharacteristic(BLEUUID uuid, BLEProperties properties, uint8_t *data, uint16_t dataLength, bool variableLength);
+		BLECharacteristic(BLEUuid uuid, BLEProperties properties, uint8_t *data, uint16_t dataLength, bool variableLength);
 		void addDescriptor(BLEDescriptor &descriptor);
-		void setEventHandler(callback_t callback);
+		void setEventHandler(BLECharacteristicEventHandlerType eventHandler);
 		void setValue(uint8_t *data_ptr, uint16_t length, BLESetType setType = NOTIFICATION);
 	
 	private:
@@ -31,3 +43,5 @@ class BLECharacteristic {
 		BLECharacteristic *nextCharacteristic;
 		BLEDescriptor *firstDescriptor;
 };
+
+#endif

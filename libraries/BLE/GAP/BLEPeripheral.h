@@ -17,8 +17,18 @@
   
 */
 
+#ifndef __BLEPERIPHERAL_H
+#define __BLEPERIPHERAL_H
 
-class BLEPeripheral : public BLEGattServer, BLEGattClient, BLELinkStatus, BLEAdvertisement {
+#include "BLEGattServer.h"
+#include "BLEService.h"
+#include "BLELinkStatus.h"
+#include "BLEAdvertisement.h"
+
+typedef enum {BLEPeripheralEventConnected, BLEPeripheralEventDisconnected} BLEPeripheralEventType;
+typedef void (*BLEPeripheralEventHandler)(void);
+
+class BLEPeripheral : public BLEGattServer, BLELinkStatus, BLEAdvertisement {
 public:
     BLEPeripheral(void);
 
@@ -29,10 +39,12 @@ public:
     void setAppearance(const unsigned short appearance);
     void setPreferredConnectionParameters(uint16_t minConnInterval, uint16_t maxConnInterval, uint16_t slaveLatency, uint16_t supervisingTimeout);
 
-    void setEventHandler(BLEPeripheralEvent event, BLEPeripheralEventHandler callback);
+    void setEventHandler(BLEPeripheralEventType event, BLEPeripheralEventHandler eventHandler);
 
     bool begin(void);
     void poll(void);
     void end(void);
     bool disconnect(void);
 };
+
+#endif
