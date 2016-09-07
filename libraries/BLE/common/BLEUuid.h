@@ -22,14 +22,30 @@
 
 #include <stdint.h>
 
-typedef enum {BLEUuidType_16Bit, BLEUuidType_128Bit} BLEUuidType;
+#define UUID_SHORT_MSB_INDEX 2
+#define UUID_SHORT_LSB_INDEX 3
+
+const uint8_t btSigBaseUuid128[] = 	{00,00,00,00,00,00,0x10,00,0x80,00,00,0x80,0x5F,0x9B,0x34,0xFB};
+
+typedef enum {BLEUuidTypeUnknown, BLEUuidType16Bit, BLEUuidType128Bit} BLEUuidType;
 
 class BLEUuid{
 public:
-    BLEUuid(const char * str);
+    BLEUuid(void);
+    BLEUuid(const char *uuidString);
+    BLEUuid(uint16_t shortUuid);
+    void set(const char *uuidString);
+    void set(uint16_t shortUuid);
 	BLEUuidType getType(void);
 	uint16_t getAlias(void);
-	uint8_t *toString(void);
+	const char *toString(void);
+    
+private:
+    int decodeAsciiHex(uint8_t asciiByte);
+    uint8_t toAsciiHex(uint8_t value);
+    BLEUuidType mUuidType;
+    uint8_t     mUuid128[16];
+    static char mUuidToStringBuf[16*2 + 4 + 1];
 };
 
 #endif
