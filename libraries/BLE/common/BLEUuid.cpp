@@ -43,6 +43,7 @@ void BLEUuid::set(const char *uuidString){
         byteIndex++;
         uuidString++;
     }
+    return true; // TODO: Return false when the format of uuidString is incorrect
 }
 
 void BLEUuid::set(uint16_t shortUuid){

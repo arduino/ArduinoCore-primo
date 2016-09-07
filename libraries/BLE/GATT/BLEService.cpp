@@ -19,8 +19,12 @@
 
 #include "BLEService.h"
 
-BLEService::BLEService(BLEUUID uuid){
+BLEService::BLEService(BLEUuid uuid){
 	//
+}
+
+BLEService::BLEService(const char *uuidString){
+    _uuid.set(uuidString); // TODO: Send an error message if this returns false
 }
 
 void BLEService::addCharacteristic(BLECharacteristic &characteristic){

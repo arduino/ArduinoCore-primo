@@ -20,16 +20,20 @@
 #ifndef __BLESERVICE_H
 #define __BLESERVICE_H
 
+#include <stdint.h>
 #include "BLEUuid.h"
 #include "BLECharacteristic.h"
 
 class BLEService {
 public:	
 	BLEService(BLEUuid uuid);
+    BLEService(const char *uuidString);
+    BLEService(uint16_t shortUuid);
 	void addCharacteristic(BLECharacteristic &characteristic);
 	
 private:
 	uint16_t handle;
+    BLEUuid _uuid;
 	BLECharacteristic *firstCharacteristic = 0;
 };
 

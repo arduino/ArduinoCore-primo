@@ -34,7 +34,7 @@ public:
     BLEUuid(void);
     BLEUuid(const char *uuidString);
     BLEUuid(uint16_t shortUuid);
-    void set(const char *uuidString);
+    bool set(const char *uuidString);
     void set(uint16_t shortUuid);
 	BLEUuidType getType(void);
 	uint16_t getAlias(void);
