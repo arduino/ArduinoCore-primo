@@ -26,7 +26,7 @@ void setup() {
 void loop() {
   while(digitalRead(SS)==LOW){
     for (int i=0;i<DIM;i++){
-      data[i] = SPI.read();
+      data[i] = SPI.transfer(0x00);
       Serial.print((char)data[i]);
    }
     Serial.println("");

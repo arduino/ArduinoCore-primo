@@ -18,7 +18,7 @@
 
 /*
  *
- * + Pin number +  ZERO Board pin  |  PIN   | Label/Name      |
+ * | Pin number |  PRIMO Board pin |  PIN   | Label/Name      |
  * +------------+------------------+--------+-----------------+
  * |            | Digital Low      |        |                 |
  * +------------+------------------+--------+-----------------+
@@ -73,10 +73,10 @@
  * | 32         |                  |  P011  | RX1             |
  * | 33         |                  |  P012  | TX1             |
  * +------------+------------------+--------+-----------------+
- * |            | USER2            |        |                 |
+ * |            | USER1/BUZZER     |        |                 |
  * +------------+------------------+--------+-----------------+
- * | 34         |                  |  P007  | USER2_BUTTON    |
- * | 35         |                  |  P008  | USER2_LED       |
+ * | 34         |                  |  P007  | USER1_BUTTON    |
+ * | 35         |                  |  P008  | BUZZER          |
  * +------------+------------------+--------+-----------------+
  * |            | NFC              |        |                 |
  * +------------+------------------+--------+-----------------+
@@ -87,6 +87,23 @@
  * +------------+------------------+--------+-----------------+
  * |            |                  |  P000  | XL1             | 
  * |            |                  |  P001  | XL2             | 
+ * +------------+------------------+--------+-----------------+
+ * |            | STM GPIO         |        |                 |
+ * +------------+------------------+--------+-----------------+
+ * | 38         |                  |  PC09  | USER2_LED       |
+ * | 39         |                  |  PC06  | POWER_LED       |
+ * | 40         |                  |  PA08  | BLE_LED         |
+ * | 41         |                  |  PB00  | GPIO_ESP_PW     |
+ * | 42         |                  |  PB01  | GPIO_ESP_EN     |
+ * | 43         |                  |  PA15  | USB_CONNECT     |
+ * | 44         |                  |  PC04  | USER2_BUTTON    |
+ * | 45         |                  |  PC10  | GPIO_USER1      |
+ * | 46         |                  |  PC05  | GPIO_ESP_0      |
+ * | 47         |                  |  PB07  | GPIO_ESP_4      |
+ * | 48         |                  |  PB04  | GPIO_ESP_12     |
+ * | 49         |                  |  PB05  | GPIO_ESP_13     |
+ * | 50         |                  |  PB03  | GPIO_ESP_14     |
+ * | 51         |                  |  PA07  | BATTERY_VOL     |
  * +------------+------------------+--------+-----------------+
  */
 
@@ -162,12 +179,28 @@ const PinDescription g_APinDescription[]=
   //34..35 - USER2
   // --------------------
   { PORT0, 7, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // button
-  { PORT0, 8, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // led
+  { PORT0, 8, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // buzzer
   
   //36..37 - NFC
   // --------------------
   { PORT0, 9, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // NFC1
-  { PORT0, 10, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER} // NFC2
+  { PORT0, 10, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // NFC2
+
+  // 38..51
+  { NOT_A_PORT, 0, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER},
+  { NOT_A_PORT, 0, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER},
+  { NOT_A_PORT, 0, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER},
+  { NOT_A_PORT, 0, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER},
+  { NOT_A_PORT, 0, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER},
+  { NOT_A_PORT, 0, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER},
+  { NOT_A_PORT, 0, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER},
+  { NOT_A_PORT, 0, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER},
+  { NOT_A_PORT, 0, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER},
+  { NOT_A_PORT, 0, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER},
+  { NOT_A_PORT, 0, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER},
+  { NOT_A_PORT, 0, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER},
+  { NOT_A_PORT, 0, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER},
+  { NOT_A_PORT, 0, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}
   
 } ;
 
