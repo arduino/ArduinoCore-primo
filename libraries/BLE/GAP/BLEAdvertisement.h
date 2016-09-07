@@ -27,24 +27,31 @@ class BLEAdvertisement {
 public:
 	BLEAdvertisement(void);
 
-	bool setFlags(uint32_t bleAdvFlags);
+	bool setFlags(uint8_t bleAdvFlags);
     bool setLocalName(const char* localName);
+    bool setAppearance(uint16_t appearance);
     bool setAdvertisedServiceData(const char* serviceDataUuid, uint8_t* serviceData, uint8_t serviceDataLength);
-	bool setAdvertisedServiceUUID(const char* serviceUuid);
+	bool setAdvertisedServiceUuid(const char* serviceUuid);
+    bool setAdvertisedServiceUuid(BLEUuid &uuid);
+    bool setAdvertisedServiceUuid(uint16_t shortUuid);
 	bool setTxPower(int8_t txPower);
 	void enableScanResponse(bool enable);
+    void debugPrintAdvPacket(char *msg);
 
 protected:
     void pushAdvPacketsToSD(void);
     
 private:
+    bool updateFieldInPackets(uint8_t adType, const uint8_t *data, int dataLength);
+    void addFieldToPacket(uint8_t *advPacket, uint8_t adType, const uint8_t *data, int dataLength);
     int availableBytes(uint8_t *advPacket);
     int lastByteInPacket(uint8_t *advPacket);
-    bool adTypePresent(uint8_t *advPacket, uint8_t adType);
+    int bytesFree(uint8_t *advPacket);
+    int adTypePresent(const uint8_t *advPacket, uint8_t adType);
     
-	bool scanResponseEnabled;
-    uint8_t advPacket[BLE_GAP_ADV_MAX_SIZE + 1];
-    uint8_t scanRspPacket[BLE_GAP_ADV_MAX_SIZE + 1];
+	bool    mScanResponseEnabled;
+    uint8_t mAdvPacket[BLE_GAP_ADV_MAX_SIZE + 1];
+    uint8_t mScanRspPacket[BLE_GAP_ADV_MAX_SIZE + 1];
 };
 
 #endif

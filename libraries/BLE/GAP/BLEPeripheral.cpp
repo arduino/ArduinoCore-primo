@@ -35,7 +35,7 @@ bool BLEPeripheral::begin(void){
     advParams.p_peer_addr = 0;
     advParams.fp = BLE_GAP_ADV_FP_ANY;
     advParams.interval = 250;
-    advParams.timeout = 60;
+    advParams.timeout = 180;
     advParams.channel_mask.ch_37_off = 0;
     advParams.channel_mask.ch_38_off = 0;
     advParams.channel_mask.ch_39_off = 0;
@@ -57,7 +57,7 @@ void BLEPeripheral::setDeviceName(const char *deviceName){
 }
     
 void BLEPeripheral::setAppearance(const unsigned short appearance){
-//
+    BLEAdvertisement::setAppearance(appearance);
 }
     
 void BLEPeripheral::setPreferredConnectionParameters(uint16_t minConnInterval, uint16_t maxConnInterval, uint16_t slaveLatency, uint16_t supervisingTimeout){
