@@ -33,7 +33,7 @@ BLEUuid::BLEUuid(uint16_t shortUuid){
     set(shortUuid);
 }
 
-void BLEUuid::set(const char *uuidString){
+bool BLEUuid::set(const char *uuidString){
     mUuidType = BLEUuidType128Bit;
     int byteIndex = 0, byteValue = 0;
     while(*uuidString && byteIndex < 32){
