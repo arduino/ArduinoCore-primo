@@ -56,17 +56,39 @@ extern "C"{
  *----------------------------------------------------------------------------*/
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (32u)
-#define NUM_DIGITAL_PINS     (14u)
+#define PINS_COUNT           (38u)
+#define NUM_DIGITAL_PINS     (22u)
 #define NUM_ANALOG_INPUTS    (5u)
 #define NUM_ANALOG_OUTPUTS   (1u)
 
 #define PIN_LED_13           (13u)
 #define PIN_LED              PIN_LED_13
 #define LED_BUILTIN          PIN_LED_13
-#define USER2_LED			 (35u)
-#define USER2_BUTTON		 (34u)
+#define BUZZER				 (35u)
+#define USER1_BUTTON		 (34u)
 
+/*
+ * STM GPIO
+ */
+#define USER2_LED		 (38u)
+#define POWER_LED		 (39u)
+#define BLE_LED		 	 (40u)
+#define GPIO_ESP_PW		 (41u)
+#define GPIO_ESP_EN		 (42u)
+#define USER2_BUTTON	 (44u)
+
+static const uint8_t USER2_LED_H   		= 0b11100010;
+static const uint8_t USER2_LED_L    	= 0b11100011;
+static const uint8_t POWER_LED_H   		= 0b11100100;
+static const uint8_t POWER_LED_L    	= 0b11100101;
+static const uint8_t BLE_LED_H 			= 0b11100110;
+static const uint8_t BLE_LED_L  		= 0b11100111;
+static const uint8_t GPIO_ESP_PW_H  	= 0b11101000;
+static const uint8_t GPIO_ESP_PW_L  	= 0b11101001;
+static const uint8_t GPIO_ESP_EN_H  	= 0b11101010;
+static const uint8_t GPIO_ESP_EN_L  	= 0b11101011;
+
+static const uint8_t USER2_BUTTON_IN  	= 0b11101110;
 
 /*
  * SPI Interfaces
