@@ -71,7 +71,7 @@ extern "C"{
 /*
  * SPI Interfaces
  */
-#define SPI_INTERFACES_COUNT 3
+#define SPI_INTERFACES_COUNT 1
 
 #define PIN_SPI_MOSI         (27u)
 #define PIN_SPI_MISO         (24u)
