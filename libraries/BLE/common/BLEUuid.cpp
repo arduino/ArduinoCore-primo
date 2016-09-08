@@ -51,7 +51,7 @@ bool BLEUuid::set(const char *uuidString){
     memcpy(aliasBuf, &mUuid128[2], 2);
     memset(&mUuid128[2], 0, 2);
     // Set the UUID type to 16 or 128 bit depending on the UUID base
-    if(memcmp(mUuid128, btSigBaseUuid128, 16) == 0) mUuidType == BLEUuidType16Bit;
+    if(memcmp(mUuid128, btSigBaseUuid128, 16) == 0) mUuidType = BLEUuidType16Bit;
     else mUuidType = BLEUuidType128Bit;
     memcpy(&mUuid128[2], aliasBuf, 2);
     // If we haven't reached the end of the string, or we haven't filled all bytes in the UUID buffer, the input UUID was incorrectly formatted
@@ -66,7 +66,7 @@ void BLEUuid::set(uint16_t shortUuid){
     mUuidType = BLEUuidType16Bit;
     memcpy(mUuid128, btSigBaseUuid128, 16);
     mUuid128[UUID_SHORT_MSB_INDEX] = (uint8_t)(shortUuid >> 8);
-    mUuid128[UUID_SHORT_LSB_INDEX] = (uint8_t)(shortUuid && 0x00FF);   
+    mUuid128[UUID_SHORT_LSB_INDEX] = (uint8_t)(shortUuid & 0x00FF);   
 }
 
 uint16_t BLEUuid::getAlias(void) const{
