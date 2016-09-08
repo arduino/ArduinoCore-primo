@@ -34,16 +34,32 @@ BLEUuid::BLEUuid(uint16_t shortUuid){
 }
 
 bool BLEUuid::set(const char *uuidString){
-    mUuidType = BLEUuidType128Bit;
+    // Go through the string byte by byte. Decode hex values while ignoring all other symbols.
     int byteIndex = 0, byteValue = 0;
     while(*uuidString && byteIndex < 32){
-        if(decodeAsciiHex(*uuidString) < 0) continue;
-        byteValue = byteValue * 16 + decodeAsciiHex(*uuidString);
-        if((byteIndex % 2) == 1) mUuid128[byteIndex / 2] = byteValue;
-        byteIndex++;
+        if(decodeAsciiHex(*uuidString) >= 0) {
+            byteValue = byteValue << 4 | decodeAsciiHex(*uuidString);
+            if((byteIndex % 2) == 1) {
+                mUuid128[byteIndex / 2] = byteValue;
+            }
+            byteIndex++;
+        }
         uuidString++;
     }
-    return true; // TODO: Return false when the format of uuidString is incorrect
+    // Copy the alias into a temporary buffer, and set the alias in mUuid128 to 0 so that we can compare to the BT SIG BASE UUID
+    uint8_t aliasBuf[2];
+    memcpy(aliasBuf, &mUuid128[2], 2);
+    memset(&mUuid128[2], 0, 2);
+    // Set the UUID type to 16 or 128 bit depending on the UUID base
+    if(memcmp(mUuid128, btSigBaseUuid128, 16) == 0) mUuidType == BLEUuidType16Bit;
+    else mUuidType = BLEUuidType128Bit;
+    memcpy(&mUuid128[2], aliasBuf, 2);
+    // If we haven't reached the end of the string, or we haven't filled all bytes in the UUID buffer, the input UUID was incorrectly formatted
+    if(*uuidString != 0 || byteIndex < 32) {
+        mUuidType = BLEUuidTypeUnknown;
+        return false;
+    }
+    else return true; 
 }
 
 void BLEUuid::set(uint16_t shortUuid){
@@ -53,15 +69,12 @@ void BLEUuid::set(uint16_t shortUuid){
     mUuid128[UUID_SHORT_LSB_INDEX] = (uint8_t)(shortUuid && 0x00FF);   
 }
 
-BLEUuidType BLEUuid::getType(void){
-	return mUuidType;
-}
-
-uint16_t BLEUuid::getAlias(void){
+uint16_t BLEUuid::getAlias(void) const{
 	return (uint16_t)mUuid128[UUID_SHORT_MSB_INDEX] << 8 | mUuid128[UUID_SHORT_LSB_INDEX];
 }
 
-const char *BLEUuid::toString(void){
+const char *BLEUuid::toString(void) const{
+    if(mUuidType == BLEUuidTypeUnknown) return "Unknown UUID!";
 	char *string = mUuidToStringBuf;
     for(int i = 0; i < 16; i++){
         *string++ = toAsciiHex(mUuid128[i] >> 4);
@@ -72,7 +85,35 @@ const char *BLEUuid::toString(void){
     return mUuidToStringBuf;
 }
 
-int BLEUuid::decodeAsciiHex(uint8_t asciiByte)
+BLEUuid &BLEUuid::operator=(const BLEUuid &b){
+    memcpy(mUuid128, b.getBuffer(), 16);
+    mUuidType = b.getType();
+    return *this;
+}
+
+bool BLEUuid::operator==(const BLEUuid &b) const{
+    switch(mUuidType){
+        case BLEUuidTypeUnknown:
+            return false;
+        case BLEUuidType16Bit:
+            return getAlias() == b.getAlias();
+        case BLEUuidType128Bit:
+            return memcmp(mUuid128, b.getBuffer(), 16) == 0;
+    }
+}
+
+bool BLEUuid::operator!=(const BLEUuid &b) const{
+    switch(mUuidType){
+        case BLEUuidTypeUnknown:
+            return true;
+        case BLEUuidType16Bit:
+            return getAlias() != b.getAlias();
+        case BLEUuidType128Bit:
+            return memcmp(mUuid128, b.getBuffer(), 16) != 0;
+    }    
+}
+    
+int BLEUuid::decodeAsciiHex(uint8_t asciiByte) const
 {
     if(asciiByte >= '0' && asciiByte <= '9') return asciiByte - '0';
     if(asciiByte >= 'a' && asciiByte <= 'f') return asciiByte - 'a' + 10;
@@ -80,7 +121,7 @@ int BLEUuid::decodeAsciiHex(uint8_t asciiByte)
     return -1;
 }
 
-uint8_t BLEUuid::toAsciiHex(uint8_t value)
+uint8_t BLEUuid::toAsciiHex(uint8_t value) const
 {
     if(value < 10) return value + '0';
     else if(value < 16) return value - 10 + 'a';

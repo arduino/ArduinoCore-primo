@@ -36,13 +36,16 @@ public:
     BLEUuid(uint16_t shortUuid);
     bool set(const char *uuidString);
     void set(uint16_t shortUuid);
-	BLEUuidType getType(void);
-	uint16_t getAlias(void);
-	const char *toString(void);
-    
+    const uint8_t *getBuffer(void) const { return mUuid128; }
+	BLEUuidType getType(void) const { return mUuidType; }
+	uint16_t getAlias(void) const;
+	const char *toString(void) const;
+    BLEUuid &operator=(const BLEUuid &b);
+    bool operator==(const BLEUuid &b) const;
+    bool operator!=(const BLEUuid &b) const;
 private:
-    int decodeAsciiHex(uint8_t asciiByte);
-    uint8_t toAsciiHex(uint8_t value);
+    int decodeAsciiHex(uint8_t asciiByte) const;
+    uint8_t toAsciiHex(uint8_t value) const;
     BLEUuidType mUuidType;
     uint8_t     mUuid128[16];
     static char mUuidToStringBuf[16*2 + 4 + 1];
