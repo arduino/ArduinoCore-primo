@@ -74,15 +74,25 @@ bool BLEAdvertisement::setAdvertisedServiceData(const char* serviceDataUuid, uin
 	//
 }
 
-bool BLEAdvertisement::setAdvertisedServiceUuid(const char* serviceUuid){
-	//
-}
-
-bool BLEAdvertisement::setAdvertisedServiceUuid(uint16_t shortUuid){
-    if(updateFieldInPackets(BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE, (const uint8_t *)&shortUuid, 2)) return true;
-    else{
-        SDManager.registerError("BLEAdvertisement::setTxPower()", 0, "Unable to add field to advertise data");
-        return false;
+bool BLEAdvertisement::setAdvertisedServiceUuid(const BLEUuid &uuid){
+    uint16_t alias;
+    switch(uuid.getType()){
+        case BLEUuidType16Bit:
+            alias = uuid.getAlias();
+            if(updateFieldInPackets(BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE, (uint8_t*)&alias, 2)) return true;
+            else{
+                SDManager.registerError("BLEAdvertisement::setAdvertisedServiceUuid()", 0, "Unable to add 16-bit UUID to advertise data");
+                return false;
+            } 
+        case BLEUuidType128Bit:
+            if(updateFieldInPackets(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE, uuid.getBuffer(), 16)) return true;
+            else{
+                SDManager.registerError("BLEAdvertisement::setAdvertisedServiceUuid()", 0, "Unable to add 128-bit UUID to advertise data");
+                return false;
+            } 
+        case BLEUuidTypeUnknown:
+            SDManager.registerError("BLEAdvertisement::setAdvertisedServiceUuid()", 0, "Unable to add unknown UUID to advertise data");
+            break;    
     }
 }
 	
@@ -105,6 +115,23 @@ void BLEAdvertisement::addFieldToPacket(uint8_t *advPacket, uint8_t adType, cons
     advPacket[endOfPacket + 1] = adType;
     memcpy(&advPacket[endOfPacket + 2], data, dataLength);
     advPacket[endOfPacket + 2 + dataLength] = 0;
+}
+
+bool BLEAdvertisement::extendFieldInPacket(uint8_t *advPacket, uint8_t adType, const uint8_t *data, int dataLength){
+    // Make sure we have room in the packet for extending the field
+    if(availableBytes(advPacket) < dataLength) return false;
+    // Make sure the adType is present
+    int adFieldPosition = adTypePresent(advPacket, adType);
+    if(adFieldPosition < 0) return false;
+    // Move fields if necessary to make room for the extension
+    int packetEnd = lastByteInPacket(advPacket);
+    for(int i = packetEnd + dataLength; i >= (adFieldPosition + advPacket[adFieldPosition] + 1 + dataLength); i--){
+        advPacket[i] = advPacket[i - dataLength];
+    }
+    // Copy the new data into the field and update the length byte
+    memcpy(&advPacket[adFieldPosition + advPacket[adFieldPosition] + 1], data, dataLength);
+    advPacket[adFieldPosition] += dataLength;
+    return true;
 }
 
 bool BLEAdvertisement::updateFieldInPackets(uint8_t adType, const uint8_t *data, int dataLength){
@@ -135,7 +162,8 @@ bool BLEAdvertisement::updateFieldInPackets(uint8_t adType, const uint8_t *data,
             // In the case of list/array types, we have to inject additional values
             case BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE:
                 if(availableBytes(fieldInPacket) >= dataLength){
-                    
+                    extendFieldInPacket(fieldInPacket, adType, data, dataLength);
+                    return true;
                 }
                 else return false;
                 break;
@@ -149,6 +177,7 @@ bool BLEAdvertisement::updateFieldInPackets(uint8_t adType, const uint8_t *data,
             case BLE_GAP_AD_TYPE_SHORT_LOCAL_NAME:   
             case BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME:
             case BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE:
+            case BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE:
                 addFieldToPacket(sufficientSpaceInPacket, adType, data, dataLength);
                 return true;
                 break;     

@@ -31,9 +31,7 @@ public:
     bool setLocalName(const char* localName);
     bool setAppearance(uint16_t appearance);
     bool setAdvertisedServiceData(const char* serviceDataUuid, uint8_t* serviceData, uint8_t serviceDataLength);
-	bool setAdvertisedServiceUuid(const char* serviceUuid);
-    bool setAdvertisedServiceUuid(BLEUuid &uuid);
-    bool setAdvertisedServiceUuid(uint16_t shortUuid);
+    bool setAdvertisedServiceUuid(const BLEUuid &uuid);
 	bool setTxPower(int8_t txPower);
 	void enableScanResponse(bool enable);
     void debugPrintAdvPacket(char *msg);
@@ -44,6 +42,7 @@ protected:
 private:
     bool updateFieldInPackets(uint8_t adType, const uint8_t *data, int dataLength);
     void addFieldToPacket(uint8_t *advPacket, uint8_t adType, const uint8_t *data, int dataLength);
+    bool extendFieldInPacket(uint8_t *advPacket, uint8_t adType, const uint8_t *data, int dataLength);
     int availableBytes(uint8_t *advPacket);
     int lastByteInPacket(uint8_t *advPacket);
     int bytesFree(uint8_t *advPacket);
