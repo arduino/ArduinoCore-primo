@@ -25,10 +25,15 @@
 #include "BLEUuid.h"
 
 class BLEDescriptor : public BLEAttribute {
+	
 	public:
 		BLEDescriptor(BLEUuid uuid, uint8_t *data, uint16_t dataLength);
+		BLEDescriptor * getNextElement(void);
+		void setNextElement(BLEDescriptor * element);
+		
 	private:
-		BLEDescriptor *nextDescriptor = 0;
+		BLEDescriptor *nextElement= 0;
+		
 };
 
 #endif

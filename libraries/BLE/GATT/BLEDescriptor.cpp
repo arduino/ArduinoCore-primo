@@ -19,7 +19,16 @@
 
 #include "BLEDescriptor.h"
 
-BLEDescriptor::BLEDescriptor(BLEUUID uuid, uint8_t *data, uint16_t dataLength){
-	//
+BLEDescriptor::BLEDescriptor(BLEUuid uuid, uint8_t *data, uint16_t dataLength){
+	_uuid=uuid;
+	_value=data;
+	_dataLength=dataLength;
 }
 	
+BLEDescriptor * BLEDescriptor::getNextElement(){
+	return nextElement;
+}
+		
+void BLEDescriptor::setNextElement(BLEDescriptor * element){
+	nextElement=element;
+}

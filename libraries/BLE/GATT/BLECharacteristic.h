@@ -24,6 +24,7 @@
 #include "BLEUuid.h"
 #include "BLEProperties.h"
 #include "BLEDescriptor.h"
+#include "LinkedList.h"
 
 typedef void (*BLECharacteristicEventHandlerType)(void);
 
@@ -31,17 +32,28 @@ typedef enum {SET, NOTIFICATION, INDICATION} BLESetType;
 
 class BLECharacteristic {
 	public:
-		BLECharacteristic(BLEUuid uuid, BLEProperties properties, uint8_t *data, uint16_t dataLength, bool variableLength);
-		void addDescriptor(BLEDescriptor &descriptor);
+		BLECharacteristic(const char * uuid, uint8_t properties, uint8_t *data, uint16_t dataLength, bool variableLength);
+		BLECharacteristic(const char * uuid, uint8_t properties);
+		BLECharacteristic(uint16_t shortUuid, uint8_t properties, uint8_t *data, uint16_t dataLength, bool variableLength);
+		BLECharacteristic(uint16_t shortUuid, uint8_t properties);
+		void addDescriptor(BLEDescriptor& descriptor);
 		void setEventHandler(BLECharacteristicEventHandlerType eventHandler);
 		void setValue(uint8_t *data_ptr, uint16_t length, BLESetType setType = NOTIFICATION);
-	
+		void setValue(uint8_t *data_ptr);
+		void setValue(uint8_t data_ptr);
+		void setValue(const char *data_ptr);
+		uint8_t getProperties(void);
+		BLECharacteristic * getNextElement(void);
+		void setNextElement(BLECharacteristic * element);
+		BLEAttribute getCharacteristicValue(void);
+		
 	private:
-		BLEAttribute characteristicValue;
-	    uint16_t cccdHandle;
-		BLEProperties properties;
-		BLECharacteristic *nextCharacteristic;
-		BLEDescriptor *firstDescriptor;
+		BLEAttribute _characteristicValue;
+	    uint16_t _cccdHandle;
+		uint8_t _properties;
+		BLESetType _setType;
+		BLECharacteristic *nextElement=0;
+		LinkedList<BLEDescriptor *> descriptorList;
 };
 
 #endif

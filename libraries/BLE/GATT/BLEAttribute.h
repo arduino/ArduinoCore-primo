@@ -22,26 +22,30 @@
 
 #include <stdint.h>
 #include "BLEUuid.h"
+#include "SoftDeviceManager.h"
 
-typedef uint16_t BLEPermissions;
 
 class BLEAttribute {
 	public:
 		BLEUuid getUuid(void);
+		void setUuid(const char * uuidString);
+		void setUuid(uint16_t shortUuid);
 		uint16_t getHandle(void);
-		uint8_t getValue(void);
+		uint8_t * getValue(void);
+		void setValue(uint8_t * value);
 		uint16_t getValueLength(void);
-		BLEPermissions getPermissions(void);
+		void setValueLength(uint16_t dataLength);
+		uint8_t getPermissions(void);
+		void setPermissions(uint8_t permissions);
 		
 	protected:
 		void setHandle(uint16_t handle);
-		
-	private:
-		BLEUuid uuid;
-		uint16_t handle;
-		BLEPermissions permissions;
-		uint8_t *value;
-		uint16_t data_length;
+
+		BLEUuid _uuid;
+		uint16_t _handle;
+		uint8_t _permissions;
+		uint8_t *_value;
+		uint16_t _dataLength;
 };
 
 #endif

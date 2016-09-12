@@ -18,15 +18,36 @@
 */
 
 #include "BLEService.h"
-
+#include "Arduino.h"
 BLEService::BLEService(BLEUuid uuid){
-	//
+	_uuid=uuid;
 }
 
 BLEService::BLEService(const char *uuidString){
-    _uuid.set(uuidString); // TODO: Send an error message if this returns false
+    bool err_code=_uuid.set(uuidString);
+	if(!err_code) SDManager.registerError("BLEService::BLEService(const char *uuidString)", err_code, "format of UUID string incorrect");
 }
 
-void BLEService::addCharacteristic(BLECharacteristic &characteristic){
-	//
+BLEService::BLEService(uint16_t shortUuid){
+	_uuid.set(shortUuid);
+}
+
+void BLEService::addCharacteristic(BLECharacteristic& characteristic){
+	characteristicList.add(&characteristic);
+}
+
+BLEUuid BLEService::getUuid(void){
+	return _uuid;
+}
+
+BLEService * BLEService::getNextElement(void){
+	return nextElement;
+}
+
+void BLEService::setNextElement(BLEService * element){
+	nextElement=element;
+}
+
+LinkedList<BLECharacteristic *> BLEService::getCharacteristicList(void){
+	return characteristicList;
 }

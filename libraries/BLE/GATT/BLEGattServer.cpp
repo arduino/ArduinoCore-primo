@@ -23,6 +23,6 @@ BLEGattServer::BLEGattServer(){
 	//
 }
 	
-void BLEGattServer::addService(BLEService &service){
-	//
+void BLEGattServer::addService(BLEService& service){
+	serviceList.add(&service);
 }

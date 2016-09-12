@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include "BLEUuid.h"
 #include "BLECharacteristic.h"
+#include "LinkedList.h"
 
 class BLEService {
 public:	
@@ -30,11 +31,17 @@ public:
     BLEService(const char *uuidString);
     BLEService(uint16_t shortUuid);
 	void addCharacteristic(BLECharacteristic &characteristic);
-	
+	BLEUuid getUuid(void);
+
+	BLEService * getNextElement(void);
+	void setNextElement(BLEService * element);
+	LinkedList<BLECharacteristic *> getCharacteristicList(void);
+
 private:
 	uint16_t handle;
     BLEUuid _uuid;
-	BLECharacteristic *firstCharacteristic = 0;
+	BLEService * nextElement=0;
+	LinkedList<BLECharacteristic *> characteristicList;
 };
 
 #endif

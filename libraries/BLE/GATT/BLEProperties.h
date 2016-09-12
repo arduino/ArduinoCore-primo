@@ -20,10 +20,15 @@
 #ifndef __BLEPROPERTIES_H
 #define __BLEPROPERTIES_H
 
-class BLEProperties {
-    public:
-    
-    private:
+enum {
+	BLEBroadcast = 0b00000001,
+	BLERead = 0b00000010,
+	BLEWriteCommand = 0b00000100,
+	BLEWrite = 0b00001000,
+	BLENotify = 0b00010000,
+	BLEIndicate = 0b00100000,
+	BLEAuthSighedWrite = 0b01000000
 };
+
 
 #endif

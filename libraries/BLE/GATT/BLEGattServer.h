@@ -26,7 +26,10 @@ class BLEGattServer {
 public:
 	BLEGattServer();
 	
-	void addService(BLEService &service);
+	void addService(BLEService& service);
+	
+protected:
+	LinkedList<BLEService *> serviceList;
 };
 
 #endif 

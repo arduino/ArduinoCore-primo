@@ -19,27 +19,47 @@
 
 #include "BLEAttribute.h"
 
-BLEUUID BLEAttribute::getUuid(void){
-	//
+BLEUuid BLEAttribute::getUuid(void){
+	return _uuid;
+}
+
+void BLEAttribute::setUuid(const char * uuidString){
+	bool err_code=_uuid.set(uuidString);
+	if(!err_code) SDManager.registerError("BLEAttribute::setUuid(const char * uuidString)", err_code, "format of UUID string incorrect");
+}
+
+void BLEAttribute::setUuid(uint16_t shortUuid){
+	_uuid.set(shortUuid);
 }
 		
 uint16_t BLEAttribute::getHandle(void){
-	//
+	return _handle;
 }
 
-uint8_t BLEAttribute::getValue(void){
-	//
+uint8_t * BLEAttribute::getValue(void){
+	return _value;
+}
+
+void BLEAttribute::setValue(uint8_t * value){
+	_value=value;
 }
 
 uint16_t BLEAttribute::getValueLength(void){
-	//
+	return _dataLength;
 }
 
-BLEPermissions BLEAttribute::getPermissions(void){
-	//
+void BLEAttribute::setValueLength(uint16_t dataLength){
+	_dataLength=dataLength;
+}
+
+uint8_t BLEAttribute::getPermissions(void){
+	return _permissions;
+}
+
+void BLEAttribute::setPermissions(uint8_t permissions){
+	_permissions=permissions;
 }
 				
 void BLEAttribute::setHandle(uint16_t handle){
-	//
+	_handle=handle;
 }
-		
