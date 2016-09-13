@@ -32,10 +32,11 @@ public:
     BLEService(uint16_t shortUuid);
 	void addCharacteristic(BLECharacteristic &characteristic);
 	BLEUuid getUuid(void);
-
+	
 	BLEService * getNextElement(void);
 	void setNextElement(BLEService * element);
 	LinkedList<BLECharacteristic *> getCharacteristicList(void);
+	void pushServiceToSD(void);
 
 private:
 	uint16_t handle;

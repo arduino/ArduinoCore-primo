@@ -51,3 +51,17 @@ void BLEService::setNextElement(BLEService * element){
 LinkedList<BLECharacteristic *> BLEService::getCharacteristicList(void){
 	return characteristicList;
 }
+
+void BLEService::pushServiceToSD(){
+	ble_uuid_t sUuid={_uuid.getAlias(), _uuid.getType()};
+	uint16_t service_handle;
+	//add the service to the SoftDevice
+	uint32_t err_code = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY, &sUuid, &service_handle);
+	if(err_code!=0) SDManager.registerError("BLEPeripheral::begin()", err_code, "add service failed");
+	//add all its characteristics
+	BLECharacteristic *characteristic=characteristicList.getFirstElement();
+		while(characteristic!=0){
+			characteristic->pushCharacteristicToSD(service_handle);
+			characteristic=characteristic->getNextElement();
+		}
+}

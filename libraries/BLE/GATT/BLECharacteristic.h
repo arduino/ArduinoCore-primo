@@ -45,15 +45,23 @@ class BLECharacteristic {
 		uint8_t getProperties(void);
 		BLECharacteristic * getNextElement(void);
 		void setNextElement(BLECharacteristic * element);
-		BLEAttribute getCharacteristicValue(void);
+		void pushCharacteristicToSD(uint16_t service_handle);
 		
 	private:
-		BLEAttribute _characteristicValue;
+		BLEUuid _uuid;
+		ble_gatts_char_md_t char_md;
+		ble_gatts_attr_md_t attr_md;
+		ble_gatts_attr_t attr_char_value;
+		ble_gatts_char_handles_t char_handl;
+		ble_gatts_attr_md_t cccd_md;
+		ble_uuid_t cUuid;
 	    uint16_t _cccdHandle;
 		uint8_t _properties;
 		BLESetType _setType;
 		BLECharacteristic *nextElement=0;
 		LinkedList<BLEDescriptor *> descriptorList;
+		
+		void fillCharStructures(BLEUuid uuid, uint8_t properties, uint8_t *data, uint16_t dataLength, bool variableLength);
 };
-
+		
 #endif
