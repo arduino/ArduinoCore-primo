@@ -21,6 +21,7 @@
 #define SoftDeviceManager_h
 
 #include <stdint.h>
+#include "RingBufferT.cpp"
 
 #ifdef __cplusplus
 extern "C"{
@@ -34,11 +35,13 @@ extern "C"{
 }
 #endif
 
-struct errors{
+#define ERROR_MESSAGE_NUM 20
+
+typedef struct{ 
 	uint32_t errCode;
 	char * file;
 	char * msg;
-};
+}errorMessage;
 
 class SoftDeviceManager{
 
@@ -76,11 +79,12 @@ class SoftDeviceManager{
 		const char *getErrorDescription(uint32_t errorCode);
 		void registerError(char *file, uint32_t errCode, char *msg);
 		void setErrorHandler(void (*errorHandlerCallback)(char *file, uint32_t errCode, char *msg));
+        void pollErrors(void);
 
 	private:
 		// Callback user function
-		void (*errorCallback)(char *file, uint32_t errCode, char *msg);		
-		
+		void (*errorCallback)(char *file, uint32_t errCode, char *msg) = 0;	
+        RingBufferT<errorMessage, ERROR_MESSAGE_NUM> errorMessageFifo;		
 };
 
 extern SoftDeviceManager SDManager;

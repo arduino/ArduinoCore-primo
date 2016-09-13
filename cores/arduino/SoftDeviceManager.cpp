@@ -20,10 +20,9 @@
 
 #include "Arduino.h"
 
-struct errors errorsList[20];
-uint8_t err_index=0; 
+SoftDeviceManager::SoftDeviceManager(){
 
-SoftDeviceManager::SoftDeviceManager(){}
+}
 	
 void SoftDeviceManager::begin(){
 	
@@ -77,24 +76,29 @@ void SoftDeviceManager::flashReadArray(uint32_t flashAddress, uint8_t *buf, uint
 void SoftDeviceManager::flashWriteArray(uint32_t flashAddress, uint8_t *buf, uint32_t bufLength){}
 
 const char * SoftDeviceManager::getErrorDescription(uint32_t errorCode){
-	uint8_t i=0;
+	/*uint8_t i=0;
 	for(;i<err_index;i++)
 		if(errorCode==errorsList[i].errCode)
-			return errorsList[i].msg;
+			return errorsList[i].msg;*/
 	return NULL;
 }
 void SoftDeviceManager::registerError(char *file, uint32_t errCode, char *msg){
-	errorCallback(file, errCode, msg);
-    /*struct errors newError={errCode, file, msg};
-	if(err_index==20)
-		return;
-	errorsList[err_index]=newError;
-	err_index++;*/	
+    errorMessage newError={errCode, file, msg};
+	errorMessageFifo.put(&newError);
+    pollErrors();
+}
+
+void SoftDeviceManager::pollErrors(void){
+    if(errorCallback != 0){
+        errorMessage error;
+        while(errorMessageFifo.get(&error)){
+            errorCallback(error.file, error.errCode, error.msg);
+        }
+    }    
 }
 
 void SoftDeviceManager::setErrorHandler(void (*errorHandlerCallback)(char *file, uint32_t errCode, char *msg)){
 	errorCallback=errorHandlerCallback;
 }
-
 
 SoftDeviceManager SDManager;
