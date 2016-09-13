@@ -27,6 +27,8 @@
 #include "BLEAdvertisement.h"
 #include "ble_types.h"
 
+typedef enum {BLEPeripheralEventConnected, BLEPeripheralEventDisconnected, BLEPeripheralEventTimeout, BLEPeripheralEventNUM} BLEPeripheralEventType;
+typedef void (*BLEPeripheralEventHandler)(BLEPeripheral &peripheral); 
 
 class BLEPeripheral : public BLEGattServer, public BLELinkStatus, public BLEAdvertisement {
 public:
@@ -45,6 +47,11 @@ public:
     void poll(void);
     void end(void);
     bool disconnect(void);
+    
+    void onBleEvent(ble_evt_t *bleEvent);
+    
+private:
+    BLEPeripheralEventHandler _peripheralEventHandlers[BLEPeripheralEventNUM];
 };
 
 #endif

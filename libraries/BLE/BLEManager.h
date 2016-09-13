@@ -21,21 +21,19 @@
 #define __BLE_MANAGER_H
 
 #include "ble.h"
-//#include <BLEPeripheral.h>
 
-typedef enum {BLEPeripheralEventConnected, BLEPeripheralEventDisconnected} BLEPeripheralEventType;
-typedef void (*BLEPeripheralEventHandler)(void); 
+class BLEPeripheral;
 
 class BLEManager  {
 public:
 	BLEManager();
 
-    static bool registerPeripheralCallback(BLEPeripheralEventHandler callback);
+    static bool registerPeripheral(BLEPeripheral *peripheral);
 	
     static void processBleEvents(ble_evt_t *bleEvent);
     
 private:
-    static BLEPeripheralEventHandler _blePeripheralEventHandlerList[1];
+    static BLEPeripheral    *_peripheralList[1];
 };
 
 #endif

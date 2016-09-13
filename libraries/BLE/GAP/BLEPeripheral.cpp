@@ -22,7 +22,8 @@
 #include "ble_gap.h"
 
 BLEPeripheral::BLEPeripheral(void){
-//
+    BLEManager::registerPeripheral(this);
+    memset((void *)_peripheralEventHandlers, 0, BLEPeripheralEventNUM * sizeof(_peripheralEventHandlers[0]));
 }
 
 bool BLEPeripheral::begin(void){
@@ -139,7 +140,9 @@ void BLEPeripheral::setPreferredConnectionParameters(uint16_t minConnInterval, u
 }
 	
 void BLEPeripheral::setEventHandler(BLEPeripheralEventType event, BLEPeripheralEventHandler callback){
-    BLEManager::registerPeripheralCallback(callback);
+    if(event < BLEPeripheralEventNUM) {
+        _peripheralEventHandlers[event] = callback;
+    }
 }
 
 void BLEPeripheral::poll(void){
@@ -152,4 +155,30 @@ void BLEPeripheral::end(void){
 
 bool BLEPeripheral::disconnect(void){
 //
+}
+
+void BLEPeripheral::onBleEvent(ble_evt_t *bleEvent){
+    switch(bleEvent->header.evt_id)
+    {
+        case BLE_GAP_EVT_CONNECTED:
+            if(_peripheralEventHandlers[BLEPeripheralEventConnected] != 0) {
+                _peripheralEventHandlers[BLEPeripheralEventConnected](*this);
+            }
+            break;
+            
+        case BLE_GAP_EVT_DISCONNECTED:
+            if(_peripheralEventHandlers[BLEPeripheralEventDisconnected] != 0) {
+                _peripheralEventHandlers[BLEPeripheralEventDisconnected](*this);
+            }        
+            break;
+        
+        case BLE_GAP_EVT_TIMEOUT:
+            if(_peripheralEventHandlers[BLEPeripheralEventTimeout] != 0) {
+                _peripheralEventHandlers[BLEPeripheralEventTimeout](*this);
+            }  
+            break;
+            
+        default:
+            break;
+    }
 }

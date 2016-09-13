@@ -18,11 +18,12 @@
 */
 
 #include "BLEManager.h"
+#include "BLEPeripheral.h"
 
-BLEPeripheralEventHandler BLEManager::_blePeripheralEventHandlerList[1];
+BLEPeripheral *BLEManager::_peripheralList[1];
 
 BLEManager::BLEManager(){
-	_blePeripheralEventHandlerList[0] = 0;
+    _peripheralList[0] = 0;
 }
 	
 /*BLEPeripheral &BLEManager::getPeripheral(void){
@@ -40,15 +41,13 @@ BLEBroadcaster &BLEManager::getBroadcaster(void){
 BLEObserver &BLEManager::getObserver(void){
 	//
 }*/
-
-bool BLEManager::registerPeripheralCallback(BLEPeripheralEventHandler callback){
-    _blePeripheralEventHandlerList[0] = callback;
-    return true;
+bool BLEManager::registerPeripheral(BLEPeripheral *peripheral) {
+    _peripheralList[0] = peripheral;
 }
 
 void BLEManager::processBleEvents(ble_evt_t *bleEvent){
-    if(_blePeripheralEventHandlerList[0] != 0){
-        _blePeripheralEventHandlerList[0]();
+    if(_peripheralList[0] != 0){
+        _peripheralList[0]->onBleEvent(bleEvent);
     }
 }
 	
