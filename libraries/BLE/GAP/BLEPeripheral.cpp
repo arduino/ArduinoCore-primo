@@ -41,6 +41,7 @@ bool BLEPeripheral::begin(void){
 		while(characteristic!=0){
 			//set characteristic's properties
 			ble_gatts_char_md_t char_md;
+            memset(&char_md, 0, sizeof(char_md));
 			uint8_t properties=characteristic->getProperties();
 			char_md.char_props.broadcast=properties & 0b00000001;
 			char_md.char_props.read=(properties & 0b00000010)>>1;
@@ -55,26 +56,29 @@ bool BLEPeripheral::begin(void){
 			//TODO: add format descriptor
 			char_md.p_char_pf=NULL;
 			ble_gatts_attr_md_t cccd_md;
+            memset(&cccd_md, 0, sizeof(cccd_md));
 			BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.read_perm);
 			BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.write_perm);
 			// cccd_md.read_perm  = {1, 1};
 			// cccd_md.write_perm = {1, 1};
 			cccd_md.vloc=BLE_GATTS_VLOC_STACK;
-			char_md.p_cccd_md=&cccd_md;
+			char_md.p_cccd_md=NULL;//&cccd_md;
 			char_md.p_sccd_md=NULL;
 			
 			ble_gatts_attr_md_t attr_md;
-			BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.read_perm);
+            memset(&attr_md, 0, sizeof(attr_md));
+            BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.read_perm);
 			BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.write_perm);
 			// attr_md.read_perm  = {1, 1};
 			// attr_md.write_perm = {1, 1};
 			attr_md.vloc       =  BLE_GATTS_VLOC_STACK;/*BLE_GATTS_VLOC_USER*/
 			attr_md.rd_auth    = 0;
 			attr_md.wr_auth    = 0;
-			attr_md.vlen       = characteristic->getCharacteristicValue().getValueLength();
+			attr_md.vlen       = 0;//characteristic->getCharacteristicValue().getValueLength();
 			
 			ble_uuid_t cUuid={characteristic->getCharacteristicValue().getUuid().getAlias(), characteristic->getCharacteristicValue().getUuid().getType()};
 			ble_gatts_attr_t attr_char_value;
+            memset(&attr_char_value, 0, sizeof(attr_char_value));
 			attr_char_value.p_uuid=&cUuid;
 			attr_char_value.p_attr_md=&attr_md;
 			attr_char_value.init_len=characteristic->getCharacteristicValue().getValueLength();
@@ -135,7 +139,7 @@ void BLEPeripheral::setPreferredConnectionParameters(uint16_t minConnInterval, u
 }
 	
 void BLEPeripheral::setEventHandler(BLEPeripheralEventType event, BLEPeripheralEventHandler callback){
-//
+    BLEManager::registerPeripheralCallback(callback);
 }
 
 void BLEPeripheral::poll(void){

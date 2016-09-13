@@ -19,9 +19,10 @@
 
 #include "BLEManager.h"
 
+BLEPeripheralEventHandler BLEManager::_blePeripheralEventHandlerList[1];
 
 BLEManager::BLEManager(){
-	//
+	_blePeripheralEventHandlerList[0] = 0;
 }
 	
 /*BLEPeripheral &BLEManager::getPeripheral(void){
@@ -39,5 +40,15 @@ BLEBroadcaster &BLEManager::getBroadcaster(void){
 BLEObserver &BLEManager::getObserver(void){
 	//
 }*/
-	
+
+bool BLEManager::registerPeripheralCallback(BLEPeripheralEventHandler callback){
+    _blePeripheralEventHandlerList[0] = callback;
+    return true;
+}
+
+void BLEManager::processBleEvents(ble_evt_t *bleEvent){
+    if(_blePeripheralEventHandlerList[0] != 0){
+        _blePeripheralEventHandlerList[0]();
+    }
+}
 	

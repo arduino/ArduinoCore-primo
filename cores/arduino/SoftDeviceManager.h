@@ -37,6 +37,8 @@ extern "C"{
 
 #define ERROR_MESSAGE_NUM 20
 
+#define SYSTEM_EVENT_CALLBACK_NUM   10
+
 typedef struct{ 
 	uint32_t errCode;
 	char * file;
@@ -54,6 +56,8 @@ class SoftDeviceManager{
 	
 		// Handler for system events (flash, timeslot ++)
 		void setSystemEventHandler(void(*systemEventHandler)(uint32_t));
+        
+        // Handler for BLE events
 
 		// Protected peripheral access
 		// TBD: Power management functions
@@ -82,6 +86,8 @@ class SoftDeviceManager{
         void pollErrors(void);
 
 	private:
+        // System events
+        sys_evt_handler_t _systemEventCallbackList[SYSTEM_EVENT_CALLBACK_NUM];
 		// Callback user function
 		void (*errorCallback)(char *file, uint32_t errCode, char *msg) = 0;	
         RingBufferT<errorMessage, ERROR_MESSAGE_NUM> errorMessageFifo;		

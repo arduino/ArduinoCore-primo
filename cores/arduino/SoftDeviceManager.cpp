@@ -17,11 +17,13 @@
 */
 
 #include "SoftDeviceManager.h"
+#include "BLEManager.h"
 
 #include "Arduino.h"
 
 SoftDeviceManager::SoftDeviceManager(){
-
+    // Clear the callback lists
+    memset((void *)_systemEventCallbackList, 0, sizeof(_systemEventCallbackList[0]) * SYSTEM_EVENT_CALLBACK_NUM); 
 }
 	
 void SoftDeviceManager::begin(){
@@ -50,6 +52,9 @@ void SoftDeviceManager::begin(){
     // Enable BLE stack.
     err_code = softdevice_enable(&ble_enable_params);
     if(err_code != 0) registerError("SoftDeviceManager::begin()", err_code, "softdevice_enable() returned an error");
+    
+    // Register the BLE callback handler
+    softdevice_ble_evt_handler_set(BLEManager::processBleEvents);
 }
 
 uint8_t SoftDeviceManager::isEnabled(){
