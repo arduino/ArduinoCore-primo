@@ -21,25 +21,29 @@
 
 
 BLECharacteristic::BLECharacteristic(const char * uuid, uint8_t properties, uint8_t *data, uint16_t dataLength, bool variableLength){
-	_uuid.set(uuid);
+    memset((void *)_characteristicEventHandlers, 0, sizeof(_characteristicEventHandlers));
+    _uuid.set(uuid);
 	_properties=properties;
 	fillCharStructures(properties, data, dataLength, variableLength);
 }
 
 BLECharacteristic::BLECharacteristic(const char * uuid, uint8_t properties){
+    memset((void *)_characteristicEventHandlers, 0, sizeof(_characteristicEventHandlers));
 	_uuid.set(uuid);
 	_properties=properties;
 	fillCharStructures(properties, NULL, 0, 0);
 }
 
 BLECharacteristic::BLECharacteristic(uint16_t shortUuid, uint8_t properties, uint8_t *data, uint16_t dataLength, bool variableLength){
-	_uuid.set(shortUuid);
+	memset((void *)_characteristicEventHandlers, 0, sizeof(_characteristicEventHandlers));
+    _uuid.set(shortUuid);
 	_properties=properties;
 	fillCharStructures(properties, data, dataLength, variableLength);
 }
 
 BLECharacteristic::BLECharacteristic(uint16_t shortUuid, uint8_t properties){
-	_uuid.set(shortUuid);
+    memset((void *)_characteristicEventHandlers, 0, sizeof(_characteristicEventHandlers));
+    _uuid.set(shortUuid);
 	_properties=properties;
 	fillCharStructures(properties, NULL, 0, 0);
 }
@@ -48,8 +52,11 @@ void BLECharacteristic::addDescriptor(BLEDescriptor& descriptor){
 	descriptorList.add(&descriptor);
 }
 		
-void BLECharacteristic::setEventHandler(BLECharacteristicEventHandlerType callback){
-	//
+void BLECharacteristic::setEventHandler(BLECharacteristicEventType event, BLECharacteristicEventHandlerType eventHandler){
+	if(event < BLECharEventNUM)
+        _characteristicEventHandlers[event] = eventHandler;
+    else
+        SDManager.registerError("BLECharacteristic::setEventHandler()", 0, "Invalid event type");
 }		
 
 void BLECharacteristic::setValue(uint8_t *data_ptr, uint16_t length, BLESetType setType){
@@ -153,6 +160,7 @@ void BLECharacteristic::fillCharStructures(uint8_t properties, uint8_t *data, ui
 
 void BLECharacteristic::onGattsEventWrite(ble_gatts_evt_write_t *ble_gatts_evt_write){
     if(ble_gatts_evt_write->handle == char_handl.value_handle){
-        SDManager.registerError("ONWRITE", 0, "CHARACTERISTIC");
+        if(_characteristicEventHandlers[BLECharEventDataReceived] != 0)
+            _characteristicEventHandlers[BLECharEventDataReceived](*this);        
     }
 }

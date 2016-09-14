@@ -26,7 +26,10 @@
 #include "BLEDescriptor.h"
 #include "LinkedList.h"
 
-typedef void (*BLECharacteristicEventHandlerType)(void);
+class BLECharacteristic;
+
+typedef enum {BLECharEventDataReceived, BLECharEventNUM} BLECharacteristicEventType;
+typedef void (*BLECharacteristicEventHandlerType)(BLECharacteristic &characteristic);
 
 typedef enum {SET, NOTIFICATION, INDICATION} BLESetType;
 
@@ -37,7 +40,7 @@ class BLECharacteristic {
 		BLECharacteristic(uint16_t shortUuid, uint8_t properties, uint8_t *data, uint16_t dataLength, bool variableLength);
 		BLECharacteristic(uint16_t shortUuid, uint8_t properties);
 		void addDescriptor(BLEDescriptor& descriptor);
-		void setEventHandler(BLECharacteristicEventHandlerType eventHandler);
+		void setEventHandler(BLECharacteristicEventType event, BLECharacteristicEventHandlerType eventHandler);
 		void setValue(uint8_t *data_ptr, uint16_t length, BLESetType setType = NOTIFICATION);
 		void setValue(uint8_t *data_ptr);
 		void setValue(uint8_t data_ptr);
@@ -49,18 +52,19 @@ class BLECharacteristic {
 		void onGattsEventWrite(ble_gatts_evt_write_t *ble_gatts_evt_write);
         
 	private:
-		BLEUuid _uuid;
-		ble_gatts_char_md_t char_md;
-		ble_gatts_attr_md_t attr_md;
-		ble_gatts_attr_t attr_char_value;
-		ble_gatts_char_handles_t char_handl;
-		ble_gatts_attr_md_t cccd_md;
-		ble_uuid_t cUuid;
-	    uint16_t _cccdHandle;
-		uint8_t _properties;
-		BLESetType _setType;
-		BLECharacteristic *nextElement=0;
-		LinkedList<BLEDescriptor *> descriptorList;
+		BLEUuid                             _uuid;
+		ble_gatts_char_md_t                 char_md;
+		ble_gatts_attr_md_t                 attr_md;
+		ble_gatts_attr_t                    attr_char_value;
+		ble_gatts_char_handles_t            char_handl;
+		ble_gatts_attr_md_t                 cccd_md;
+		ble_uuid_t                          cUuid;
+	    uint16_t                            _cccdHandle;
+		uint8_t                             _properties;
+		BLESetType                          _setType;
+		BLECharacteristic                   *nextElement=0;
+		LinkedList<BLEDescriptor *>         descriptorList;
+        BLECharacteristicEventHandlerType   _characteristicEventHandlers[BLECharEventNUM];
 		
 		void fillCharStructures(uint8_t properties, uint8_t *data, uint16_t dataLength, bool variableLength);
 };
