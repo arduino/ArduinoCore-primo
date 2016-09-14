@@ -58,6 +58,7 @@ class BLECharacteristic {
 		ble_uuid_t cUuid;
 	    uint16_t _cccdHandle;
 		uint8_t _properties;
+		bool added=false;
 		BLESetType _setType;
 		BLECharacteristic *nextElement=0;
 		LinkedList<BLEDescriptor *> descriptorList;
