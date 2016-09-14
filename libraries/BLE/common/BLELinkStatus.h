@@ -23,17 +23,28 @@
 #include <stdint.h>
 #include "BLEAddress.h"
 
-typedef uint16_t BLEConParams;
 typedef uint16_t BLESecurityLevel;
 
 class BLELinkStatus {
 public:
 	bool isConnected();
 	bool isBonded();
-	int8_t getRSSI();
-	BLEAddress &getPeerAddress();
-	BLEConParams &getConParams();
-	BLESecurityLevel &getSecurityLevel();
+	int8_t getRSSI();  // NOT IMPLEMENTED
+	BLEAddress &getPeerAddress(); // NOT IMPLEMENTED
+	uint32_t getConIntervalUs();
+    uint32_t getConSupervisingTimeoutMs();
+    uint32_t getSlaveLatency();
+	BLESecurityLevel &getSecurityLevel(); // NOT IMPLEMENTED
+    
+protected:
+    bool                    _lsConnected = false;
+    bool                    _lsBonded = false;
+    int8_t                  _lsRssi;
+    
+    uint16_t                _lsConHandle = BLE_CONN_HANDLE_INVALID;
+    ble_gap_addr_t          _lsPeerAddress;
+    uint8_t                 _lsConRole;
+    ble_gap_conn_params_t   _lsConParameters = {0, 0, 0, 0};
 };
 
 #endif

@@ -23,7 +23,7 @@
 #include <BLEManager.h>
 #include "BLEGattServer.h"
 #include "BLEService.h"
-#include "BLELinkStatus.h"
+#include "BLELinkStatus.cpp"
 #include "BLEAdvertisement.h"
 #include "ble_types.h"
 

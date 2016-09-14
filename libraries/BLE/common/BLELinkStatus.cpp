@@ -20,25 +20,33 @@
 #include "BLELinkStatus.h"
 
 bool BLELinkStatus::isConnected(){
-	//
+	return _lsConnected;
 }
 	
 bool BLELinkStatus::isBonded(){
-	//
+	return _lsBonded;
 }
 
 int8_t BLELinkStatus::getRSSI(){
+	return _lsRssi;
+}
+
+BLEAddress &BLELinkStatus::getPeerAddress(){
 	//
 }
 
-BLEAddress BLELinkStatus::&getPeerAddress(){
-	//
+uint32_t BLELinkStatus::getConIntervalUs(){
+    return _lsConParameters.min_conn_interval * 1250;
 }
 
-BLEConParams BLELinkStatus::&getConParams(){
-	//
+uint32_t BLELinkStatus::getConSupervisingTimeoutMs(){
+    return _lsConParameters.conn_sup_timeout * 10;
 }
 
-BLESecurityLevel BLELinkStatus::&getSecurityLevel(){
+uint32_t BLELinkStatus::getSlaveLatency(){
+    return _lsConParameters.slave_latency;
+}
+
+BLESecurityLevel &BLELinkStatus::getSecurityLevel(){
 	//
 }

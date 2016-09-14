@@ -45,7 +45,7 @@ bool BLEPeripheral::begin(void){
     advParams.p_peer_addr = 0;
     advParams.fp = BLE_GAP_ADV_FP_ANY;
     advParams.interval = 250;
-    advParams.timeout = 180;
+    advParams.timeout = 0;
     advParams.channel_mask.ch_37_off = 0;
     advParams.channel_mask.ch_38_off = 0;
     advParams.channel_mask.ch_39_off = 0;
@@ -97,17 +97,36 @@ void BLEPeripheral::onBleEvent(ble_evt_t *bleEvent){
     switch(bleEvent->header.evt_id)
     {
         case BLE_GAP_EVT_CONNECTED:
+            // Update internal connection state variables (inherited from BLELinkStatus)
+            ble_gap_evt_connected_t *eventConnected;
+            eventConnected = (ble_gap_evt_connected_t *)&bleEvent->evt.gap_evt.params.connected;
+            _lsConHandle = bleEvent->evt.gap_evt.conn_handle;
+            _lsConnected = true;
+            _lsPeerAddress = eventConnected->peer_addr;
+            _lsConRole = eventConnected->role;
+            _lsConParameters = eventConnected->conn_params;
+            
+            // Call the event handler if it is registered
             if(_peripheralEventHandlers[BLEPeripheralEventConnected] != 0) {
                 _peripheralEventHandlers[BLEPeripheralEventConnected](*this);
             }
             break;
             
         case BLE_GAP_EVT_DISCONNECTED:
+            // Update internal connection state variables (inherited from BLELinkStatus)
+            _lsConnected = false;
+            memset((void *)&_lsConParameters, 0, sizeof(ble_gap_conn_params_t));
+            
+            // Call the event handler if it is registered
             if(_peripheralEventHandlers[BLEPeripheralEventDisconnected] != 0) {
                 _peripheralEventHandlers[BLEPeripheralEventDisconnected](*this);
             }        
             break;
         
+        case BLE_GAP_EVT_CONN_PARAM_UPDATE:
+            _lsConParameters = bleEvent->evt.gap_evt.params.conn_param_update.conn_params;
+            break;
+            
         case BLE_GAP_EVT_TIMEOUT:
             if(_peripheralEventHandlers[BLEPeripheralEventTimeout] != 0) {
                 _peripheralEventHandlers[BLEPeripheralEventTimeout](*this);
