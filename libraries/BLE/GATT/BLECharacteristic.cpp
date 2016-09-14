@@ -23,25 +23,25 @@
 BLECharacteristic::BLECharacteristic(const char * uuid, uint8_t properties, uint8_t *data, uint16_t dataLength, bool variableLength){
 	_uuid.set(uuid);
 	_properties=properties;
-	fillCharStructures(_uuid, properties, data, dataLength, variableLength);
+	fillCharStructures(properties, data, dataLength, variableLength);
 }
 
 BLECharacteristic::BLECharacteristic(const char * uuid, uint8_t properties){
 	_uuid.set(uuid);
 	_properties=properties;
-	fillCharStructures(_uuid, properties, NULL, 0, 0);
+	fillCharStructures(properties, NULL, 0, 0);
 }
 
 BLECharacteristic::BLECharacteristic(uint16_t shortUuid, uint8_t properties, uint8_t *data, uint16_t dataLength, bool variableLength){
 	_uuid.set(shortUuid);
 	_properties=properties;
-	fillCharStructures(_uuid, properties, data, dataLength, variableLength);
+	fillCharStructures(properties, data, dataLength, variableLength);
 }
 
 BLECharacteristic::BLECharacteristic(uint16_t shortUuid, uint8_t properties){
 	_uuid.set(shortUuid);
 	_properties=properties;
-	fillCharStructures(_uuid, properties, NULL, 0, 0);
+	fillCharStructures(properties, NULL, 0, 0);
 }
 
 void BLECharacteristic::addDescriptor(BLEDescriptor& descriptor){
@@ -87,9 +87,16 @@ void BLECharacteristic::setNextElement(BLECharacteristic * element){
 void BLECharacteristic::pushCharacteristicToSD(uint16_t service_handle){
 	uint32_t err_code=sd_ble_gatts_characteristic_add(service_handle, &char_md, &attr_char_value, &char_handl);
 	if(err_code!=0) SDManager.registerError("BLECharacteristic::pushCharacteristicToSD()", err_code, "add characteristic failed");
+	
+	//add all related descriptor to softdevice
+	BLEDescriptor *descriptor=descriptorList.getFirstElement();
+		while(descriptor!=0){
+			descriptor->pushDescriptorToSD(char_handl.value_handle);
+			descriptor=descriptor->getNextElement();
+		}
 }
 
-void BLECharacteristic::fillCharStructures(BLEUuid uuid, uint8_t properties, uint8_t *data, uint16_t dataLength, bool variableLength){
+void BLECharacteristic::fillCharStructures(uint8_t properties, uint8_t *data, uint16_t dataLength, bool variableLength){
 	memset(&char_md, 0, sizeof(char_md));
 	//set characteristic properties
 	char_md.char_props.broadcast=properties & 0b00000001;
