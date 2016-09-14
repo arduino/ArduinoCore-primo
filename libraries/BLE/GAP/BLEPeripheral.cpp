@@ -22,7 +22,20 @@
 #include "ble_gap.h"
 
 BLEPeripheral::BLEPeripheral(void){
+    // Register the peripheral with the BLEManager (future proofing in case we will have to support multiple peripherals)
     BLEManager::registerPeripheral(this);
+    
+    // Set default advertise parameters
+    _advParams.type = BLE_GAP_ADV_TYPE_ADV_IND;
+    _advParams.p_peer_addr = 0;
+    _advParams.fp = BLE_GAP_ADV_FP_ANY;
+    _advParams.interval = 250;
+    _advParams.timeout = 0;
+    _advParams.channel_mask.ch_37_off = 0;
+    _advParams.channel_mask.ch_38_off = 0;
+    _advParams.channel_mask.ch_39_off = 0;
+    
+    // Clear the peripheral event handlers
     memset((void *)_peripheralEventHandlers, 0, BLEPeripheralEventNUM * sizeof(_peripheralEventHandlers[0]));
 }
 
@@ -40,17 +53,7 @@ bool BLEPeripheral::begin(void){
     pushAdvPacketsToSD();
 	
 	// Start advertising
-    ble_gap_adv_params_t advParams;
-    advParams.type = BLE_GAP_ADV_TYPE_ADV_IND;
-    advParams.p_peer_addr = 0;
-    advParams.fp = BLE_GAP_ADV_FP_ANY;
-    advParams.interval = 250;
-    advParams.timeout = 0;
-    advParams.channel_mask.ch_37_off = 0;
-    advParams.channel_mask.ch_38_off = 0;
-    advParams.channel_mask.ch_39_off = 0;
-    sd_ble_gap_adv_start(&advParams);
-
+    sd_ble_gap_adv_start(&_advParams);
 }
 
 void BLEPeripheral::setAdvertisement(BLEAdvertisement &advertisement){
@@ -120,7 +123,10 @@ void BLEPeripheral::onBleEvent(ble_evt_t *bleEvent){
             // Call the event handler if it is registered
             if(_peripheralEventHandlers[BLEPeripheralEventDisconnected] != 0) {
                 _peripheralEventHandlers[BLEPeripheralEventDisconnected](*this);
-            }        
+            }
+
+            // Restart advertising automatically (consider removing this later, to allow the application to control this)
+            sd_ble_gap_adv_start(&_advParams);            
             break;
         
         case BLE_GAP_EVT_CONN_PARAM_UPDATE:

@@ -51,7 +51,8 @@ public:
     void onBleEvent(ble_evt_t *bleEvent);
     
 private:
-    BLEPeripheralEventHandler _peripheralEventHandlers[BLEPeripheralEventNUM];
+    ble_gap_adv_params_t        _advParams;
+    BLEPeripheralEventHandler   _peripheralEventHandlers[BLEPeripheralEventNUM];
 };
 
 #endif
