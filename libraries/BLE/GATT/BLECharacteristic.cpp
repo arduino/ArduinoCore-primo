@@ -23,28 +23,28 @@
 BLECharacteristic::BLECharacteristic(const char * uuid, uint8_t properties, uint8_t *data, uint16_t dataLength, bool variableLength){
     memset((void *)_characteristicEventHandlers, 0, sizeof(_characteristicEventHandlers));
     _uuid.set(uuid);
-	_properties=properties;
+	_properties = properties;
 	fillCharStructures(properties, data, dataLength, variableLength);
 }
 
 BLECharacteristic::BLECharacteristic(const char * uuid, uint8_t properties){
     memset((void *)_characteristicEventHandlers, 0, sizeof(_characteristicEventHandlers));
 	_uuid.set(uuid);
-	_properties=properties;
+	_properties = properties;
 	fillCharStructures(properties, NULL, 0, 0);
 }
 
 BLECharacteristic::BLECharacteristic(uint16_t shortUuid, uint8_t properties, uint8_t *data, uint16_t dataLength, bool variableLength){
 	memset((void *)_characteristicEventHandlers, 0, sizeof(_characteristicEventHandlers));
     _uuid.set(shortUuid);
-	_properties=properties;
+	_properties = properties;
 	fillCharStructures(properties, data, dataLength, variableLength);
 }
 
 BLECharacteristic::BLECharacteristic(uint16_t shortUuid, uint8_t properties){
     memset((void *)_characteristicEventHandlers, 0, sizeof(_characteristicEventHandlers));
     _uuid.set(shortUuid);
-	_properties=properties;
+	_properties = properties;
 	fillCharStructures(properties, NULL, 0, 0);
 }
 
@@ -61,15 +61,15 @@ void BLECharacteristic::setEventHandler(BLECharacteristicEventType event, BLECha
 
 void BLECharacteristic::setValue(uint8_t *data_ptr, uint16_t length, BLESetType setType){
 	if(added){
-		ble_gatts_value_t value={length, 0, data_ptr};
-		uint32_t err_code=sd_ble_gatts_value_set(BLE_CONN_HANDLE_INVALID, char_handl.value_handle, &value);
-		if(err_code!=0) SDManager.registerError("BLECharacteristic::setValue()", err_code, "set value failed");
+		ble_gatts_value_t value = {length, 0, data_ptr};
+		uint32_t err_code = sd_ble_gatts_value_set(BLE_CONN_HANDLE_INVALID, char_handl.value_handle, &value);
+		if(err_code != 0) SDManager.registerError("BLECharacteristic::setValue()", err_code, "set value failed");
 	}
 	else{
-		_setType=setType;
-		attr_char_value.init_len=length;
-		attr_char_value.max_len=length;
-		attr_char_value.p_value=data_ptr;
+		_setType = setType;
+		attr_char_value.init_len = length;
+		attr_char_value.max_len  = length;
+		attr_char_value.p_value  = data_ptr;
 	}
 }
 
@@ -94,49 +94,49 @@ BLECharacteristic * BLECharacteristic::getNextElement(){
 }
 
 void BLECharacteristic::setNextElement(BLECharacteristic * element){
-	nextElement=element;
+	nextElement = element;
 }
 
 
 void BLECharacteristic::pushCharacteristicToSD(uint16_t service_handle){
-	uint32_t err_code=sd_ble_gatts_characteristic_add(service_handle, &char_md, &attr_char_value, &char_handl);
-	if(err_code!=0) SDManager.registerError("BLECharacteristic::pushCharacteristicToSD()", err_code, "add characteristic failed");
+	uint32_t err_code = sd_ble_gatts_characteristic_add(service_handle, &char_md, &attr_char_value, &char_handl);
+	if(err_code != 0) SDManager.registerError("BLECharacteristic::pushCharacteristicToSD()", err_code, "add characteristic failed");
 	
 	//add all related descriptor to softdevice
 	BLEDescriptor *descriptor=descriptorList.getFirstElement();
-	while(descriptor!=0){
+	while(descriptor != 0){
 		descriptor->pushDescriptorToSD(char_handl.value_handle);
 		descriptor=descriptor->getNextElement();
 	}
-	added=true;
+	added = true;
 }
 
 void BLECharacteristic::fillCharStructures(uint8_t properties, uint8_t *data, uint16_t dataLength, bool variableLength){
 	memset(&char_md, 0, sizeof(char_md));
 	//set characteristic properties
-	char_md.char_props.broadcast=(properties & BLEPropertyBroadcastMask) ? 1 : 0;
-	char_md.char_props.read=(properties & BLEPropertyReadMask) ? 1 : 0;
-	char_md.char_props.write_wo_resp=(properties & BLEPropertyWriteCommandMask) ? 1 : 0;
-	char_md.char_props.write=(properties & BLEPropertyWriteMask) ? 1 : 0;
-	char_md.char_props.notify=(properties & BLEPropertyNotifyMask) ? 1 : 0;
-	char_md.char_props.indicate=(properties & BLEPropertyIndicateMask) ? 1 : 0;
-	char_md.char_props.auth_signed_wr=(properties & BLEPropertyAuthSighedWriteMask) ? 1 : 0;
+	char_md.char_props.broadcast        = (properties & BLEPropertyBroadcastMask)    ? 1 : 0;
+	char_md.char_props.read             = (properties & BLEPropertyReadMask)         ? 1 : 0;
+	char_md.char_props.write_wo_resp    = (properties & BLEPropertyWriteCommandMask) ? 1 : 0;
+	char_md.char_props.write            = (properties & BLEPropertyWriteMask)        ? 1 : 0;
+	char_md.char_props.notify           = (properties & BLEPropertyNotifyMask)       ? 1 : 0;
+	char_md.char_props.indicate         = (properties & BLEPropertyIndicateMask)     ? 1 : 0;
+	char_md.char_props.auth_signed_wr   = (properties & BLEPropertyAuthSighedWriteMask) ? 1 : 0;
 	//TODO: add user descriptor
-	char_md.p_char_user_desc=NULL;
+	char_md.p_char_user_desc = NULL;
 	//TODO: add format descriptor
-	char_md.p_char_pf=NULL;
+	char_md.p_char_pf = NULL;
 	//if notify or indicate properties are set, set the cccd's structure
-	if(((properties & BLEPropertyNotifyMask)!=0) || ((properties & BLEPropertyIndicateMask)!=0)){
+	if(((properties & BLEPropertyNotifyMask) != 0) || ((properties & BLEPropertyIndicateMask) != 0)){
 		memset(&cccd_md, 0, sizeof(cccd_md));
 		BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.read_perm);
 		BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.write_perm);
-		cccd_md.vloc=BLE_GATTS_VLOC_STACK;
-		char_md.p_cccd_md=&cccd_md;
+		cccd_md.vloc = BLE_GATTS_VLOC_STACK;
+		char_md.p_cccd_md = &cccd_md;
 	}
 	else
-		char_md.p_cccd_md=NULL;
+		char_md.p_cccd_md = NULL;
 	
-	char_md.p_sccd_md=NULL;
+	char_md.p_sccd_md = NULL;
 	
 	//set attribute metadata structure
 	memset(&attr_md, 0, sizeof(attr_md));
@@ -144,26 +144,25 @@ void BLECharacteristic::fillCharStructures(uint8_t properties, uint8_t *data, ui
 		BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.read_perm);
 	if(properties & BLEPropertyWriteMask)
 		BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.write_perm);
-	attr_md.vloc       =  BLE_GATTS_VLOC_STACK;
-	attr_md.rd_auth    = 0;
-	attr_md.vlen       = variableLength;
+	attr_md.vloc    =  BLE_GATTS_VLOC_STACK;
+	attr_md.rd_auth = 0;
+	attr_md.vlen    = variableLength;
 	if(properties & BLEPropertyWriteCommandMask)
-		attr_md.wr_auth    = 1;
+		attr_md.wr_auth = 1;
 	
 	//set characteristic value structure
 	memset(&attr_char_value, 0, sizeof(attr_char_value));
-	cUuid.uuid=_uuid.getAlias();
-	cUuid.type=_uuid.getType();
-	attr_char_value.p_uuid=&cUuid;
-	attr_char_value.p_attr_md=&attr_md;
-	attr_char_value.init_offs=0;
+	cUuid.uuid = _uuid.getAlias();
+	cUuid.type = _uuid.getType();
+	attr_char_value.p_uuid = &cUuid;
+	attr_char_value.p_attr_md = &attr_md;
+	attr_char_value.init_offs = 0;
 	//if data = NULL user will insert data with setValue funciton
-	if(data!=NULL){
-		attr_char_value.init_len=dataLength;
-		attr_char_value.max_len=dataLength;
-		attr_char_value.p_value=data;
+	if(data != NULL){
+		attr_char_value.init_len = dataLength;
+		attr_char_value.max_len = dataLength;
+		attr_char_value.p_value = data;
 	}
-
 }
 
 void BLECharacteristic::onGattsEventWrite(ble_gatts_evt_write_t *ble_gatts_evt_write){
