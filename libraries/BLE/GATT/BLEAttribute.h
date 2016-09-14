@@ -40,7 +40,7 @@ class BLEAttribute {
 		
 	protected:
 		void setHandle(uint16_t handle);
-
+	private:
 		BLEUuid _uuid;
 		uint16_t _handle;
 		uint8_t _permissions;

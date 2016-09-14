@@ -61,7 +61,7 @@ class BLECharacteristic {
 		BLECharacteristic *nextElement=0;
 		LinkedList<BLEDescriptor *> descriptorList;
 		
-		void fillCharStructures(BLEUuid uuid, uint8_t properties, uint8_t *data, uint16_t dataLength, bool variableLength);
+		void fillCharStructures(uint8_t properties, uint8_t *data, uint16_t dataLength, bool variableLength);
 };
 		
 #endif

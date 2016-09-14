@@ -30,5 +30,13 @@ enum {
 	BLEAuthSighedWrite = 0b01000000
 };
 
+#define BLEPropertyBroadcasMask 0b00000001
+#define BLEPropertyReadMask 	0b00000010
+#define BLEPropertyWriteCommandMask 0b00000100
+#define BLEPropertyWriteMask	0b00001000
+#define BLEPropertyNotifyMask	0b00010000
+#define BLEPropertyIndicateMask 0b00100000
+#define BLEAuthSighedWriteMask	0b01000000
+
 
 #endif
