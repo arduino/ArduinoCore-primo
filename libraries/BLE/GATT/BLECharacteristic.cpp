@@ -60,10 +60,17 @@ void BLECharacteristic::setEventHandler(BLECharacteristicEventType event, BLECha
 }		
 
 void BLECharacteristic::setValue(uint8_t *data_ptr, uint16_t length, BLESetType setType){
-	_setType=setType;
-	attr_char_value.init_len=length;
-	attr_char_value.max_len=length;
-	attr_char_value.p_value=data_ptr;
+	if(added){
+		ble_gatts_value_t value={length, 0, data_ptr};
+		uint32_t err_code=sd_ble_gatts_value_set(BLE_CONN_HANDLE_INVALID, char_handl.value_handle, &value);
+		if(err_code!=0) SDManager.registerError("BLECharacteristic::setValue()", err_code, "set value failed");
+	}
+	else{
+		_setType=setType;
+		attr_char_value.init_len=length;
+		attr_char_value.max_len=length;
+		attr_char_value.p_value=data_ptr;
+	}
 }
 
 void BLECharacteristic::setValue(uint8_t *data_ptr){
@@ -101,6 +108,7 @@ void BLECharacteristic::pushCharacteristicToSD(uint16_t service_handle){
 		descriptor->pushDescriptorToSD(char_handl.value_handle);
 		descriptor=descriptor->getNextElement();
 	}
+	added=true;
 }
 
 void BLECharacteristic::fillCharStructures(uint8_t properties, uint8_t *data, uint16_t dataLength, bool variableLength){
