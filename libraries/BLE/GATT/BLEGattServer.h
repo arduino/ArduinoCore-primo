@@ -29,6 +29,8 @@ public:
 	void addService(BLEService& service);
 	
 protected:
+    void forwardGattsEventWriteToServices(ble_gatts_evt_write_t *ble_gatts_evt_write);
+
 	LinkedList<BLEService *> serviceList;
 };
 

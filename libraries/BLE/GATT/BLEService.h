@@ -37,7 +37,7 @@ public:
 	void setNextElement(BLEService * element);
 	LinkedList<BLECharacteristic *> getCharacteristicList(void);
 	void pushServiceToSD(void);
-
+    void onGattsEventWrite(ble_gatts_evt_write_t *ble_gatts_evt_write);
 private:
 	uint16_t handle;
     BLEUuid _uuid;

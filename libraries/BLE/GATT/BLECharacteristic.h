@@ -46,7 +46,8 @@ class BLECharacteristic {
 		BLECharacteristic * getNextElement(void);
 		void setNextElement(BLECharacteristic * element);
 		void pushCharacteristicToSD(uint16_t service_handle);
-		
+		void onGattsEventWrite(ble_gatts_evt_write_t *ble_gatts_evt_write);
+        
 	private:
 		BLEUuid _uuid;
 		ble_gatts_char_md_t char_md;

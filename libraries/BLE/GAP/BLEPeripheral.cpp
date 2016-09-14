@@ -132,7 +132,10 @@ void BLEPeripheral::onBleEvent(ble_evt_t *bleEvent){
                 _peripheralEventHandlers[BLEPeripheralEventTimeout](*this);
             }  
             break;
-            
+        
+        case BLE_GATTS_EVT_WRITE:
+            forwardGattsEventWriteToServices((ble_gatts_evt_write_t *)&bleEvent->evt.gatts_evt.params.write);
+            break;
         default:
             break;
     }

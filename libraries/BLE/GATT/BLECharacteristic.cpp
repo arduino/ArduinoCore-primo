@@ -150,3 +150,9 @@ void BLECharacteristic::fillCharStructures(uint8_t properties, uint8_t *data, ui
 	}
 
 }
+
+void BLECharacteristic::onGattsEventWrite(ble_gatts_evt_write_t *ble_gatts_evt_write){
+    if(ble_gatts_evt_write->handle == char_handl.value_handle){
+        SDManager.registerError("ONWRITE", 0, "CHARACTERISTIC");
+    }
+}

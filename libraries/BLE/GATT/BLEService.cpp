@@ -65,3 +65,12 @@ void BLEService::pushServiceToSD(){
 			characteristic=characteristic->getNextElement();
 		}
 }
+
+void BLEService::onGattsEventWrite(ble_gatts_evt_write_t *ble_gatts_evt_write){
+	//Forward the event to all the characteristics in the service
+	BLECharacteristic *characteristic=characteristicList.getFirstElement();
+    while(characteristic != 0){
+        characteristic->onGattsEventWrite(ble_gatts_evt_write);
+        characteristic = characteristic->getNextElement();
+    }    
+}

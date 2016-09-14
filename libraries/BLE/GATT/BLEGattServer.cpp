@@ -26,3 +26,11 @@ BLEGattServer::BLEGattServer(){
 void BLEGattServer::addService(BLEService& service){
 	serviceList.add(&service);
 }
+
+void BLEGattServer::forwardGattsEventWriteToServices(ble_gatts_evt_write_t *ble_gatts_evt_write){
+    BLEService *service = serviceList.getFirstElement();
+    while(service != 0){
+        service->onGattsEventWrite(ble_gatts_evt_write);
+        service = service->getNextElement();
+    }
+}
