@@ -64,8 +64,8 @@ class BLECharacteristic {
 		ble_gatts_attr_md_t                 cccd_md;
 		ble_uuid_t                          cUuid;
 		uint8_t                             _properties;
-        bool                                added = false;
-        bool                                subscribed = false;
+        bool                                _added = false;
+        bool                                _subscribed = false;
 		BLESetType                          _setType;
 		BLECharacteristic                   *nextElement = 0;
         BLEService                          *parentService = 0;

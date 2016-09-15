@@ -110,6 +110,9 @@ void BLEPeripheral::onBleEvent(ble_evt_t *bleEvent){
             _lsConRole = eventConnected->role;
             _lsConParameters = eventConnected->conn_params;
             
+            // Forward the connection handle to all the services
+            setConHandleInServices(bleEvent->evt.gap_evt.conn_handle);
+            
             // Call the event handler if it is registered
             if(_peripheralEventHandlers[BLEPeripheralEventConnected] != 0) {
                 _peripheralEventHandlers[BLEPeripheralEventConnected](*this);

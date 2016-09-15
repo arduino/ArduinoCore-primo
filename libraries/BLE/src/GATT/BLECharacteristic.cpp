@@ -61,8 +61,8 @@ void BLECharacteristic::setEventHandler(BLECharacteristicEventType event, BLECha
 
 void BLECharacteristic::setValue(uint8_t *data_ptr, uint16_t length, BLESetType setType){
 	uint32_t err_code;
-    if(added){
-        if(setType == NOTIFICATION && subscribed){
+    if(_added){
+        if(setType == NOTIFICATION && _subscribed){
             ble_gatts_hvx_params_t hvx_params;
             memset((void *)&hvx_params, 0, sizeof(hvx_params));
             hvx_params.handle = char_handl.value_handle;
@@ -122,7 +122,7 @@ void BLECharacteristic::pushCharacteristicToSD(uint16_t service_handle){
 		descriptor->pushDescriptorToSD(char_handl.value_handle);
 		descriptor=descriptor->getNextElement();
 	}
-	added = true;
+	_added = true;
 }
 
 void BLECharacteristic::fillCharStructures(uint8_t properties, uint8_t *data, uint16_t dataLength, bool variableLength){
@@ -181,10 +181,12 @@ void BLECharacteristic::fillCharStructures(uint8_t properties, uint8_t *data, ui
 
 void BLECharacteristic::onGattsEventWrite(ble_gatts_evt_write_t *ble_gatts_evt_write){
     if(ble_gatts_evt_write->handle == char_handl.value_handle){
+        // Characteristic value updated, call event handler
         if(_characteristicEventHandlers[BLECharEventDataReceived] != 0)
             _characteristicEventHandlers[BLECharEventDataReceived](*this);        
     }else if(ble_gatts_evt_write->handle == char_handl.cccd_handle){
-        subscribed = (ble_gatts_evt_write->data[0] & BLE_GATT_HVX_NOTIFICATION) != 0;
+        // Update the subscribed variable based on the notification flag in the CCCD
+        _subscribed = (ble_gatts_evt_write->data[0] & BLE_GATT_HVX_NOTIFICATION) != 0;
         // TODO: Add a subscribed callback
     }
 }
