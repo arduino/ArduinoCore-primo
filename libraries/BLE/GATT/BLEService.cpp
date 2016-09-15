@@ -24,7 +24,7 @@ BLEService::BLEService(BLEUuid uuid){
 }
 
 BLEService::BLEService(const char *uuidString){
-    bool err_code=_uuid.set(uuidString);
+    bool err_code = _uuid.set(uuidString);
 	if(!err_code) SDManager.registerError("BLEService::BLEService(const char *uuidString)", err_code, "format of UUID string incorrect");
 }
 
@@ -33,7 +33,8 @@ BLEService::BLEService(uint16_t shortUuid){
 }
 
 void BLEService::addCharacteristic(BLECharacteristic& characteristic){
-	characteristicList.add(&characteristic);
+    characteristic.setParentService(this);
+	_characteristicList.add(&characteristic);
 }
 
 BLEUuid BLEService::getUuid(void){
@@ -41,15 +42,15 @@ BLEUuid BLEService::getUuid(void){
 }
 
 BLEService * BLEService::getNextElement(void){
-	return nextElement;
+	return _nextElement;
 }
 
 void BLEService::setNextElement(BLEService * element){
-	nextElement=element;
+	_nextElement = element;
 }
 
 LinkedList<BLECharacteristic *> BLEService::getCharacteristicList(void){
-	return characteristicList;
+	return _characteristicList;
 }
 
 void BLEService::pushServiceToSD(){
@@ -59,16 +60,16 @@ void BLEService::pushServiceToSD(){
 	uint32_t err_code = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY, &sUuid, &service_handle);
 	if(err_code!=0) SDManager.registerError("BLEPeripheral::begin()", err_code, "add service failed");
 	//add all its characteristics
-	BLECharacteristic *characteristic=characteristicList.getFirstElement();
-		while(characteristic!=0){
+	BLECharacteristic *characteristic = _characteristicList.getFirstElement();
+		while(characteristic != 0){
 			characteristic->pushCharacteristicToSD(service_handle);
-			characteristic=characteristic->getNextElement();
+			characteristic = characteristic->getNextElement();
 		}
 }
 
 void BLEService::onGattsEventWrite(ble_gatts_evt_write_t *ble_gatts_evt_write){
 	//Forward the event to all the characteristics in the service
-	BLECharacteristic *characteristic=characteristicList.getFirstElement();
+	BLECharacteristic *characteristic = _characteristicList.getFirstElement();
     while(characteristic != 0){
         characteristic->onGattsEventWrite(ble_gatts_evt_write);
         characteristic = characteristic->getNextElement();

@@ -23,14 +23,16 @@ BLEGattServer::BLEGattServer(){
 	//
 }
 	
-void BLEGattServer::addService(BLEService& service){
+void BLEGattServer::addService(BLEService &service){
 	serviceList.add(&service);
 }
 
 void BLEGattServer::forwardGattsEventWriteToServices(ble_gatts_evt_write_t *ble_gatts_evt_write){
-    BLEService *service = serviceList.getFirstElement();
-    while(service != 0){
+    for(BLEService *service = serviceList.getFirstElement(); service != 0; service = service->getNextElement())
         service->onGattsEventWrite(ble_gatts_evt_write);
-        service = service->getNextElement();
-    }
+}
+
+void BLEGattServer::setConHandleInServices(uint16_t conHandle){
+    for(BLEService *service = serviceList.getFirstElement(); service != 0; service = service->getNextElement())
+        service->setConHandle(conHandle);
 }

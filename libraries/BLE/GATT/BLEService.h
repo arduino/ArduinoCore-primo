@@ -33,16 +33,20 @@ public:
 	void addCharacteristic(BLECharacteristic &characteristic);
 	BLEUuid getUuid(void);
 	
-	BLEService * getNextElement(void);
-	void setNextElement(BLEService * element);
+	BLEService *getNextElement(void);
+	void setNextElement(BLEService *element);
 	LinkedList<BLECharacteristic *> getCharacteristicList(void);
+    uint16_t getConHandle(){ return _conHandle; }
+    void setConHandle(uint16_t conHandle){ _conHandle = conHandle; }
 	void pushServiceToSD(void);
     void onGattsEventWrite(ble_gatts_evt_write_t *ble_gatts_evt_write);
+    
 private:
-	uint16_t handle;
-    BLEUuid _uuid;
-	BLEService * nextElement=0;
-	LinkedList<BLECharacteristic *> characteristicList;
+	uint16_t        _handle;
+    BLEUuid         _uuid;
+    uint16_t        _conHandle = BLE_CONN_HANDLE_INVALID;
+	BLEService      *_nextElement = 0;
+	LinkedList<BLECharacteristic *> _characteristicList;
 };
 
 #endif

@@ -30,6 +30,7 @@ public:
 	
 protected:
     void forwardGattsEventWriteToServices(ble_gatts_evt_write_t *ble_gatts_evt_write);
+    void setConHandleInServices(uint16_t conHandle);
 
 	LinkedList<BLEService *> serviceList;
 };

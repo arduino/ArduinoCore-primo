@@ -60,10 +60,24 @@ void BLECharacteristic::setEventHandler(BLECharacteristicEventType event, BLECha
 }		
 
 void BLECharacteristic::setValue(uint8_t *data_ptr, uint16_t length, BLESetType setType){
-	if(added){
-		ble_gatts_value_t value = {length, 0, data_ptr};
-		uint32_t err_code = sd_ble_gatts_value_set(BLE_CONN_HANDLE_INVALID, char_handl.value_handle, &value);
-		if(err_code != 0) SDManager.registerError("BLECharacteristic::setValue()", err_code, "set value failed");
+	uint32_t err_code;
+    if(added){
+        if(setType == NOTIFICATION && subscribed){
+            ble_gatts_hvx_params_t hvx_params;
+            memset((void *)&hvx_params, 0, sizeof(hvx_params));
+            hvx_params.handle = char_handl.value_handle;
+            hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
+            hvx_params.offset = 0;
+            hvx_params.p_len  = &length;
+            hvx_params.p_data = data_ptr;
+            err_code = sd_ble_gatts_hvx(parentService->getConHandle(), &hvx_params);
+            if(err_code != 0) SDManager.registerError("BLECharacteristic::setValue()", err_code, "Send notification failed");
+        }
+        else{
+            ble_gatts_value_t value = {length, 0, data_ptr};
+            err_code = sd_ble_gatts_value_set(BLE_CONN_HANDLE_INVALID, char_handl.value_handle, &value);
+            if(err_code != 0) SDManager.registerError("BLECharacteristic::setValue()", err_code, "Set value failed");
+        }
 	}
 	else{
 		_setType = setType;
@@ -169,5 +183,8 @@ void BLECharacteristic::onGattsEventWrite(ble_gatts_evt_write_t *ble_gatts_evt_w
     if(ble_gatts_evt_write->handle == char_handl.value_handle){
         if(_characteristicEventHandlers[BLECharEventDataReceived] != 0)
             _characteristicEventHandlers[BLECharEventDataReceived](*this);        
+    }else if(ble_gatts_evt_write->handle == char_handl.cccd_handle){
+        subscribed = (ble_gatts_evt_write->data[0] & BLE_GATT_HVX_NOTIFICATION) != 0;
+        // TODO: Add a subscribed callback
     }
 }
