@@ -25,7 +25,6 @@ SoftDeviceManager::SoftDeviceManager(){
 }
 	
 void SoftDeviceManager::begin(){
-	
 	uint32_t err_code;
 	
 	// Low frequency clock source to be used by the SoftDevice
@@ -42,6 +41,7 @@ void SoftDeviceManager::begin(){
                                                     &ble_enable_params);
     APP_ERROR_CHECK(err_code);
 	
+    ble_enable_params.common_enable_params.vs_uuid_count  = 4;
 	ble_enable_params.gatts_enable_params.service_changed = 1;
 	
 	 //Check the ram settings against the used number of links

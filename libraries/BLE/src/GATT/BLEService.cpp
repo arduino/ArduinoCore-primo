@@ -54,6 +54,9 @@ LinkedList<BLECharacteristic *> BLEService::getCharacteristicList(void){
 }
 
 void BLEService::pushServiceToSD(){
+    if(_uuid.getType() == BLEUuidType128Bit) 
+        if(!_uuid.register128bitUuid())
+            SDManager.registerError("BLEService", 0, "Unable to register 128-bit UUID, limit reached");
 	ble_uuid_t sUuid={_uuid.getAlias(), _uuid.getType()};
 	uint16_t service_handle;
 	//add the service to the SoftDevice

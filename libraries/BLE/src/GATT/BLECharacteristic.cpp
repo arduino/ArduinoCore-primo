@@ -113,6 +113,9 @@ void BLECharacteristic::setNextElement(BLECharacteristic * element){
 
 
 void BLECharacteristic::pushCharacteristicToSD(uint16_t service_handle){
+    if(_uuid.getType() == BLEUuidType128Bit) 
+        if(!_uuid.register128bitUuid())
+            SDManager.registerError("BLECharacteristic", 0, "Unable to register 128-bit UUID, limit reached");
 	uint32_t err_code = sd_ble_gatts_characteristic_add(service_handle, &char_md, &attr_char_value, &char_handl);
 	if(err_code != 0) SDManager.registerError("BLECharacteristic::pushCharacteristicToSD()", err_code, "add characteristic failed");
 	
