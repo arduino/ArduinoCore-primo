@@ -29,7 +29,7 @@ void SoftDeviceManager::begin(){
 	uint32_t err_code;
 	
 	// Low frequency clock source to be used by the SoftDevice
-	nrf_clock_lf_cfg_t clock_lf_cfg= {.source        = NRF_CLOCK_LF_SRC_XTAL,            \
+	nrf_clock_lf_cfg_t clock_lf_cfg = {.source        = NRF_CLOCK_LF_SRC_XTAL,            \
                                  .rc_ctiv       = 0,                                \
                                  .rc_temp_ctiv  = 0,                                \
                                  .xtal_accuracy = NRF_CLOCK_LF_XTAL_ACCURACY_20_PPM};
@@ -52,7 +52,7 @@ void SoftDeviceManager::begin(){
     if(err_code != 0) registerError("SoftDeviceManager::begin()", err_code, "softdevice_enable() returned an error");
     
     // Register the BLE callback handler
-    softdevice_ble_evt_handler_set(BLEManager::processBleEvents);
+    softdevice_ble_evt_handler_set(BLEManager.processBleEvents);
 }
 
 uint8_t SoftDeviceManager::isEnabled(){
@@ -86,7 +86,7 @@ const char * SoftDeviceManager::getErrorDescription(uint32_t errorCode){
 	return NULL;
 }
 void SoftDeviceManager::registerError(char *file, uint32_t errCode, char *msg){
-    errorMessage newError={errCode, file, msg};
+    errorMessage newError = {errCode, file, msg};
 	errorMessageFifo.put(&newError);
     pollErrors();
 }

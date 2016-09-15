@@ -19,34 +19,39 @@
 
 #include "BLEManager.h"
 
-BLEPeripheral *BLEManager::_peripheralList[1];
+BLEPeripheral *BLEManagerClass::_peripheralList[1];
 
-BLEManager::BLEManager(){
+BLEManagerClass::BLEManagerClass(){
     _peripheralList[0] = 0;
 }
 	
-/*BLEPeripheral &BLEManager::getPeripheral(void){
+/*BLEPeripheral &BLEManagerClass::getPeripheral(void){
 	//
 }
 
-BLECentral &BLEManager::getCentral(void){
+BLECentral &BLEManagerClass::getCentral(void){
 	//
 }
 
-BLEBroadcaster &BLEManager::getBroadcaster(void){
+BLEBroadcaster &BLEManagerClass::getBroadcaster(void){
 	//
 }
 
-BLEObserver &BLEManager::getObserver(void){
+BLEObserver &BLEManagerClass::getObserver(void){
 	//
 }*/
-bool BLEManager::registerPeripheral(BLEPeripheral *peripheral) {
+bool BLEManagerClass::registerPeripheral(BLEPeripheral *peripheral) {
     _peripheralList[0] = peripheral;
 }
 
-void BLEManager::processBleEvents(ble_evt_t *bleEvent){
+void BLEManagerClass::processBleEvents(ble_evt_t *bleEvent){
     if(_peripheralList[0] != 0){
         _peripheralList[0]->onBleEvent(bleEvent);
     }
 }
-	
+
+void BLEManagerClass::setErrorHandler(void (*errorHandlerCallback)(char *file, uint32_t errCode, char *msg)){
+	SDManager.setErrorHandler(errorHandlerCallback);
+}
+
+BLEManagerClass BLEManager;	

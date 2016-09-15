@@ -26,16 +26,20 @@
 
 class BLEPeripheral;
 
-class BLEManager  {
+class BLEManagerClass  {
 public:
-	BLEManager();
+	BLEManagerClass();
 
     static bool registerPeripheral(BLEPeripheral *peripheral);
 	
     static void processBleEvents(ble_evt_t *bleEvent);
+	
+	void setErrorHandler(void (*errorHandlerCallback)(char *file, uint32_t errCode, char *msg));
     
 private:
     static BLEPeripheral    *_peripheralList[1];
 };
+
+extern BLEManagerClass BLEManager;
 
 #endif

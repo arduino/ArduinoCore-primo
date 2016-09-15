@@ -23,8 +23,12 @@
 
 
 BLEPeripheral::BLEPeripheral(void){
+	//enable the Softdevice if is not yet enabled
+	if(!SDManager.isEnabled())
+		SDManager.begin();
+	
     // Register the peripheral with the BLEManager (future proofing in case we will have to support multiple peripherals)
-    BLEManager::registerPeripheral(this);
+    BLEManager.registerPeripheral(this);
     
     // Set default advertise parameters
     _advParams.type = BLE_GAP_ADV_TYPE_ADV_IND;
@@ -43,11 +47,11 @@ BLEPeripheral::BLEPeripheral(void){
 bool BLEPeripheral::begin(void){
     
 	//scan all the services
-	BLEService * service=serviceList.getFirstElement();
-	while(service!=0){ 
+	BLEService * service = serviceList.getFirstElement();
+	while(service != 0){ 
 		//register service and related characteristics
 		service->pushServiceToSD();
-		service=service->getNextElement();
+		service = service->getNextElement();
 	}
 	
 	// Configure the advertise packets in the SoftDevice
