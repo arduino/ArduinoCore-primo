@@ -19,8 +19,6 @@
 #include "SoftDeviceManager.h"
 #include "BLEManager.h"
 
-#include "Arduino.h"
-
 SoftDeviceManager::SoftDeviceManager(){
     // Clear the callback lists
     memset((void *)_systemEventCallbackList, 0, sizeof(_systemEventCallbackList[0]) * SYSTEM_EVENT_CALLBACK_NUM); 

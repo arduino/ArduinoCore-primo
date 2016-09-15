@@ -18,7 +18,7 @@
 */
 
 #include "BLEService.h"
-#include "Arduino.h"
+
 BLEService::BLEService(BLEUuid uuid){
 	_uuid=uuid;
 }

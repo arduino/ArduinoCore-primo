@@ -17,9 +17,25 @@
   
 */
 
+#ifndef __BLE_MANAGER_H
+#define __BLE_MANAGER_H
 
-class BLECharacteristicWrittenEvent {
+#include "Arduino.h"
+#include "ble.h"
+#include "GAP/BLEPeripheral.h"
+
+class BLEPeripheral;
+
+class BLEManager  {
 public:
-	BLEPeripheral &getPeripheral();
-	BLECharacteristic &getCharacteristic();
+	BLEManager();
+
+    static bool registerPeripheral(BLEPeripheral *peripheral);
+	
+    static void processBleEvents(ble_evt_t *bleEvent);
+    
+private:
+    static BLEPeripheral    *_peripheralList[1];
 };
+
+#endif

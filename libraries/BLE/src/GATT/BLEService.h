@@ -21,9 +21,11 @@
 #define __BLESERVICE_H
 
 #include <stdint.h>
-#include "BLEUuid.h"
+#include "..\common\BLEUuid.h"
 #include "BLECharacteristic.h"
-#include "LinkedList.h"
+#include "..\common\LinkedList.h"
+
+class BLECharacteristic;
 
 class BLEService {
 public:	

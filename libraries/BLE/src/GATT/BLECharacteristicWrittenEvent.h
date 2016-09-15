@@ -17,8 +17,10 @@
   
 */
 
+#include "../GAP/BLEPeripheral.h"
 
-class BLECharacteristicFormatDescriptor : public BLEDescriptor {
+class BLECharacteristicWrittenEvent {
 public:
-	BLECharacteristicFormatDescriptor(uint8_t exponent, ......);
+	BLEPeripheral &getPeripheral();
+	BLECharacteristic &getCharacteristic();
 };

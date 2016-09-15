@@ -22,6 +22,7 @@
 
 #include <stdint.h>
 #include "BLEAddress.h"
+#include "ble_gap.h"
 
 typedef uint16_t BLESecurityLevel;
 

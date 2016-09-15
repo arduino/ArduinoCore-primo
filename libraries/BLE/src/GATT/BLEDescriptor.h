@@ -17,8 +17,28 @@
   
 */
 
-#include "BLECharacteristicFormatDescriptor.h"
+#ifndef __BLEDESCRIPTOR_H
+#define __BLEDESCRIPTOR_H
 
-BLECharacteristicFormatDescriptor::BLECharacteristicFormatDescriptor(uint8_t exponent, ......){
-	//
-}
+#include <stdint.h>
+#include "BLEAttribute.h"
+#include "..\common\BLEUuid.h"
+
+class BLEDescriptor : public BLEAttribute {
+	
+	public:
+		BLEDescriptor(const char * uuid, uint8_t *data, uint16_t dataLength);
+		BLEDescriptor(uint16_t shortUuid, uint8_t *data, uint16_t dataLength);
+		BLEDescriptor * getNextElement(void);
+		void setNextElement(BLEDescriptor * element);
+		void pushDescriptorToSD(uint16_t char_handle);
+		
+	private:
+		BLEDescriptor *nextElement= 0;
+		ble_gatts_attr_t attr_desc_value;
+		ble_uuid_t dUuid;
+		ble_gatts_attr_md_t attr_md;
+		uint16_t * desc_handle;
+};
+
+#endif

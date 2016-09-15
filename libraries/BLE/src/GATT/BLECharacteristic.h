@@ -21,10 +21,12 @@
 #define __BLECHARACTERISTIC_H
 
 #include <stdint.h>
-#include "BLEUuid.h"
+#include "..\common\BLEUuid.h"
 #include "BLEProperties.h"
 #include "BLEDescriptor.h"
-#include "LinkedList.h"
+#include "..\common\LinkedList.h"
+#include "..\common\LinkedList.cpp"
+#include "BLEService.h"
 
 class BLECharacteristic;
 class BLEService;

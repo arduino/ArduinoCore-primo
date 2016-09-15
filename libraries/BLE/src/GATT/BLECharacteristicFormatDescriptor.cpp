@@ -17,37 +17,8 @@
   
 */
 
-#include "BLEManager.h"
-#include "BLEPeripheral.h"
+#include "BLECharacteristicFormatDescriptor.h"
 
-BLEPeripheral *BLEManager::_peripheralList[1];
-
-BLEManager::BLEManager(){
-    _peripheralList[0] = 0;
-}
-	
-/*BLEPeripheral &BLEManager::getPeripheral(void){
+//BLECharacteristicFormatDescriptor::BLECharacteristicFormatDescriptor(uint8_t exponent, ......){
 	//
-}
-
-BLECentral &BLEManager::getCentral(void){
-	//
-}
-
-BLEBroadcaster &BLEManager::getBroadcaster(void){
-	//
-}
-
-BLEObserver &BLEManager::getObserver(void){
-	//
-}*/
-bool BLEManager::registerPeripheral(BLEPeripheral *peripheral) {
-    _peripheralList[0] = peripheral;
-}
-
-void BLEManager::processBleEvents(ble_evt_t *bleEvent){
-    if(_peripheralList[0] != 0){
-        _peripheralList[0]->onBleEvent(bleEvent);
-    }
-}
-	
+//}

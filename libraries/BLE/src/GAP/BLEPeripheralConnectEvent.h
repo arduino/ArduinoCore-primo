@@ -17,6 +17,8 @@
   
 */
 
+#include "../common/BLEAddress.h"
+
 class BLEPeripheralConnectEvent {
 public:
 	BLEAddress &getPeerAddress();

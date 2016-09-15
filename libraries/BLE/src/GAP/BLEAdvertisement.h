@@ -22,6 +22,7 @@
 
 #include <stdint.h>
 #include "ble_gap.h"
+#include "../common/BLEUuid.h"
 
 class BLEAdvertisement {
 public:

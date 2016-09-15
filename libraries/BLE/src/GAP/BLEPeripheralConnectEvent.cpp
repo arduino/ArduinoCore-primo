@@ -17,8 +17,8 @@
   
 */
 
-#include "BLECharacteristicUserDescriptor.h"
+#include "BLEPeripheralConnectEvent.h"
 
-BLECharacteristicUserDescriptor::BLECharacteristicUserDescriptor(uint8_t *userString){
+BLEAddress & BLEPeripheralConnectEvent::getPeerAddress(){
 	//
 }

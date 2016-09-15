@@ -21,6 +21,7 @@
 #define __BLEUUID_H
 
 #include <stdint.h>
+#include <string.h>
 
 #define UUID_SHORT_MSB_INDEX 2
 #define UUID_SHORT_LSB_INDEX 3

@@ -17,28 +17,35 @@
   
 */
 
-#ifndef __BLEDESCRIPTOR_H
-#define __BLEDESCRIPTOR_H
+#ifndef __BLEATTRIBUTE_H
+#define __BLEATTRIBUTE_H
 
 #include <stdint.h>
-#include "BLEAttribute.h"
-#include "BLEUuid.h"
+#include "..\common\BLEUuid.h"
+#include "SoftDeviceManager.h"
 
-class BLEDescriptor : public BLEAttribute {
-	
+
+class BLEAttribute {
 	public:
-		BLEDescriptor(const char * uuid, uint8_t *data, uint16_t dataLength);
-		BLEDescriptor(uint16_t shortUuid, uint8_t *data, uint16_t dataLength);
-		BLEDescriptor * getNextElement(void);
-		void setNextElement(BLEDescriptor * element);
-		void pushDescriptorToSD(uint16_t char_handle);
+		BLEUuid getUuid(void);
+		void setUuid(const char * uuidString);
+		void setUuid(uint16_t shortUuid);
+		uint16_t getHandle(void);
+		uint8_t * getValue(void);
+		void setValue(uint8_t * value);
+		uint16_t getValueLength(void);
+		void setValueLength(uint16_t dataLength);
+		uint8_t getPermissions(void);
+		void setPermissions(uint8_t permissions);
 		
+	protected:
+		void setHandle(uint16_t handle);
 	private:
-		BLEDescriptor *nextElement= 0;
-		ble_gatts_attr_t attr_desc_value;
-		ble_uuid_t dUuid;
-		ble_gatts_attr_md_t attr_md;
-		uint16_t * desc_handle;
+		BLEUuid _uuid;
+		uint16_t _handle;
+		uint8_t _permissions;
+		uint8_t *_value;
+		uint16_t _dataLength;
 };
 
 #endif

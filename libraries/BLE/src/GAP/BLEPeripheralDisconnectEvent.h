@@ -17,16 +17,10 @@
   
 */
 
-#include "BLEAddress.h"
+#include "../common/BLEAddress.h"
 
-BLEAddress::BLEAddress(uint8_t *address){
-	//
-}
-
-BLEAddressType BLEAddress::getAddressType(){
-	//
-}
-	
-BLEAddress::uint8_t *toString(void){
-	//
-}
+class BLEPeripheralDisconnectEvent {
+public:
+	BLEAddress &getPeerAddress();
+	uint8_t getDisconnectReason();
+};

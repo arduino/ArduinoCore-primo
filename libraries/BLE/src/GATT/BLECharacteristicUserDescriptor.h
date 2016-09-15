@@ -17,23 +17,8 @@
   
 */
 
-#ifndef __BLE_MANAGER_H
-#define __BLE_MANAGER_H
+#include "BLEDescriptor.h"
 
-#include "ble.h"
-
-class BLEPeripheral;
-
-class BLEManager  {
-public:
-	BLEManager();
-
-    static bool registerPeripheral(BLEPeripheral *peripheral);
-	
-    static void processBleEvents(ble_evt_t *bleEvent);
-    
-private:
-    static BLEPeripheral    *_peripheralList[1];
+class BLECharacteristicUserDescriptor : public BLEDescriptor {
+	BLECharacteristicUserDescriptor(uint8_t *userString);
 };
-
-#endif

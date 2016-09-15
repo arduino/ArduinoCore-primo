@@ -17,9 +17,9 @@
   
 */
 
+#include "BLEDescriptor.h"
 
-class BLEPeripheralDisconnectEvent {
+class BLECharacteristicFormatDescriptor : public BLEDescriptor {
 public:
-	BLEAddress &getPeerAddress();
-	uint8_t getDisconnectReason();
+	//BLECharacteristicFormatDescriptor(uint8_t exponent, ......);
 };

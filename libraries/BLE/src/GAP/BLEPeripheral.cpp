@@ -21,6 +21,7 @@
 #include <string.h>
 #include "ble_gap.h"
 
+
 BLEPeripheral::BLEPeripheral(void){
     // Register the peripheral with the BLEManager (future proofing in case we will have to support multiple peripherals)
     BLEManager::registerPeripheral(this);

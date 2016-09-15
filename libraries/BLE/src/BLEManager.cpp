@@ -17,7 +17,36 @@
   
 */
 
+#include "BLEManager.h"
 
-class BLECharacteristicUserDescriptor : public BLEDescriptor {
-	BLECharacteristicUserDescriptor(uint8_t *userString);
-};
+BLEPeripheral *BLEManager::_peripheralList[1];
+
+BLEManager::BLEManager(){
+    _peripheralList[0] = 0;
+}
+	
+/*BLEPeripheral &BLEManager::getPeripheral(void){
+	//
+}
+
+BLECentral &BLEManager::getCentral(void){
+	//
+}
+
+BLEBroadcaster &BLEManager::getBroadcaster(void){
+	//
+}
+
+BLEObserver &BLEManager::getObserver(void){
+	//
+}*/
+bool BLEManager::registerPeripheral(BLEPeripheral *peripheral) {
+    _peripheralList[0] = peripheral;
+}
+
+void BLEManager::processBleEvents(ble_evt_t *bleEvent){
+    if(_peripheralList[0] != 0){
+        _peripheralList[0]->onBleEvent(bleEvent);
+    }
+}
+	

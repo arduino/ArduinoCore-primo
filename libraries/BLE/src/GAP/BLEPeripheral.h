@@ -20,18 +20,20 @@
 #ifndef __BLEPERIPHERAL_H
 #define __BLEPERIPHERAL_H
 
-#include <BLEManager.h>
-#include "BLEGattServer.h"
-#include "BLEService.h"
-#include "BLELinkStatus.h"
+#include "../BLEManager.h"
+#include "../GATT/BLEGattServer.h"
+#include "../GATT/BLEService.h"
+#include "../common/BLELinkStatus.h"
 #include "BLEAdvertisement.h"
 #include "ble_types.h"
 
 typedef enum {BLEPeripheralEventConnected, BLEPeripheralEventDisconnected, BLEPeripheralEventTimeout, BLEPeripheralEventNUM} BLEPeripheralEventType;
-typedef void (*BLEPeripheralEventHandler)(BLEPeripheral &peripheral); 
 
 class BLEPeripheral : public BLEGattServer, public BLELinkStatus, public BLEAdvertisement {
 public:
+
+	typedef void (*BLEPeripheralEventHandler)(BLEPeripheral &peripheral);
+
     BLEPeripheral(void);
 
 	void setAdvertisement(BLEAdvertisement &advertisement);

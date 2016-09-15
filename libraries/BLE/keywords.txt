@@ -1,0 +1,18 @@
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+BLEManager	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+BLEPeripheral	KEYWORD2
+BLECharacteristic	KEYWORD2
+BLEService	KEYWORD2
+BLEDescriptor KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################

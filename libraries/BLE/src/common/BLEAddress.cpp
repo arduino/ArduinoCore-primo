@@ -17,8 +17,16 @@
   
 */
 
-#include "BLEPeriperalConnectEvent.h"
+#include "BLEAddress.h"
 
-BLEAddress & BLEPeriperalConnectEvent::getPeerAddress(){
+BLEAddress::BLEAddress(uint8_t *address){
+	//
+}
+
+BLEAddressType BLEAddress::getAddressType(){
+	//
+}
+	
+uint8_t * BLEAddress::toString(void){
 	//
 }
