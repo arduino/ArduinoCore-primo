@@ -31,7 +31,7 @@
 class BLECharacteristic;
 class BLEService;
 
-typedef enum {BLECharEventDataReceived, BLECharEventNUM} BLECharacteristicEventType;
+typedef enum {BLECharEventValueChanged, BLECharEventSubscribed, BLECharEventUnsubscribed, BLECharEventNUM} BLECharacteristicEventType;
 typedef void (*BLECharacteristicEventHandlerType)(BLECharacteristic &characteristic);
 
 typedef enum {SET, NOTIFICATION, INDICATION} BLESetType;

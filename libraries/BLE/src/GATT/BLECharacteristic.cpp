@@ -185,11 +185,18 @@ void BLECharacteristic::fillCharStructures(uint8_t properties, uint8_t *data, ui
 void BLECharacteristic::onGattsEventWrite(ble_gatts_evt_write_t *ble_gatts_evt_write){
     if(ble_gatts_evt_write->handle == char_handl.value_handle){
         // Characteristic value updated, call event handler
-        if(_characteristicEventHandlers[BLECharEventDataReceived] != 0)
-            _characteristicEventHandlers[BLECharEventDataReceived](*this);        
+        if(_characteristicEventHandlers[BLECharEventValueChanged] != 0)
+            _characteristicEventHandlers[BLECharEventValueChanged](*this);        
     }else if(ble_gatts_evt_write->handle == char_handl.cccd_handle){
         // Update the subscribed variable based on the notification flag in the CCCD
         _subscribed = (ble_gatts_evt_write->data[0] & BLE_GATT_HVX_NOTIFICATION) != 0;
-        // TODO: Add a subscribed callback
+        if(_subscribed){
+            if(_characteristicEventHandlers[BLECharEventSubscribed] != 0)
+                _characteristicEventHandlers[BLECharEventSubscribed](*this); 
+        }
+        else{
+            if(_characteristicEventHandlers[BLECharEventUnsubscribed] != 0)
+                _characteristicEventHandlers[BLECharEventUnsubscribed](*this); 
+        }
     }
 }
