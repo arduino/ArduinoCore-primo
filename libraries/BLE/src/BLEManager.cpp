@@ -19,10 +19,10 @@
 
 #include "BLEManager.h"
 
-BLEPeripheral *BLEManagerClass::_peripheralList[1];
+BLEPeripheral *BLEManagerClass::_peripheralList[1] = {0};
 
 BLEManagerClass::BLEManagerClass(){
-    _peripheralList[0] = 0;
+   // _peripheralList[0] = 0;
 }
 	
 /*BLEPeripheral &BLEManagerClass::getPeripheral(void){
