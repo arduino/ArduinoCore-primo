@@ -40,8 +40,9 @@ public:
     BLEAdvertisement &getAdvertisement();
 
     void setDeviceName(const char *deviceName);
-    void setAppearance(const unsigned short appearance);
-    void setPreferredConnectionParameters(uint16_t minConnInterval, uint16_t maxConnInterval, uint16_t slaveLatency, uint16_t supervisingTimeout);
+    bool setLocalName(const char *localName);
+    void setAppearance(const uint16_t appearance);
+    void setPreferredConnectionParameters(uint16_t minConIntervalMs, uint16_t maxConIntervalMs, uint16_t slaveLatency, uint16_t supervisingTimeoutMs);
 
     void setEventHandler(BLEPeripheralEventType event, BLEPeripheralEventHandler eventHandler);
 

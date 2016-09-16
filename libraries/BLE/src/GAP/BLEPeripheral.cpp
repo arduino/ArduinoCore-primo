@@ -74,13 +74,31 @@ void BLEPeripheral::setDeviceName(const char *deviceName){
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&writePermission);
     sd_ble_gap_device_name_set(&writePermission, (const uint8_t *)deviceName, strlen(deviceName));
 }
+
+bool BLEPeripheral::setLocalName(const char* localName){
+    setDeviceName(localName);
+    return BLEAdvertisement::setLocalName(localName);
+}
     
 void BLEPeripheral::setAppearance(const unsigned short appearance){
+    uint32_t err_code = sd_ble_gap_appearance_set(appearance);
+    if(err_code != 0) SDManager.registerError("BLEPeripheral::setAppearance", err_code, "Unable to set appearance");
     BLEAdvertisement::setAppearance(appearance);
 }
     
-void BLEPeripheral::setPreferredConnectionParameters(uint16_t minConnInterval, uint16_t maxConnInterval, uint16_t slaveLatency, uint16_t supervisingTimeout){
-//
+void BLEPeripheral::setPreferredConnectionParameters(uint16_t minConIntervalMs, uint16_t maxConIntervalMs, uint16_t slaveLatency, uint16_t supervisingTimeoutMs){
+    uint32_t                err_code;
+    ble_gap_conn_params_t   gapConParams;
+
+    memset(&gapConParams, 0, sizeof(gapConParams));
+
+    gapConParams.min_conn_interval = minConIntervalMs * 4 / 5;
+    gapConParams.max_conn_interval = maxConIntervalMs * 4 / 5;
+    gapConParams.slave_latency     = slaveLatency;
+    gapConParams.conn_sup_timeout  = supervisingTimeoutMs / 10;
+
+    err_code = sd_ble_gap_ppcp_set(&gapConParams);
+    if(err_code != 0) SDManager.registerError("BLEPeripheral::setPreferredConnectionParameters", err_code, "Failed to set PPCP");
 }
 	
 void BLEPeripheral::setEventHandler(BLEPeripheralEventType event, BLEPeripheralEventHandler callback){
