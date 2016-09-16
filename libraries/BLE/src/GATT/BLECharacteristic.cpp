@@ -59,7 +59,7 @@ void BLECharacteristic::setEventHandler(BLECharacteristicEventType event, BLECha
         SDManager.registerError("BLECharacteristic::setEventHandler()", 0, "Invalid event type");
 }		
 
-void BLECharacteristic::setValue(uint8_t *data_ptr, uint16_t length, BLESetType setType){
+void BLECharacteristic::setValueInSD(uint8_t *data_ptr, uint16_t length, BLESetType setType){
 	uint32_t err_code;
     if(_added){
         if(setType == NOTIFICATION && _subscribed){
@@ -84,7 +84,11 @@ void BLECharacteristic::setValue(uint8_t *data_ptr, uint16_t length, BLESetType 
 		attr_char_value.init_len = length;
 		attr_char_value.max_len  = length;
 		attr_char_value.p_value  = data_ptr;
-	}
+	}    
+}
+
+void BLECharacteristic::setValue(uint8_t *data_ptr, uint16_t length, BLESetType setType){
+    setValueInSD(data_ptr, length, setType);
 }
 
 void BLECharacteristic::setValue(uint8_t *data_ptr){

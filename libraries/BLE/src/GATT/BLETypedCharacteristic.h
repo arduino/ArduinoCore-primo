@@ -17,32 +17,25 @@
   
 */
 
-#ifndef __BLE_MANAGER_H
-#define __BLE_MANAGER_H
+#ifndef __BLE_TYPED_CHARACTERISTIC_H
+#define __BLE_TYPED_CHARACTERISTIC_H
 
-#include "Arduino.h"
-#include "ble.h"
-#include "GAP/BLEPeripheral.h"
-#include "GATT/BLETypedCharacteristic.cpp"
+#include <stdint.h>
+#include "BLECharacteristic.h"
 
-class BLEPeripheral;
-
-class BLEManagerClass  {
-public:
-	BLEManagerClass();
-
-    static bool registerPeripheral(BLEPeripheral *peripheral);
-	
-    static void processBleEvents(ble_evt_t *bleEvent);
-	
-    static void defaultSerialErrorHandler(char *file, uint32_t errCode, char *msg);
-    
-	void setErrorHandler(void (*errorHandlerCallback)(char *file, uint32_t errCode, char *msg));
-    
-private:
-    static BLEPeripheral    *_peripheralList[1];
+template<typename T>
+class BLETypedCharacteristic : public BLECharacteristic {
+	public:
+        BLETypedCharacteristic(const char *uuid, uint8_t properties);
+		BLETypedCharacteristic(const char *uuid, uint8_t properties, T initData);
+        
+        bool setValue(T value, BLESetType setType = NOTIFICATION);
+        T &getValue(void);
+        
+        void onGattsEventWrite(ble_gatts_evt_write_t *ble_gatts_evt_write);
+        
+	private:
+        T _value;
 };
-
-extern BLEManagerClass BLEManager;
-
+		
 #endif
