@@ -99,6 +99,11 @@ void BLECharacteristic::setValue(const char *data_ptr){
 	setValue((uint8_t *)data_ptr, strlen(data_ptr));
 }
 
+uint8_t BLECharacteristic::operator[](int index) const{
+    if(index < 0 || index >= attr_char_value.max_len) return 0; 
+    return attr_char_value.p_value[index];
+}
+
 uint8_t BLECharacteristic::getProperties(void){
 	return _properties;
 }
@@ -184,6 +189,7 @@ void BLECharacteristic::fillCharStructures(uint8_t properties, uint8_t *data, ui
 
 void BLECharacteristic::onGattsEventWrite(ble_gatts_evt_write_t *ble_gatts_evt_write){
     if(ble_gatts_evt_write->handle == char_handl.value_handle){
+        memcpy(&attr_char_value.p_value[ble_gatts_evt_write->offset], ble_gatts_evt_write->data, ble_gatts_evt_write->len);
         // Characteristic value updated, call event handler
         if(_characteristicEventHandlers[BLECharEventValueChanged] != 0)
             _characteristicEventHandlers[BLECharEventValueChanged](*this);        
