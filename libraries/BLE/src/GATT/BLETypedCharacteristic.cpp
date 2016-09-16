@@ -31,6 +31,17 @@ BLETypedCharacteristic<T>::BLETypedCharacteristic(const char *uuid, uint8_t prop
 }
 
 template<typename T>
+BLETypedCharacteristic<T>::BLETypedCharacteristic(uint16_t uuid, uint8_t properties) :
+    BLECharacteristic(uuid, properties, (uint8_t*)&_value, sizeof(T), false){
+}
+
+template<typename T>
+BLETypedCharacteristic<T>::BLETypedCharacteristic(uint16_t uuid, uint8_t properties, T initData) :
+    BLECharacteristic(uuid, properties, (uint8_t*)&_value, sizeof(T), false){
+    _value = initData;
+}
+
+template<typename T>
 void BLETypedCharacteristic<T>::setValue(T value){
     _value = value;
     setValueInSD((uint8_t *)&_value, sizeof(T), NOTIFICATION);

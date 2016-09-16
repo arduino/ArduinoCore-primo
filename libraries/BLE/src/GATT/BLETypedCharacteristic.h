@@ -28,6 +28,8 @@ class BLETypedCharacteristic : public BLECharacteristic {
 	public:
         BLETypedCharacteristic(const char *uuid, uint8_t properties);
 		BLETypedCharacteristic(const char *uuid, uint8_t properties, T initData);
+        BLETypedCharacteristic(uint16_t uuid, uint8_t properties);
+		BLETypedCharacteristic(uint16_t uuid, uint8_t properties, T initData);
         
         void setValue(T value);
         T &getValue(void);
