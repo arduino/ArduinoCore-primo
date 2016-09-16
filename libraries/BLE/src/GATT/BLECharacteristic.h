@@ -47,6 +47,7 @@ class BLECharacteristic {
 		void                setValue(uint8_t *data_ptr, uint16_t length, BLESetType setType = NOTIFICATION);
 		void                setValue(uint8_t *data_ptr);
 		void                setValue(const char *data_ptr);
+		char				*getValue(void);
 		void                setMaxLength(uint16_t len);
 		void                setVariableLength(bool variableLen);
         uint8_t             operator[] (int index) const;

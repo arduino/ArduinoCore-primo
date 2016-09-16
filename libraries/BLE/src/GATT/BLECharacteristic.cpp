@@ -100,6 +100,10 @@ void BLECharacteristic::setValue(const char *data_ptr){
 	setValue((uint8_t *)data_ptr, strlen(data_ptr));
 }
 
+char * BLECharacteristic::getValue(void){
+	return (char *)attr_char_value.p_value;
+}
+
 void BLECharacteristic::setMaxLength(uint16_t len){
 	attr_char_value.max_len = len;
 }
