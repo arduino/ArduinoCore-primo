@@ -30,17 +30,28 @@ BLEDescriptor::BLEDescriptor(uint16_t shortUuid, uint8_t *data, uint16_t dataLen
 	setValue(data);
 	setValueLength(dataLength);
 }
+
+BLEDescriptor::BLEDescriptor(const char * uuid, char data[]){
+	setUuid(uuid);
+	setValue((uint8_t *)data);
+	setValueLength((uint16_t)strlen(data));
+}
+
+BLEDescriptor::BLEDescriptor(uint16_t shortUuid, char data[]){	
+	setUuid(shortUuid);
+	setValue((uint8_t *)data);
+	setValueLength((uint16_t)strlen(data));
+}
 			
 BLEDescriptor * BLEDescriptor::getNextElement(){
 	return nextElement;
 }
 		
 void BLEDescriptor::setNextElement(BLEDescriptor * element){
-	nextElement=element;
+	nextElement = element;
 }
 
-void BLEDescriptor::pushDescriptorToSD(uint16_t char_handle){
-	
+void BLEDescriptor::pushDescriptorToSD(uint16_t char_handle){	
 	//set attribute metadata structure
 	memset(&attr_md, 0, sizeof(attr_md));
 	//set read permission
@@ -50,14 +61,14 @@ void BLEDescriptor::pushDescriptorToSD(uint16_t char_handle){
 	
 	//set descriptor value structure
 	memset(&attr_desc_value, 0, sizeof(attr_desc_value));
-	dUuid.uuid=getUuid().getAlias();
-	dUuid.type=getUuid().getType();
-	attr_desc_value.p_uuid=&dUuid;
-	attr_desc_value.p_attr_md=&attr_md;
-	attr_desc_value.init_len=getValueLength();
-	attr_desc_value.max_len=getValueLength();
-	attr_desc_value.p_value=getValue();
+	dUuid.uuid = getUuid().getAlias();
+	dUuid.type = getUuid().getType();
+	attr_desc_value.p_uuid    = &dUuid;
+	attr_desc_value.p_attr_md = &attr_md;
+	attr_desc_value.init_len  = getValueLength();
+	attr_desc_value.max_len   = getValueLength();
+	attr_desc_value.p_value   = getValue();
 	
-	uint32_t err_code=sd_ble_gatts_descriptor_add(char_handle, &attr_desc_value, desc_handle);
-	if(err_code!=0) SDManager.registerError("BLEDescriptor::pushDescriptorToSD()", err_code, "add descriptor failed");
+	uint32_t err_code = sd_ble_gatts_descriptor_add(char_handle, &attr_desc_value, desc_handle);
+	if(err_code != 0) SDManager.registerError("BLEDescriptor::pushDescriptorToSD()", err_code, "add descriptor failed");
 }
