@@ -82,7 +82,8 @@ void BLECharacteristic::setValueInSD(uint8_t *data_ptr, uint16_t length, BLESetT
 	else{
 		_setType = setType;
 		attr_char_value.init_len = length;
-		attr_char_value.max_len  = length;
+		if(attr_char_value.max_len == 0)
+			attr_char_value.max_len  = length;
 		attr_char_value.p_value  = data_ptr;
 	}    
 }
@@ -101,6 +102,14 @@ void BLECharacteristic::setValue(uint8_t data_ptr){
 
 void BLECharacteristic::setValue(const char *data_ptr){
 	setValue((uint8_t *)data_ptr, strlen(data_ptr));
+}
+
+void BLECharacteristic::setMaxLength(uint16_t len){
+	attr_char_value.max_len = len;
+}
+
+void BLECharacteristic::setVariableLength(bool variableLen){
+	attr_md.vlen    = variableLen;
 }
 
 uint8_t BLECharacteristic::operator[](int index) const{
