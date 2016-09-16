@@ -29,10 +29,8 @@ class BLETypedCharacteristic : public BLECharacteristic {
         BLETypedCharacteristic(const char *uuid, uint8_t properties);
 		BLETypedCharacteristic(const char *uuid, uint8_t properties, T initData);
         
-        bool setValue(T value, BLESetType setType = NOTIFICATION);
+        void setValue(T value);
         T &getValue(void);
-        
-        void onGattsEventWrite(ble_gatts_evt_write_t *ble_gatts_evt_write);
         
 	private:
         T _value;

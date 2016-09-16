@@ -21,28 +21,22 @@
 
 template<typename T>
 BLETypedCharacteristic<T>::BLETypedCharacteristic(const char *uuid, uint8_t properties) :
-    BLECharacteristic(uuid, properties, 0, sizeof(T), false){
-    attr_char_value.p_value = (uint8_t *)&_value;    
+    BLECharacteristic(uuid, properties, (uint8_t*)&_value, sizeof(T), false){
 }
 
 template<typename T>
 BLETypedCharacteristic<T>::BLETypedCharacteristic(const char *uuid, uint8_t properties, T initData) :
-    BLECharacteristic(uuid, properties, 0, sizeof(T), false){
+    BLECharacteristic(uuid, properties, (uint8_t*)&_value, sizeof(T), false){
+    _value = initData;
 }
 
 template<typename T>
-bool BLETypedCharacteristic<T>::setValue(T value, BLESetType setType){
+void BLETypedCharacteristic<T>::setValue(T value){
     _value = value;
-    setValueInSD((uint8_t *)_value, sizeof(T), setType);
-    return true;
+    setValueInSD((uint8_t *)&_value, sizeof(T), NOTIFICATION);
 }
 
 template<typename T>
 T &BLETypedCharacteristic<T>::getValue(void){
     return _value;
-}
-
-template<typename T>
-void BLETypedCharacteristic<T>::onGattsEventWrite(ble_gatts_evt_write_t *ble_gatts_evt_write){
-    BLECharacteristic::onGattsEventWrite(ble_gatts_evt_write);
 }

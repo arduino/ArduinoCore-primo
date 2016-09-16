@@ -46,7 +46,6 @@ class BLECharacteristic {
 		void                setEventHandler(BLECharacteristicEventType event, BLECharacteristicEventHandlerType eventHandler);
 		void                setValue(uint8_t *data_ptr, uint16_t length, BLESetType setType = NOTIFICATION);
 		void                setValue(uint8_t *data_ptr);
-		void                setValue(uint8_t data_ptr);
 		void                setValue(const char *data_ptr);
 		void                setMaxLength(uint16_t len);
 		void                setVariableLength(bool variableLen);

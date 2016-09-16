@@ -31,7 +31,7 @@ BLECharacteristic::BLECharacteristic(const char * uuid, uint8_t properties){
     memset((void *)_characteristicEventHandlers, 0, sizeof(_characteristicEventHandlers));
 	_uuid.set(uuid);
 	_properties = properties;
-	fillCharStructures(properties, NULL, 0, 0);
+	fillCharStructures(properties, NULL, 0, false);
 }
 
 BLECharacteristic::BLECharacteristic(uint16_t shortUuid, uint8_t properties, uint8_t *data, uint16_t dataLength, bool variableLength){
@@ -45,7 +45,7 @@ BLECharacteristic::BLECharacteristic(uint16_t shortUuid, uint8_t properties){
     memset((void *)_characteristicEventHandlers, 0, sizeof(_characteristicEventHandlers));
     _uuid.set(shortUuid);
 	_properties = properties;
-	fillCharStructures(properties, NULL, 0, 0);
+	fillCharStructures(properties, NULL, 0, false);
 }
 
 void BLECharacteristic::addDescriptor(BLEDescriptor& descriptor){
@@ -75,7 +75,7 @@ void BLECharacteristic::setValueInSD(uint8_t *data_ptr, uint16_t length, BLESetT
         }
         else{
             ble_gatts_value_t value = {length, 0, data_ptr};
-            err_code = sd_ble_gatts_value_set(BLE_CONN_HANDLE_INVALID, char_handl.value_handle, &value);
+            err_code = sd_ble_gatts_value_set(parentService->getConHandle(), char_handl.value_handle, &value);
             if(err_code != 0) SDManager.registerError("BLECharacteristic::setValue()", err_code, "Set value failed");
         }
 	}
@@ -94,10 +94,6 @@ void BLECharacteristic::setValue(uint8_t *data_ptr, uint16_t length, BLESetType 
 
 void BLECharacteristic::setValue(uint8_t *data_ptr){
 	setValue(data_ptr, strlen((char *)data_ptr));
-}
-	
-void BLECharacteristic::setValue(uint8_t data_ptr){
-	setValue(&data_ptr, 1);
 }
 
 void BLECharacteristic::setValue(const char *data_ptr){
