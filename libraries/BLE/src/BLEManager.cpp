@@ -50,6 +50,16 @@ void BLEManagerClass::processBleEvents(ble_evt_t *bleEvent){
     }
 }
 
+void BLEManagerClass::defaultSerialErrorHandler(char *file, uint32_t errCode, char *msg){
+    Serial.println("Error!");
+    Serial.print("  Module:  ");
+    Serial.println(file);
+    Serial.print("  ErrCode: ");
+    Serial.println(errCode, HEX);
+    Serial.print("  Message: ");
+    Serial.println(msg);
+}
+    
 void BLEManagerClass::setErrorHandler(void (*errorHandlerCallback)(char *file, uint32_t errCode, char *msg)){
 	SDManager.setErrorHandler(errorHandlerCallback);
 }

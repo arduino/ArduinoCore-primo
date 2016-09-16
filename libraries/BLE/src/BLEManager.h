@@ -34,6 +34,8 @@ public:
 	
     static void processBleEvents(ble_evt_t *bleEvent);
 	
+    static void defaultSerialErrorHandler(char *file, uint32_t errCode, char *msg);
+    
 	void setErrorHandler(void (*errorHandlerCallback)(char *file, uint32_t errCode, char *msg));
     
 private:
