@@ -18,7 +18,7 @@
 #include "nordic_common.h"
 #include "app_error.h"
 #include "nrf_assert.h"
-#include "nrfNvic.h"
+#include "nrf_nvic.h"
 #include "nrf.h"
 #include "nrf_log.h"
 #include "sdk_common.h"

@@ -34,6 +34,7 @@ void nfc_callback(void *context, NfcEvent event, const char *data, size_t dataLe
 uint8_t ndef_msg_buf[256];
 
 void NFCClass::begin(){
+	SDManager.begin();
 	nfcSetup(nfc_callback, NULL);
 }
 
@@ -71,7 +72,6 @@ void NFCClass::setURImessage( const char URL[], nfc_uri_id_t type){
 	char url[256];
 	strcpy(url, URL);
 	uint8_t size=strlen(url);
-	nfcSetup(nfc_callback, NULL);
 	uint32_t len = sizeof(ndef_msg_buf);
 	nfc_uri_msg_encode( type,
                          (uint8_t *) url,
