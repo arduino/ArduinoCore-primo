@@ -50,7 +50,7 @@ uint8_t suspended=0;
 
 void TwoWire_begin(void) {
    //Master Mode
-   _TWIInstance=NRF_TWIM0;
+   _TWIInstance=NRF_TWIM1;
    nrf_gpio_pin_dir_set(g_APinDescription[PIN_WIRE_SCL].ulPin, NRF_GPIO_PIN_DIR_INPUT);
    nrf_gpio_pin_dir_set(g_APinDescription[PIN_WIRE_SDA].ulPin, NRF_GPIO_PIN_DIR_INPUT);
 

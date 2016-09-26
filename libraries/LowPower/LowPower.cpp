@@ -96,22 +96,22 @@ void LowPowerClass::standbyMsec(uint32_t msec, void(*function)(void), standbyTyp
 	
 	if(msec>0){
 		//Configure timer
-		nrf_timer_mode_set(NRF_TIMER0, NRF_TIMER_MODE_TIMER);
-		nrf_timer_bit_width_set(NRF_TIMER0, NRF_TIMER_BIT_WIDTH_32);
+		nrf_timer_mode_set(NRF_TIMER2, NRF_TIMER_MODE_TIMER);
+		nrf_timer_bit_width_set(NRF_TIMER2, NRF_TIMER_BIT_WIDTH_32);
 		//When fTIMER <= 1 MHz the TIMER will use PCLK1M instead of PCLK16M for reduced power consumption.
-		nrf_timer_frequency_set(NRF_TIMER0, NRF_TIMER_FREQ_1MHz);
+		nrf_timer_frequency_set(NRF_TIMER2, NRF_TIMER_FREQ_1MHz);
 		//Clear the timer when it finishes to count
-		nrf_timer_shorts_enable(NRF_TIMER0, NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK);
+		nrf_timer_shorts_enable(NRF_TIMER2, NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK);
 		
 		//enable interrupt
-		nrf_timer_int_enable(NRF_TIMER0, NRF_TIMER_INT_COMPARE0_MASK);
-		NVIC_SetPriority(TIMER0_IRQn, 6); //low priority
-		NVIC_ClearPendingIRQ(TIMER0_IRQn);
-		NVIC_EnableIRQ(TIMER0_IRQn);
+		nrf_timer_int_enable(NRF_TIMER2, NRF_TIMER_INT_COMPARE0_MASK);
+		NVIC_SetPriority(TIMER2_IRQn, 6); //low priority
+		NVIC_ClearPendingIRQ(TIMER2_IRQn);
+		NVIC_EnableIRQ(TIMER2_IRQn);
 		
 		uint32_t ticks=nrf_timer_ms_to_ticks(msec, NRF_TIMER_FREQ_1MHz);
-		nrf_timer_cc_write(NRF_TIMER0, NRF_TIMER_CC_CHANNEL0, ticks);
-		nrf_timer_task_trigger(NRF_TIMER0, NRF_TIMER_TASK_START);
+		nrf_timer_cc_write(NRF_TIMER2, NRF_TIMER_CC_CHANNEL0, ticks);
+		nrf_timer_task_trigger(NRF_TIMER2, NRF_TIMER_TASK_START);
 	}
 	
 	if(mode==CONST_LATENCY)
@@ -141,18 +141,18 @@ void LowPowerClass::standby(uint32_t sec, void(*function)(void), standbyType mod
 		nrf_clock_xtalfreq_set(NRF_CLOCK_XTALFREQ_Default);
 		nrf_clock_lf_src_set((nrf_clock_lfclk_t)NRF_CLOCK_LFCLK_Xtal);
 		nrf_clock_task_trigger(NRF_CLOCK_TASK_LFCLKSTART);
-		nrf_rtc_prescaler_set(NRF_RTC2, 4095);
+		nrf_rtc_prescaler_set(NRF_RTC0, 4095);
 		//enable interrupt
-		NVIC_SetPriority(RTC2_IRQn, 2); //high priority
-		NVIC_ClearPendingIRQ(RTC2_IRQn);
-		NVIC_EnableIRQ(RTC2_IRQn);
-		nrf_rtc_event_clear(NRF_RTC2, NRF_RTC_EVENT_COMPARE_0);
-		nrf_rtc_int_enable(NRF_RTC2, NRF_RTC_INT_COMPARE0_MASK);
+		NVIC_SetPriority(RTC0_IRQn, 2); //high priority
+		NVIC_ClearPendingIRQ(RTC0_IRQn);
+		NVIC_EnableIRQ(RTC0_IRQn);
+		nrf_rtc_event_clear(NRF_RTC0, NRF_RTC_EVENT_COMPARE_0);
+		nrf_rtc_int_enable(NRF_RTC0, NRF_RTC_INT_COMPARE0_MASK);
 		//Ticks every 125 ms -> 8 ticks to get one second
-		nrf_rtc_cc_set(NRF_RTC2, 0, sec*8);
+		nrf_rtc_cc_set(NRF_RTC0, 0, sec*8);
 		
 		//start RTC
-		nrf_rtc_task_trigger(NRF_RTC2, NRF_RTC_TASK_START);
+		nrf_rtc_task_trigger(NRF_RTC0, NRF_RTC_TASK_START);
 	}
 	if(mode==CONST_LATENCY)
 		NRF_POWER->TASKS_CONSTLAT=1UL;
@@ -180,20 +180,20 @@ LowPowerClass LowPower;
 extern "C"{
 #endif	
 
-void TIMER0_IRQHandler(void){
-	nrf_timer_event_clear(NRF_TIMER0, NRF_TIMER_EVENT_COMPARE0);
+void TIMER2_IRQHandler(void){
+	nrf_timer_event_clear(NRF_TIMER2, NRF_TIMER_EVENT_COMPARE0);
 	event=true;
 	if(LowPower.functionCallback)
 		LowPower.functionCallback();
 	
 }
 
-void RTC2_IRQHandler(void)
+void RTC0_IRQHandler(void)
 {
 	event=true;
-	nrf_rtc_event_clear(NRF_RTC2, NRF_RTC_EVENT_COMPARE_0);
-	nrf_rtc_task_trigger(NRF_RTC2, NRF_RTC_TASK_CLEAR);
-	nrf_rtc_task_trigger(NRF_RTC2, NRF_RTC_TASK_STOP);
+	nrf_rtc_event_clear(NRF_RTC0, NRF_RTC_EVENT_COMPARE_0);
+	nrf_rtc_task_trigger(NRF_RTC0, NRF_RTC_TASK_CLEAR);
+	nrf_rtc_task_trigger(NRF_RTC0, NRF_RTC_TASK_STOP);
 	if(LowPower.functionCallback)
 		LowPower.functionCallback();		
 }

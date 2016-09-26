@@ -31,19 +31,21 @@ void RTCInt::begin(bool timeRep){
 	//structures from ISR
 	rtcPointer=this;
 	//LFCLK needed to be started before using the RTC
-	nrf_clock_xtalfreq_set(NRF_CLOCK_XTALFREQ_Default);
-    nrf_clock_lf_src_set((nrf_clock_lfclk_t)NRF_CLOCK_LFCLK_Xtal);
-	nrf_clock_task_trigger(NRF_CLOCK_TASK_LFCLKSTART);
-	nrf_rtc_prescaler_set(NRF_RTC0, 4095);
+	if(!SDManager.isEnabled()){ //if softdevice is enabled LFCLK is already started
+		nrf_clock_xtalfreq_set(NRF_CLOCK_XTALFREQ_Default);
+		nrf_clock_lf_src_set((nrf_clock_lfclk_t)NRF_CLOCK_LFCLK_Xtal);
+		nrf_clock_task_trigger(NRF_CLOCK_TASK_LFCLKSTART);
+	}
+	nrf_rtc_prescaler_set(NRF_RTC2, 4095);
 	//enable interrupt
-	NVIC_SetPriority(RTC0_IRQn, 2); //high priority
-    NVIC_ClearPendingIRQ(RTC0_IRQn);
-    NVIC_EnableIRQ(RTC0_IRQn);
-	nrf_rtc_event_clear(NRF_RTC0, NRF_RTC_EVENT_TICK);
-	nrf_rtc_int_enable(NRF_RTC0, NRF_RTC_INT_TICK_MASK);
+	NVIC_SetPriority(RTC2_IRQn, 2); //high priority
+    NVIC_ClearPendingIRQ(RTC2_IRQn);
+    NVIC_EnableIRQ(RTC2_IRQn);
+	nrf_rtc_event_clear(NRF_RTC2, NRF_RTC_EVENT_TICK);
+	nrf_rtc_int_enable(NRF_RTC2, NRF_RTC_INT_TICK_MASK);
 
 	//start RTC
-	nrf_rtc_task_trigger(NRF_RTC0, NRF_RTC_TASK_START);
+	nrf_rtc_task_trigger(NRF_RTC2, NRF_RTC_TASK_START);
 
 	time_Mode=timeRep;
 }
@@ -552,9 +554,9 @@ extern "C"{
 #endif
 
 
-void RTC0_IRQHandler(void)
+void RTC2_IRQHandler(void)
 {
-	nrf_rtc_event_clear(NRF_RTC0, NRF_RTC_EVENT_TICK);
+	nrf_rtc_event_clear(NRF_RTC2, NRF_RTC_EVENT_TICK);
 	// tick every 125 ms --> 8 ticks to get 1 s
 	if(++count==8){
 		count=0;
