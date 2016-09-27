@@ -114,13 +114,14 @@ void LowPowerClass::standbyMsec(uint32_t msec, void(*function)(void), standbyTyp
 		nrf_timer_task_trigger(NRF_TIMER2, NRF_TIMER_TASK_START);
 	}
 	
-	if(mode==CONST_LATENCY)
-		NRF_POWER->TASKS_CONSTLAT=1UL;
-	else
-		NRF_POWER->TASKS_LOWPWR=1UL;
-	
+	if(!SDManager.isEnabled()){
+		if(mode==CONST_LATENCY)
+			NRF_POWER->TASKS_CONSTLAT=1UL;
+		else
+			NRF_POWER->TASKS_LOWPWR=1UL;
+	}
+		
 	while(!event){
-		__WFI();
 		__WFE();
 	}
 }
@@ -154,13 +155,15 @@ void LowPowerClass::standby(uint32_t sec, void(*function)(void), standbyType mod
 		//start RTC
 		nrf_rtc_task_trigger(NRF_RTC0, NRF_RTC_TASK_START);
 	}
-	if(mode==CONST_LATENCY)
-		NRF_POWER->TASKS_CONSTLAT=1UL;
-	else
-		NRF_POWER->TASKS_LOWPWR=1UL;
+	
+	if(!SDManager.isEnabled()){
+		if(mode==CONST_LATENCY)
+			NRF_POWER->TASKS_CONSTLAT=1UL;
+		else
+			NRF_POWER->TASKS_LOWPWR=1UL;
+	}
 	
 	while(!event){
-		__WFI();
 		__WFE();	
 	}
 
@@ -182,10 +185,10 @@ extern "C"{
 
 void TIMER2_IRQHandler(void){
 	nrf_timer_event_clear(NRF_TIMER2, NRF_TIMER_EVENT_COMPARE0);
+	nrf_timer_task_trigger(NRF_TIMER2, NRF_TIMER_TASK_STOP);
 	event=true;
 	if(LowPower.functionCallback)
 		LowPower.functionCallback();
-	
 }
 
 void RTC0_IRQHandler(void)
