@@ -47,13 +47,10 @@ enum BitOrder {
 #define INTERNAL 2
 #define INTERNAL3V6 3
 
-#ifndef min
-#define min(a,b) ((a)<(b)?(a):(b))
-#endif // min
-
-#ifndef max
-#define max(a,b) ((a)>(b)?(a):(b))
-#endif // max
+// undefine stdlib's abs if encountered
+#ifdef abs
+#undef abs
+#endif
 
 //#define abs(x) ((x)>0?(x):-(x))
 #define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
