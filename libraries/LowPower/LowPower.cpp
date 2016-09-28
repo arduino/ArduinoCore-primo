@@ -119,11 +119,15 @@ void LowPowerClass::standbyMsec(uint32_t msec, void(*function)(void), standbyTyp
 			NRF_POWER->TASKS_CONSTLAT=1UL;
 		else
 			NRF_POWER->TASKS_LOWPWR=1UL;
+			
+		while(!event){
+			__WFE();
+		}
 	}
-		
-	while(!event){
-		__WFE();
-	}
+	else
+		while(!event){
+			sd_app_evt_wait();
+		}		
 }
 
 
@@ -161,11 +165,15 @@ void LowPowerClass::standby(uint32_t sec, void(*function)(void), standbyType mod
 			NRF_POWER->TASKS_CONSTLAT=1UL;
 		else
 			NRF_POWER->TASKS_LOWPWR=1UL;
+			
+		while(!event){
+			__WFE();
+		}
 	}
-	
-	while(!event){
-		__WFE();	
-	}
+	else
+		while(!event){
+			sd_app_evt_wait();
+		}		
 
 }
 

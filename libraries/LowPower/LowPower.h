@@ -145,7 +145,7 @@ class LowPowerClass
 		*/
 		void standby(uint32_t sec, void(*function)(void), standbyType mode);
 		//standbyType set to default mode - Low power
-		void standby(uint32_t sec, void(*function)(void));
+		void standby(uint32_t sec=0, void(*function)(void)=NULL);
 
 		
 		/**
@@ -172,7 +172,7 @@ class LowPowerClass
 		*/
 		void standbyMsec(uint32_t msec, void(*function)(void), standbyType mode);
 		//standbyType set to default mode - Low power
-		void standbyMsec(uint32_t msec, void(*function)(void));
+		void standbyMsec(uint32_t msec=0, void(*function)(void)=NULL);
 
 		
 		/**
