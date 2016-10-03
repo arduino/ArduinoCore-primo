@@ -67,8 +67,8 @@ class SoftDeviceManager{
 
 		// TBD: Flash access
 		void flashErasePage(uint32_t page);
-		void flashReadArray(uint32_t flashAddress, uint8_t *buf, uint32_t bufLength);
-		void flashWriteArray(uint32_t flashAddress, uint8_t *buf, uint32_t bufLength);
+		void flashReadArray(uint32_t flashAddress, uint32_t *buf, unsigned int bufLength);
+		void flashWriteArray(const uint32_t *flashAddress, const uint32_t *buf, uint32_t bufLength);
 
 		// TBD: app_timer
 		// TBD: Interrupt API
@@ -85,12 +85,13 @@ class SoftDeviceManager{
 		void setErrorHandler(void (*errorHandlerCallback)(char *file, uint32_t errCode, char *msg));
         void pollErrors(void);
 
-	private:
+	private:	
         // System events
         sys_evt_handler_t _systemEventCallbackList[SYSTEM_EVENT_CALLBACK_NUM];
 		// Callback user function
 		void (*errorCallback)(char *file, uint32_t errCode, char *msg) = 0;	
-        RingBufferT<errorMessage, ERROR_MESSAGE_NUM> errorMessageFifo;		
+        RingBufferT<errorMessage, ERROR_MESSAGE_NUM> errorMessageFifo;
+		
 };
 
 extern SoftDeviceManager SDManager;

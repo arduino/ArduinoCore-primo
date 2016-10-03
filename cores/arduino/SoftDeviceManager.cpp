@@ -19,6 +19,27 @@
 #include "SoftDeviceManager.h"
 //#include "BLEManager.h"
 
+volatile static uint8_t _flashOperationPending;
+
+void socEvtHandler(uint32_t evt_id){
+	switch(evt_id){
+		case NRF_EVT_FLASH_OPERATION_SUCCESS :
+			_flashOperationPending = 0;
+			break;
+		case NRF_EVT_FLASH_OPERATION_ERROR :
+			_flashOperationPending = 2;
+			break;
+		case NRF_EVT_HFCLKSTARTED :
+		case NRF_EVT_POWER_FAILURE_WARNING :
+		case NRF_EVT_RADIO_BLOCKED :
+		case NRF_EVT_RADIO_CANCELED :
+		case NRF_EVT_RADIO_SIGNAL_CALLBACK_INVALID_RETURN :
+		case NRF_EVT_RADIO_SESSION_IDLE :
+		case NRF_EVT_RADIO_SESSION_CLOSED :
+			break;
+	}
+}
+
 SoftDeviceManager::SoftDeviceManager(){
     // Clear the callback lists
     memset((void *)_systemEventCallbackList, 0, sizeof(_systemEventCallbackList[0]) * SYSTEM_EVENT_CALLBACK_NUM); 
@@ -74,9 +95,27 @@ void SoftDeviceManager::setSystemEventHandler(void (*systemEventHandler)(uint32_
     APP_ERROR_CHECK(err_code);
 }
 
-void SoftDeviceManager::flashErasePage(uint32_t page){}
-void SoftDeviceManager::flashReadArray(uint32_t flashAddress, uint8_t *buf, uint32_t bufLength){}
-void SoftDeviceManager::flashWriteArray(uint32_t flashAddress, uint8_t *buf, uint32_t bufLength){}
+
+void SoftDeviceManager::flashErasePage(uint32_t page){
+	softdevice_sys_evt_handler_set(socEvtHandler);
+	_flashOperationPending=1;
+	do{
+		sd_flash_page_erase(page);
+		while(_flashOperationPending == 1);
+	}
+	while(_flashOperationPending == 2); // Error occurred, try again
+}
+void SoftDeviceManager::flashReadArray(uint32_t flashAddress, uint32_t *buf, unsigned int bufLength){}
+
+void SoftDeviceManager::flashWriteArray(const uint32_t *flashAddress, const uint32_t *buf, uint32_t bufLength){
+	softdevice_sys_evt_handler_set(socEvtHandler);
+	_flashOperationPending=1;
+	do{
+		sd_flash_write((uint32_t *)flashAddress, buf, bufLength);
+		while(_flashOperationPending == 1);
+	}
+	while(_flashOperationPending == 2); // Error occurred, try again
+}
 
 const char * SoftDeviceManager::getErrorDescription(uint32_t errorCode){
 	/*uint8_t i=0;
@@ -103,5 +142,7 @@ void SoftDeviceManager::pollErrors(void){
 void SoftDeviceManager::setErrorHandler(void (*errorHandlerCallback)(char *file, uint32_t errCode, char *msg)){
 	errorCallback=errorHandlerCallback;
 }
+
+
 
 SoftDeviceManager SDManager;

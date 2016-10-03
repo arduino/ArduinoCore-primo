@@ -57,7 +57,7 @@ void BLEBondStore::clearData() {
   // wait until ready
   FLASH_WAIT_READY
 #elif defined(NRF52)
-  sd_flash_page_erase((uint32_t)this->_flashPageStartAddress);
+    SDManager.flashErasePage((uint32_t)this->_flashPageStartAddress);
 #endif
 }
 
@@ -98,7 +98,7 @@ void BLEBondStore::putData(const unsigned char* data, unsigned int offset, unsig
   // wait until ready
   FLASH_WAIT_READY
 #elif defined (NRF52)
-  sd_flash_write(this->_flashPageStartAddress, (uint32_t*)data, length);
+  SDManager.flashWriteArray(this->_flashPageStartAddress, (uint32_t*)data, length);
 #endif
 }
 
