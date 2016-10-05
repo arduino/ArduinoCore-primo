@@ -70,6 +70,8 @@ void SoftDeviceManager::begin(){
 
     // Enable BLE stack.
     err_code = softdevice_enable(&ble_enable_params);
+	err_code = softdevice_sys_evt_handler_set(socEvtHandler);
+
    // if(err_code != 0) registerError("SoftDeviceManager::begin()", err_code, "softdevice_enable() returned an error");
     
     // Register the BLE callback handler
@@ -97,8 +99,8 @@ void SoftDeviceManager::setSystemEventHandler(void (*systemEventHandler)(uint32_
 
 
 void SoftDeviceManager::flashErasePage(uint32_t page){
-	softdevice_sys_evt_handler_set(socEvtHandler);
 	_flashOperationPending=1;
+	page = page / NRF_FICR->CODEPAGESIZE;
 	do{
 		sd_flash_page_erase(page);
 		while(_flashOperationPending == 1);
@@ -108,7 +110,6 @@ void SoftDeviceManager::flashErasePage(uint32_t page){
 void SoftDeviceManager::flashReadArray(uint32_t flashAddress, uint32_t *buf, unsigned int bufLength){}
 
 void SoftDeviceManager::flashWriteArray(const uint32_t *flashAddress, const uint32_t *buf, uint32_t bufLength){
-	softdevice_sys_evt_handler_set(socEvtHandler);
 	_flashOperationPending=1;
 	do{
 		sd_flash_write((uint32_t *)flashAddress, buf, bufLength);
