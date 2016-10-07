@@ -193,6 +193,7 @@ int PPIClass::setShortcut(event_type event, task_type task){
 		break;
 		case 0x40:
 			//event is related to Power
+			sd_power_pof_enable(true);
 			switch(task & 0xF0){
 				case 0x00: //task is related to timer
 					if((task & 0x0F)==0){	//start task

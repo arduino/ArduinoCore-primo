@@ -40,7 +40,7 @@ void LowPowerClass::powerOFF(){
 	NRF_TWIS1 ->ENABLE = (TWIS_ENABLE_ENABLE_Disabled << TWIS_ENABLE_ENABLE_Pos);	//disable TWI Slave
 	
 	//Enter in System OFF mode
-	NRF_POWER->SYSTEMOFF = POWER_SYSTEMOFF_SYSTEMOFF_Enter;
+	sd_power_system_off();
 		
 	/*Only for debugging purpose, will not be reached without connected debugger*/
     while(1);
@@ -70,18 +70,19 @@ void LowPowerClass::wakeUpByComp(uint8_t pin, nrf_lpcomp_ref_t reference, detect
 }
 
 resetReason LowPowerClass::whoIs(){
-	uint32_t guilty = NRF_POWER->RESETREAS;
+	uint32_t guilty;
+	sd_power_reset_reason_get(&guilty);
 	if(guilty & isGPIOMask){
 		//RESETREAS is a cumulative register. We need to clear it by writing 1 in the relative field
-		NRF_POWER->RESETREAS = (1 << 16);
+		sd_power_reset_reason_clr(1 << 16);
 		return GPIOReset;
 	}
 	if(guilty & isNFCMask){
-		NRF_POWER->RESETREAS = (1 << 19);
+		sd_power_reset_reason_clr(1 << 19);
 		return NFCReset;
 	}
 	if(guilty & isCompMask){	
-		NRF_POWER->RESETREAS = (1 << 17);
+		sd_power_reset_reason_clr(1 << 17);
 		return CompReset;
 	}
 	return OTHER;
@@ -113,21 +114,16 @@ void LowPowerClass::standbyMsec(uint32_t msec, void(*function)(void), standbyTyp
 		nrf_timer_cc_write(NRF_TIMER2, NRF_TIMER_CC_CHANNEL0, ticks);
 		nrf_timer_task_trigger(NRF_TIMER2, NRF_TIMER_TASK_START);
 	}
-	
-	if(!SDManager.isEnabled()){
-		if(mode==CONST_LATENCY)
-			NRF_POWER->TASKS_CONSTLAT=1UL;
-		else
-			NRF_POWER->TASKS_LOWPWR=1UL;
-			
-		while(!event){
-			__WFE();
-		}
-	}
+		
+		
+	if(mode==CONST_LATENCY)
+		sd_power_mode_set(NRF_POWER_MODE_CONSTLAT);
 	else
-		while(!event){
+		sd_power_mode_set(NRF_POWER_MODE_LOWPWR);
+		
+	while(!event){
 			sd_app_evt_wait();
-		}		
+		}				
 }
 
 
@@ -142,38 +138,28 @@ void LowPowerClass::standby(uint32_t sec, void(*function)(void), standbyType mod
 	event=false;
 	
 	if(sec>0){
-		//LFCLK needed to be started before using the RTC
-		nrf_clock_xtalfreq_set(NRF_CLOCK_XTALFREQ_Default);
-		nrf_clock_lf_src_set((nrf_clock_lfclk_t)NRF_CLOCK_LFCLK_Xtal);
-		nrf_clock_task_trigger(NRF_CLOCK_TASK_LFCLKSTART);
-		nrf_rtc_prescaler_set(NRF_RTC0, 4095);
+		nrf_rtc_prescaler_set(NRF_RTC1, 4095);
 		//enable interrupt
-		NVIC_SetPriority(RTC0_IRQn, 2); //high priority
-		NVIC_ClearPendingIRQ(RTC0_IRQn);
-		NVIC_EnableIRQ(RTC0_IRQn);
-		nrf_rtc_event_clear(NRF_RTC0, NRF_RTC_EVENT_COMPARE_0);
-		nrf_rtc_int_enable(NRF_RTC0, NRF_RTC_INT_COMPARE0_MASK);
+		NVIC_SetPriority(RTC1_IRQn, 2); //high priority
+		NVIC_ClearPendingIRQ(RTC1_IRQn);
+		NVIC_EnableIRQ(RTC1_IRQn);
+		nrf_rtc_event_clear(NRF_RTC1, NRF_RTC_EVENT_COMPARE_0);
+		nrf_rtc_int_enable(NRF_RTC1, NRF_RTC_INT_COMPARE0_MASK);
 		//Ticks every 125 ms -> 8 ticks to get one second
-		nrf_rtc_cc_set(NRF_RTC0, 0, sec*8);
+		nrf_rtc_cc_set(NRF_RTC1, 0, sec*8);
 		
 		//start RTC
-		nrf_rtc_task_trigger(NRF_RTC0, NRF_RTC_TASK_START);
+		nrf_rtc_task_trigger(NRF_RTC1, NRF_RTC_TASK_START);
 	}
 	
-	if(!SDManager.isEnabled()){
-		if(mode==CONST_LATENCY)
-			NRF_POWER->TASKS_CONSTLAT=1UL;
-		else
-			NRF_POWER->TASKS_LOWPWR=1UL;
-			
-		while(!event){
-			__WFE();
-		}
-	}
+	if(mode==CONST_LATENCY)
+		sd_power_mode_set(NRF_POWER_MODE_CONSTLAT);
 	else
-		while(!event){
+		sd_power_mode_set(NRF_POWER_MODE_LOWPWR);
+		
+	while(!event){
 			sd_app_evt_wait();
-		}		
+		}	
 
 }
 
@@ -199,12 +185,12 @@ void TIMER2_IRQHandler(void){
 		LowPower.functionCallback();
 }
 
-void RTC0_IRQHandler(void)
+void RTC1_IRQHandler(void)
 {
 	event=true;
-	nrf_rtc_event_clear(NRF_RTC0, NRF_RTC_EVENT_COMPARE_0);
-	nrf_rtc_task_trigger(NRF_RTC0, NRF_RTC_TASK_CLEAR);
-	nrf_rtc_task_trigger(NRF_RTC0, NRF_RTC_TASK_STOP);
+	nrf_rtc_event_clear(NRF_RTC1, NRF_RTC_EVENT_COMPARE_0);
+	nrf_rtc_task_trigger(NRF_RTC1, NRF_RTC_TASK_CLEAR);
+	nrf_rtc_task_trigger(NRF_RTC1, NRF_RTC_TASK_STOP);
 	if(LowPower.functionCallback)
 		LowPower.functionCallback();		
 }

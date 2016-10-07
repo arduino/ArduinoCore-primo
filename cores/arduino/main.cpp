@@ -27,7 +27,8 @@ int main(void)
 {
 	init();
 		
-	delay(0);	
+	delay(0);
+	SDManager.begin();
 		
 	setup();
 	

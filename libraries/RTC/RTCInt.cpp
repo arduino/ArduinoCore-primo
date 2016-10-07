@@ -31,11 +31,6 @@ void RTCInt::begin(bool timeRep){
 	//structures from ISR
 	rtcPointer=this;
 	//LFCLK needed to be started before using the RTC
-	if(!SDManager.isEnabled()){ //if softdevice is enabled LFCLK is already started
-		nrf_clock_xtalfreq_set(NRF_CLOCK_XTALFREQ_Default);
-		nrf_clock_lf_src_set((nrf_clock_lfclk_t)NRF_CLOCK_LFCLK_Xtal);
-		nrf_clock_task_trigger(NRF_CLOCK_TASK_LFCLKSTART);
-	}
 	nrf_rtc_prescaler_set(NRF_RTC2, 4095);
 	//enable interrupt
 	NVIC_SetPriority(RTC2_IRQn, 2); //high priority
@@ -496,18 +491,9 @@ void RTCInt::setDate(void)
 		if(sec==0 && Alarm_Mode==SEC)
 			sec=60; //wait for a minute
 		alarm.seconds=sec;
-		if(alarm.type==ALARM_INTERRUPT){
-			//set RTC1 to raise an interrupt when the time is reached
-			nrf_rtc_prescaler_set(NRF_RTC1, 4095);
-			NVIC_SetPriority(RTC1_IRQn, 3); //high priority
-			NVIC_ClearPendingIRQ(RTC1_IRQn);
-			NVIC_EnableIRQ(RTC1_IRQn);
-
-			nrf_rtc_task_trigger(NRF_RTC1, NRF_RTC_TASK_START);
-			nrf_rtc_cc_set(NRF_RTC1, 0, sec*8);
-			nrf_rtc_event_clear(NRF_RTC1, NRF_RTC_EVENT_COMPARE_0);
-			nrf_rtc_int_enable(NRF_RTC1, NRF_RTC_INT_COMPARE0_MASK);
-		}
+		nrf_rtc_cc_set(NRF_RTC2, 0, sec*8);
+		nrf_rtc_event_clear(NRF_RTC2, NRF_RTC_EVENT_COMPARE_0);
+		nrf_rtc_int_enable(NRF_RTC2, NRF_RTC_INT_COMPARE0_MASK);
 		alarm.active=1;
 	  }
 } 
@@ -556,69 +542,56 @@ extern "C"{
 
 void RTC2_IRQHandler(void)
 {
-	nrf_rtc_event_clear(NRF_RTC2, NRF_RTC_EVENT_TICK);
-	// tick every 125 ms --> 8 ticks to get 1 s
-	if(++count==8){
-		count=0;
-		if(++rtcPointer->timeInt.second==60){
-			rtcPointer->timeInt.second=0;
-			if(++rtcPointer->timeInt.minute==60){
-				rtcPointer->timeInt.minute=0;
-				if(++rtcPointer->timeInt.hour==24){
-					rtcPointer->timeInt.hour=0;
-					if(++rtcPointer->dateInt.day==daysPerMonth[rtcPointer->dateInt.month-1][!(rtcPointer->dateInt.year % 4)]){
-						rtcPointer->dateInt.day=1;
-						if(++rtcPointer->dateInt.month==13){
-							rtcPointer->dateInt.month=1;
-							rtcPointer->dateInt.year++;
+    if(nrf_rtc_event_pending(NRF_RTC2, NRF_RTC_EVENT_TICK)){
+		nrf_rtc_event_clear(NRF_RTC2, NRF_RTC_EVENT_TICK);
+		// tick every 125 ms --> 8 ticks to get 1 s
+		if(++count==8){
+			count=0;
+			if(++rtcPointer->timeInt.second==60){
+				rtcPointer->timeInt.second=0;
+				if(++rtcPointer->timeInt.minute==60){
+					rtcPointer->timeInt.minute=0;
+					if(++rtcPointer->timeInt.hour==24){
+						rtcPointer->timeInt.hour=0;
+						if(++rtcPointer->dateInt.day==daysPerMonth[rtcPointer->dateInt.month-1][!(rtcPointer->dateInt.year % 4)]){
+							rtcPointer->dateInt.day=1;
+							if(++rtcPointer->dateInt.month==13){
+								rtcPointer->dateInt.month=1;
+								rtcPointer->dateInt.year++;
+							}
 						}
 					}
 				}
 			}
 		}
 	}
-	if(rtcPointer->alarm.active){
-		if(rtcPointer->alarm.type==ALARM_POLLED){
-			if(((++rtcPointer->alarm.actual_second)/8)==rtcPointer->alarm.seconds){
-				rtcPointer->alarm.set=1;
-				rtcPointer->alarm.actual_second=0;
-				//calculate the number of seconds to wait before the next alarm
-				if(rtcPointer->alarm.addDay){
-					if(rtcPointer->alarm.addDay==5){
-						rtcPointer->alarm.sec_to_next_int=366*24*60*60;
-						rtcPointer->alarm.addDay=1;
-					}
-					else
-						rtcPointer->alarm.addDay++;
-				}
-				if(rtcPointer->alarm.addMonth)
-					rtcPointer->alarm.sec_to_next_int=(rtcPointer->rdn(rtcPointer->dateInt.year, rtcPointer->dateInt.month+1, rtcPointer->dateInt.day)-rtcPointer->rdn(rtcPointer->dateInt.year, rtcPointer->dateInt.month, rtcPointer->dateInt.day))*24*60*60;
-				rtcPointer->alarm.seconds=rtcPointer->alarm.sec_to_next_int;
+	if(nrf_rtc_event_pending(NRF_RTC2, NRF_RTC_EVENT_COMPARE_0)){
+		nrf_rtc_event_clear(NRF_RTC2, NRF_RTC_EVENT_COMPARE_0);
+		nrf_rtc_task_trigger(NRF_RTC2, NRF_RTC_TASK_CLEAR);
+		nrf_rtc_cc_set(NRF_RTC2, 0, rtcPointer->alarm.sec_to_next_int*8);
+		
+		//calculate the number of seconds to wait before the next alarm
+		if(rtcPointer->alarm.addDay){
+			if(rtcPointer->alarm.addDay==5){
+				rtcPointer->alarm.sec_to_next_int=366*24*60*60;
+				rtcPointer->alarm.addDay=1;
 			}
+			else
+				rtcPointer->alarm.addDay++;
 		}
-	}
-}
-
-void RTC1_IRQHandler(void)
-{
-	nrf_rtc_event_clear(NRF_RTC1, NRF_RTC_EVENT_COMPARE_0);
-	nrf_rtc_task_trigger(NRF_RTC1, NRF_RTC_TASK_CLEAR);
-	nrf_rtc_cc_set(NRF_RTC1, 0, rtcPointer->alarm.sec_to_next_int*8);
-	if(rtcPointer->alarm.addDay){
-		if(rtcPointer->alarm.addDay==5){
-			rtcPointer->alarm.sec_to_next_int=366*24*60*60;
-			rtcPointer->alarm.addDay=1;
-		}
+		if(rtcPointer->alarm.addMonth)
+			rtcPointer->alarm.sec_to_next_int=(rtcPointer->rdn(rtcPointer->dateInt.year, rtcPointer->dateInt.month+1, rtcPointer->dateInt.day)-rtcPointer->rdn(rtcPointer->dateInt.year, rtcPointer->dateInt.month, rtcPointer->dateInt.day))*24*60*60;
+		rtcPointer->alarm.seconds=rtcPointer->alarm.sec_to_next_int;
+		
+		if(rtcPointer->alarm.type==ALARM_POLLED)
+			rtcPointer->alarm.set=1;
 		else
-			rtcPointer->alarm.addDay++;
+			if(_callback!=NULL)
+				_callback();
 	}
-	if(rtcPointer->alarm.addMonth)
-		rtcPointer->alarm.sec_to_next_int=(rtcPointer->rdn(rtcPointer->dateInt.year, rtcPointer->dateInt.month+1, rtcPointer->dateInt.day)-rtcPointer->rdn(rtcPointer->dateInt.year, rtcPointer->dateInt.month, rtcPointer->dateInt.day))*24*60*60;
-				
-	if(_callback!=NULL)
-		_callback();
 }
-
+		
+		
 #ifdef __cplusplus
 }
 #endif

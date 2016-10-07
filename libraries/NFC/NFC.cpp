@@ -34,7 +34,6 @@ void nfc_callback(void *context, NfcEvent event, const char *data, size_t dataLe
 uint8_t ndef_msg_buf[256];
 
 void NFCClass::begin(){
-	SDManager.begin();
 	nfcSetup(nfc_callback, NULL);
 }
 

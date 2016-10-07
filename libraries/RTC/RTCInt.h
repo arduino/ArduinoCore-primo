@@ -62,7 +62,6 @@ typedef struct {
 	bool addMonth=0;
 	uint32_t sec_to_next_int=0;
 	uint32_t seconds;
-	uint32_t actual_second=0;
 	bool set=0;
 }ALARM;
 
