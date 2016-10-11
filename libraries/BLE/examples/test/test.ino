@@ -5,17 +5,9 @@
 #include <MemoryFree.h>
 #endif
 
-// Import libraries (BLEPeripheral depends on SPI)
-#include <SPI.h>
 #include <BLEPeripheral.h>
 
-// define pins (varies per shield/board)
-#define BLE_REQ   10
-#define BLE_RDY   2
-#define BLE_RST   9
-
-// create peripheral instance, see pinouts above
-BLEPeripheral                    blePeripheral       = BLEPeripheral(BLE_REQ, BLE_RDY, BLE_RST);
+BLEPeripheral                    blePeripheral       = BLEPeripheral();
 
 // create service
 BLEService                       testService         = BLEService("fff0");
@@ -29,9 +21,6 @@ unsigned long long               lastSent            = 0;
 
 void setup() {
   Serial.begin(9600);
-#if defined (__AVR_ATmega32U4__)
-  delay(5000);  //5 seconds delay for enabling to see the start up comments on the serial board
-#endif
 
   blePeripheral.setLocalName("test");
 #if 1

@@ -1,17 +1,10 @@
-// Import libraries (BLEPeripheral depends on SPI)
-#include <SPI.h>
 #include <BLEHIDPeripheral.h>
 #include <BLEMouse.h>
 #include <BLEKeyboard.h>
 #include <BLEMultimedia.h>
 #include <BLESystemControl.h>
 
-// define pins (varies per shield/board)
-#define BLE_REQ   6
-#define BLE_RDY   7
-#define BLE_RST   4
-
-BLEHIDPeripheral bleHID = BLEHIDPeripheral(BLE_REQ, BLE_RDY, BLE_RST);
+BLEHIDPeripheral bleHID = BLEHIDPeripheral();
 BLEMouse bleMouse;
 BLEKeyboard bleKeyboard;
 BLEMultimedia bleMultimedia;
@@ -19,9 +12,6 @@ BLESystemControl bleSystemControl;
 
 void setup() {
   Serial.begin(9600);
-#if defined (__AVR_ATmega32U4__)
-  while(!Serial);
-#endif
 
   // clears bond data on every boot
   bleHID.clearBondStoreData();

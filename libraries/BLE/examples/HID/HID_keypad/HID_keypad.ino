@@ -1,5 +1,3 @@
-// Import libraries (BLEPeripheral depends on SPI)
-#include <SPI.h>
 #include <BLEHIDPeripheral.h>
 #include <BLEKeyboard.h>
 
@@ -19,20 +17,12 @@ byte colPins[COLS] = { 7, 6, 5 }; //connect to the column pinouts of the keypad
 
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
-// define pins (varies per shield/board)
-#define BLE_REQ   9
-#define BLE_RDY   8
-#define BLE_RST   4
-
-// create peripheral instance, see pinouts above
-BLEHIDPeripheral bleHIDPeripheral = BLEHIDPeripheral(BLE_REQ, BLE_RDY, BLE_RST);
+BLEHIDPeripheral bleHIDPeripheral = BLEHIDPeripheral();
 BLEKeyboard bleKeyboard;
 
 void setup() {
   Serial.begin(9600);
-#if defined (__AVR_ATmega32U4__)
-  while(!Serial);
-#endif
+
   char c = keypad.getKey();
 
   if (c == '#') {

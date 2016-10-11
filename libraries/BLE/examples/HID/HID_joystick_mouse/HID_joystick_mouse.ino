@@ -1,5 +1,3 @@
-// Import libraries (BLEPeripheral depends on SPI)
-#include <SPI.h>
 #include <BLEHIDPeripheral.h>
 #include <BLEMouse.h>
 
@@ -8,13 +6,8 @@
 #define JOYSTICK_Y_AXIS_PIN A1
 #define JOYSTICK_RANGE 24
 
-// define pins (varies per shield/board)
-#define BLE_REQ   9
-#define BLE_RDY   8
-#define BLE_RST   4
-
 // create peripheral instance, see pinouts above
-BLEHIDPeripheral bleHIDPeripheral = BLEHIDPeripheral(BLE_REQ, BLE_RDY, BLE_RST);
+BLEHIDPeripheral bleHIDPeripheral = BLEHIDPeripheral();
 BLEMouse bleMouse;
 
 int buttonState;
@@ -23,9 +16,6 @@ int joystickYCenter;
 
 void setup() {
   Serial.begin(9600);
-#if defined (__AVR_ATmega32U4__)
-  while(!Serial);
-#endif
   
   pinMode(JOYSTICK_BUTTON_PIN, INPUT_PULLUP);
   buttonState = digitalRead(JOYSTICK_BUTTON_PIN);

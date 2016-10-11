@@ -1,31 +1,20 @@
-// Import libraries (BLEPeripheral depends on SPI)
-#include <SPI.h>
 #include <BLEHIDPeripheral.h>
 #include <BLEKeyboard.h>
 
-// define pins (varies per shield/board)
-#define BLE_REQ   6
-#define BLE_RDY   7
-#define BLE_RST   4
-
-//#define ANDROID_CENTRAL
 
 // create peripheral instance, see pinouts above
-BLEHIDPeripheral bleHIDPeripheral = BLEHIDPeripheral(BLE_REQ, BLE_RDY, BLE_RST);
+BLEHIDPeripheral bleHIDPeripheral = BLEHIDPeripheral();
 BLEKeyboard bleKeyboard;
 
 void setup() {
   Serial.begin(9600);
-#if defined (__AVR_ATmega32U4__)
-  while(!Serial);
-#endif
 
   // clear bond store data
   bleHIDPeripheral.clearBondStoreData();
 
-#ifdef ANDROID_CENTRAL
+
   bleHIDPeripheral.setReportIdOffset(1);
-#endif
+
 
   bleHIDPeripheral.setLocalName("HID Keyboard");
   bleHIDPeripheral.addHID(bleKeyboard);

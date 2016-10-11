@@ -1,17 +1,10 @@
-// Import libraries (BLEPeripheral depends on SPI)
-#include <SPI.h>
 #include <BLEPeripheral.h>
 
-// define pins (varies per shield/board)
-#define BLE_REQ   10
-#define BLE_RDY   2
-#define BLE_RST   9
-
 // LED pin
-#define LED_PIN   3
+#define LED_PIN   13
 
 // create peripheral instance, see pinouts above
-BLEPeripheral           blePeripheral        = BLEPeripheral(BLE_REQ, BLE_RDY, BLE_RST);
+BLEPeripheral           blePeripheral        = BLEPeripheral();
 
 // create service
 BLEService              ledService           = BLEService("19b10000e8f2537e4f6cd104768a1214");
@@ -21,9 +14,6 @@ BLECharCharacteristic   switchCharacteristic = BLECharCharacteristic("19b10001e8
 
 void setup() {
   Serial.begin(115200);
-#if defined (__AVR_ATmega32U4__)
-  delay(5000);  //5 seconds delay for enabling to see the start up comments on the serial board
-#endif
 
   // set LED pin to output mode
   pinMode(LED_PIN, OUTPUT);

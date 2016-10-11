@@ -1,9 +1,6 @@
 #include <BLEPeripheral.h>
 #include <iBeacon.h>
 
-#if !defined(NRF51) && !defined(NRF52) && !defined(__RFduino__)
-#error "This example only works with nRF51 boards"
-#endif
 
 iBeacon beacon;
 

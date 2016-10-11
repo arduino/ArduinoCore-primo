@@ -2,20 +2,14 @@
 #include <TimerOne.h>
 // DHT library: https://github.com/adafruit/DHT-sensor-library
 #include "DHT.h"
-#include <SPI.h>
 #include <BLEPeripheral.h>
-
-// define pins (varies per shield/board)
-#define BLE_REQ   10
-#define BLE_RDY   2
-#define BLE_RST   9
 
 #define DHTTYPE DHT22
 #define DHTPIN 3
 
 DHT dht(DHTPIN, DHTTYPE);
 
-BLEPeripheral blePeripheral = BLEPeripheral(BLE_REQ, BLE_RDY, BLE_RST);
+BLEPeripheral blePeripheral = BLEPeripheral();
 
 BLEService tempService = BLEService("CCC0");
 BLEFloatCharacteristic tempCharacteristic = BLEFloatCharacteristic("CCC1", BLERead | BLENotify);
@@ -32,9 +26,6 @@ float lastHumidityReading;
 
 void setup() {
   Serial.begin(115200);
-#if defined (__AVR_ATmega32U4__)
-  delay(5000);  //5 seconds delay for enabling to see the start up comments on the serial board
-#endif
 
   blePeripheral.setLocalName("Temperature");
 

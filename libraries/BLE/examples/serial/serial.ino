@@ -12,15 +12,13 @@
  */
 
 
-// Import libraries (BLEPeripheral depends on SPI)
-#include <SPI.h>
 #include <BLEPeripheral.h>
-#include "BLESerial.h"
+#include <BLESerial.h>
 
 // define pins (varies per shield/board)
-#define BLE_REQ   10
-#define BLE_RDY   2
-#define BLE_RST   9
+#define BLE_REQ   -1
+#define BLE_RDY   -1
+#define BLE_RST   -1
 
 // create ble serial instance, see pinouts above
 BLESerial BLESerial(BLE_REQ, BLE_RDY, BLE_RST);

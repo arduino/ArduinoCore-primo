@@ -1,14 +1,7 @@
-// Import libraries (BLEPeripheral depends on SPI)
-#include <SPI.h>
 #include <BLEPeripheral.h>
 
 // https://github.com/shirriff/Arduino-IRremote
 #include <IRremote.h>
-
-// define pins (varies per shield/board)
-#define BLE_REQ     10
-#define BLE_RDY     2
-#define BLE_RST     9
 
 #define IR_SEND_PIN 3
 #define IR_RECV_PIN 4
@@ -28,7 +21,7 @@ IRrecv                           irRecv                      = IRrecv(IR_RECV_PI
 IRValue                          irValue;
 
 // create peripheral instance, see pinouts above
-BLEPeripheral                    blePeripheral               = BLEPeripheral(BLE_REQ, BLE_RDY, BLE_RST);
+BLEPeripheral                    blePeripheral               = BLEPeripheral();
 
 // create service and characteristics
 BLEService                       irService                   = BLEService("00004952-0000-bbbb-0123-456789abcdef");

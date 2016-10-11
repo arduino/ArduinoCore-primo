@@ -1,14 +1,8 @@
-// Import libraries (BLEPeripheral depends on SPI)
-#include <SPI.h>
 #include <BLEPeripheral.h>
 
-// define pins (varies per shield/board)
-#define BLE_REQ   6
-#define BLE_RDY   7
-#define BLE_RST   4
 
 // create peripheral instance, see pinouts above
-BLEPeripheral                    blePeripheral                            = BLEPeripheral(BLE_REQ, BLE_RDY, BLE_RST);
+BLEPeripheral                    blePeripheral                            = BLEPeripheral();
 
 // create remote services
 BLERemoteService                 remoteGenericAttributeService            = BLERemoteService("1800");
@@ -19,9 +13,6 @@ BLERemoteCharacteristic          remoteDeviceNameCharacteristic           = BLER
 
 void setup() {
   Serial.begin(9600);
-#if defined (__AVR_ATmega32U4__)
-  while(!Serial); // wait for serial
-#endif
 
   blePeripheral.setLocalName("remote-attributes");
 
