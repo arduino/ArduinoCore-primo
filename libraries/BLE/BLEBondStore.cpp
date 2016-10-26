@@ -1,7 +1,14 @@
+// Copyright (c) Sandeep Mistry. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 #ifdef __AVR__
   #include <avr/eeprom.h>
-#elif defined(NRF51) || defined(NRF52) || defined(__RFduino__)
-  // nothing extra needed
+#elif defined(__RFduino__)
+#define FLASH_WAIT_READY { \
+  while (NRF_NVMC->READY == NVMC_READY_READY_Busy) {}; \
+}
+#elif defined(NRF51) || defined(NRF52)
+  #include <nrf_soc.h>
 #else
   #warning "BLEBondStore persistent storage not supported on this platform"
 #endif
@@ -9,12 +16,6 @@
 #include "Arduino.h"
 
 #include "BLEBondStore.h"
-
-#if defined(NRF51) || defined(NRF52) || defined(__RFduino__)
-#define FLASH_WAIT_READY { \
-  while (NRF_NVMC->READY == NVMC_READY_READY_Busy) {}; \
-}
-#endif
 
 BLEBondStore::BLEBondStore(int offset)
 #if defined(__AVR__) || defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MKL26Z64__)
@@ -38,7 +39,12 @@ bool BLEBondStore::hasData() {
 void BLEBondStore::clearData() {
 #if defined(__AVR__) || defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MKL26Z64__)
   eeprom_write_byte((unsigned char *)this->_offset, 0x00);
-#elif defined(NRF51) || defined(__RFduino__)
+#elif defined(NRF51) || defined(NRF52)
+  int32_t pageNo = (uint32_t)_flashPageStartAddress / NRF_FICR->CODEPAGESIZE;
+
+  while(sd_flash_page_erase(pageNo) == NRF_ERROR_BUSY);
+#elif defined(__RFduino__)
+
   // turn on flash erase enable
   NRF_NVMC->CONFIG = (NVMC_CONFIG_WEN_Een << NVMC_CONFIG_WEN_Pos);
 
@@ -56,8 +62,6 @@ void BLEBondStore::clearData() {
 
   // wait until ready
   FLASH_WAIT_READY
-#elif defined(NRF52)
-    SDManager.flashErasePage((uint32_t)this->_flashPageStartAddress);
 #endif
 }
 
@@ -68,10 +72,12 @@ void BLEBondStore::putData(const unsigned char* data, unsigned int offset, unsig
   for (unsigned int i = 0; i < length; i++) {
     eeprom_write_byte((unsigned char *)this->_offset + offset + i + 1, data[i]);
   }
-#elif defined(NRF51) || defined(__RFduino__) // ignores offset
+#elif defined(NRF51) || defined(NRF52)  // ignores offset
   this->clearData();
 
-  offset = offset;
+  while (sd_flash_write((uint32_t*)_flashPageStartAddress, (uint32_t*)data, (uint32_t)length/4) == NRF_ERROR_BUSY);
+#elif defined(__RFduino__) // ignores offset
+  this->clearData();
 
   // turn on flash write enable
   NRF_NVMC->CONFIG = (NVMC_CONFIG_WEN_Wen << NVMC_CONFIG_WEN_Pos);
@@ -97,8 +103,6 @@ void BLEBondStore::putData(const unsigned char* data, unsigned int offset, unsig
 
   // wait until ready
   FLASH_WAIT_READY
-#elif defined (NRF52)
-  SDManager.flashWriteArray(this->_flashPageStartAddress, (uint32_t*)data, length);
 #endif
 }
 

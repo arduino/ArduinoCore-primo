@@ -60,7 +60,7 @@ class nRF51822 : public BLEDevice
                 BLERemoteAttribute** remoteAttributes,
                 unsigned char numRemoteAttributes);
 
-    virtual void poll();
+    virtual void poll(ble_evt_t *bleEvt = 0);
 
     virtual void end();
 

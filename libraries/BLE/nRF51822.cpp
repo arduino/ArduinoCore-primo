@@ -502,13 +502,17 @@ void nRF51822::begin(unsigned char advertisementDataType,
 #endif
 }
 
-void nRF51822::poll() {
-  uint32_t   evtBuf[BLE_STACK_EVT_MSG_BUF_SIZE] __attribute__ ((__aligned__(BLE_EVTS_PTR_ALIGNMENT)));
-  uint16_t   evtLen = sizeof(evtBuf);
-  ble_evt_t* bleEvt = (ble_evt_t*)evtBuf;
-
-  if (sd_ble_evt_get((uint8_t*)evtBuf, &evtLen) == NRF_SUCCESS) {
-    switch (bleEvt->header.evt_id) {
+void nRF51822::poll(ble_evt_t *bleEvt) {
+  bool event = true;
+  if(!bleEvt){
+	uint32_t   evtBuf[BLE_STACK_EVT_MSG_BUF_SIZE] __attribute__ ((__aligned__(BLE_EVTS_PTR_ALIGNMENT)));
+	uint16_t   evtLen = sizeof(evtBuf);
+	bleEvt = (ble_evt_t*)evtBuf;
+    if (sd_ble_evt_get((uint8_t*)evtBuf, &evtLen) != NRF_SUCCESS)
+	  event = false;
+  }
+  if(event){
+	switch (bleEvt->header.evt_id) {
       case BLE_EVT_TX_COMPLETE:
 #ifdef NRF_51822_DEBUG
         Serial.print(F("Evt TX complete "));
@@ -740,7 +744,7 @@ void nRF51822::poll() {
 #if defined(NRF5) || defined(NRF51_S130)
             this->_bondStore->putData(this->_bondData, 0, sizeof(this->_bondData));
 #else
-            this->_bondStore->putData(this->_authStatusBuffer, 0, sizeof(this->_authStatusBuffer));
+			this->_bondStore->putData(this->_authStatusBuffer, 0, sizeof(this->_authStatusBuffer));
 #endif
           }
 
