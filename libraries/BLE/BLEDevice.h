@@ -8,6 +8,13 @@
 #include "BLERemoteCharacteristic.h"
 #include "BLERemoteService.h"
 
+struct BLEEirData
+{
+  unsigned char length;
+  unsigned char type;
+  unsigned char data[BLE_EIR_DATA_MAX_VALUE_LENGTH];
+};
+
 class BLEDevice;
 
 class BLEDeviceEventListener
@@ -46,17 +53,15 @@ class BLEDevice
     void setConnectable(bool connectable);
     void setBondStore(BLEBondStore& bondStore);
 
-    virtual void begin(unsigned char /*advertisementDataType*/,
-                unsigned char /*advertisementDataLength*/,
-                const unsigned char* /*advertisementData*/,
-                unsigned char /*scanDataType*/,
-                unsigned char /*scanDataLength*/,
-                const unsigned char* /*scanData*/,
+    virtual void begin(unsigned char /*advertisementDataSize*/,
+                BLEEirData * /*advertisementData*/,
+                unsigned char /*scanDataSize*/,
+                BLEEirData * /*scanData*/,
                 BLELocalAttribute** /*localAttributes*/,
                 unsigned char /*numLocalAttributes*/,
                 BLERemoteAttribute** /*remoteAttributes*/,
                 unsigned char /*numRemoteAttributes*/) { }
-
+				
     virtual void poll(ble_evt_t *bleEvent = 0) { }
 
     virtual void end() { }
