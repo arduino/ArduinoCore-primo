@@ -1,3 +1,9 @@
+/* Copyright (c) Sandeep Mistry. All rights reserved.
+   Licensed under the MIT license. See LICENSE file in the project root for full license information.
+   Modified by Chiara Ruggeri <chiara@arduino.org>
+   
+*/   
+
 #include <BLEPeripheral.h>
 
 // https://github.com/shirriff/Arduino-IRremote
@@ -20,7 +26,7 @@ IRsend                           irSend                      = IRsend(/*IR_SEND_
 IRrecv                           irRecv                      = IRrecv(IR_RECV_PIN);
 IRValue                          irValue;
 
-// create peripheral instance, see pinouts above
+// create peripheral instance
 BLEPeripheral                    blePeripheral               = BLEPeripheral();
 
 // create service and characteristics

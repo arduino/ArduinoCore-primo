@@ -1,10 +1,21 @@
+/* Copyright (c) Sandeep Mistry. All rights reserved.
+   Licensed under the MIT license. See LICENSE file in the project root for full license information.
+   Modified by Chiara Ruggeri <chiara@arduino.org>
+
+   This example shows how to read/write a characteristic to turn a LED on or off.
+   The second characteristic shows the notify property. If notifications are enabled when the button
+   is pressed the value is automatically updated on your central and the led will switch accordingly.
+   You can use nRFConnect app to read/write the characteristic
+   https://www.nordicsemi.com/eng/Products/Nordic-mobile-Apps/nRF-Connect-for-mobile-previously-called-nRF-Master-Control-Panel
+ */
+
 #include <BLEPeripheral.h>
 
 // LED and button pin
 #define LED_PIN     13
 #define BUTTON_PIN  USER1_BUTTON
 
-// create peripheral instance, see pinouts above
+// create peripheral instance
 BLEPeripheral            blePeripheral        = BLEPeripheral();
 
 // create service

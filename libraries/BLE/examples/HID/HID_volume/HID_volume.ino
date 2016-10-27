@@ -1,3 +1,7 @@
+/* Copyright (c) Sandeep Mistry. All rights reserved.
+   Licensed under the MIT license. See LICENSE file in the project root for full license information.
+*/   
+
 #include <BLEHIDPeripheral.h>
 #include <BLEMultimedia.h>
 
@@ -10,8 +14,6 @@
 #define ENC_LEFT_PIN  4
 
 #define INPUT_POLL_INTERVAL 100
-
-#define ANDROID_CENTRAL
 
 BLEHIDPeripheral bleHIDPeripheral = BLEHIDPeripheral();
 BLEMultimedia bleMultimedia;
@@ -27,18 +29,14 @@ void setup() {
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   buttonState = digitalRead(BUTTON_PIN);
 
-  if (buttonState == LOW) {
-    Serial.println(F("BLE HID Peripheral - clearing bond data"));
-
-    // clear bond store data
-    bleHIDPeripheral.clearBondStoreData();
-  }
+  Serial.println(F("BLE HID Peripheral - clearing bond data"));
+  // clear bond store data
+  bleHIDPeripheral.clearBondStoreData();
 
   encoder.write(0);
 
-#ifdef ANDROID_CENTRAL
   bleHIDPeripheral.setReportIdOffset(1);
-#endif
+
 
   bleHIDPeripheral.setLocalName("HID Volume");
   bleHIDPeripheral.addHID(bleMultimedia);

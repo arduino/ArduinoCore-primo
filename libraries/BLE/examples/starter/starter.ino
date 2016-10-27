@@ -1,6 +1,13 @@
+/* Copyright (c) Sandeep Mistry. All rights reserved.
+   Licensed under the MIT license. See LICENSE file in the project root for full license information.
+   Modified by Chiara Ruggeri <chiara@arduino.org>
+
+   This example shows how to use the BLEPeripheral library on Arduino Primo board.
+*/
+
 #include <BLEPeripheral.h>
 
-// create peripheral instance, see pinouts above
+// create peripheral instance
 BLEPeripheral blePeripheral = BLEPeripheral();
 
 // uuid's can be:

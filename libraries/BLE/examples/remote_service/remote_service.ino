@@ -1,7 +1,12 @@
+/* Copyright (c) Sandeep Mistry. All rights reserved.
+   Licensed under the MIT license. See LICENSE file in the project root for full license information.
+   Modified by Chiara Ruggeri <chiara@arduino.org>
+*/
+
 #include <BLEPeripheral.h>
 
 
-// create peripheral instance, see pinouts above
+// create peripheral instance
 BLEPeripheral                    blePeripheral                            = BLEPeripheral();
 
 // create remote services
@@ -71,4 +76,3 @@ void bleRemoteDeviceNameCharacteristicValueUpdatedHandle(BLECentral& central, BL
   Serial.print(F("Remote device name: "));
   Serial.println(remoteDeviceName);
 }
-

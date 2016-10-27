@@ -1,3 +1,15 @@
+/* Copyright (c) Sandeep Mistry. All rights reserved.
+   Licensed under the MIT license. See LICENSE file in the project root for full license information.
+   Modified by Chiara Ruggeri <chiara@arduino.org>
+   
+   This example shows the use of the HID BLE library for the Arduino Primo board.
+   Connect the keypad to the board using the following configuration:
+   rows: A0, A1, A2, A3
+   columns: 7, 6, 5
+   Connect the board to the phone through the phone's bluetooth settings,
+   open a text field in the phone and try to press a key in the keypad.
+*/
+
 #include <BLEHIDPeripheral.h>
 #include <BLEKeyboard.h>
 
@@ -23,14 +35,12 @@ BLEKeyboard bleKeyboard;
 void setup() {
   Serial.begin(9600);
 
-  char c = keypad.getKey();
-
-  if (c == '#') {
-    Serial.println(F("BLE HID Peripheral - clearing bond data"));
+  Serial.println(F("BLE HID Peripheral - clearing bond data"));
     
-    // clear bond store data
-    bleHIDPeripheral.clearBondStoreData();
-  }
+  // clear bond store data
+  bleHIDPeripheral.clearBondStoreData();  
+  
+  bleHIDPeripheral.setReportIdOffset(1);
   
   bleHIDPeripheral.setLocalName("HID Keypad");
   bleHIDPeripheral.addHID(bleKeyboard);

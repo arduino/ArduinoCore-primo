@@ -1,4 +1,13 @@
+/* Copyright (c) Sandeep Mistry. All rights reserved.
+   Licensed under the MIT license. See LICENSE file in the project root for full license information.
+   Modified by Chiara Ruggeri <chiara@arduino.org>
+   
+   With this example the board implements the broadcaster role.
+   Once the beacon is set, the board will advertise the uuid continuously.
+*/
+   
 #include <EddystoneBeacon.h>
+#include <LowPower.h>
 
 EddystoneBeacon eddystoneBeacon = EddystoneBeacon();
 BLEUuid         uid             = BLEUuid("01020304050607080910-AABBCCDDEEFF"); // <namespace id>-<instance id>
@@ -12,5 +21,6 @@ void setup() {
 }
 
 void loop() {
-  eddystoneBeacon.loop();
+  // Put the board in low power mode
+  LowPower.standby();
 }

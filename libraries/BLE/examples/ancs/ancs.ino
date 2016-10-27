@@ -1,3 +1,12 @@
+/* Copyright (c) Sandeep Mistry. All rights reserved.
+   Licensed under the MIT license. See LICENSE file in the project root for full license information.
+   Modified by Chiara Ruggeri <chiara@arduino.org>
+
+   This example implements an Apple Notification Center Service client
+   For detailed information about the Apple Notification Center Service, see Apple's iOS Developer Library
+   https://developer.apple.com/library/content/documentation/CoreBluetooth/Reference/AppleNotificationCenterServiceSpecification/Introduction/Introduction.html
+*/
+
 #include <BLEPeripheral.h>
 
 #include <BLEUtil.h>

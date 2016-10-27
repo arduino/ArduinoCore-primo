@@ -1,8 +1,17 @@
+/* Copyright (c) Sandeep Mistry. All rights reserved.
+   Licensed under the MIT license. See LICENSE file in the project root for full license information.
+   Modified by Chiara Ruggeri <chiara@arduino.org>
+   
+   This example shows the use of the HID BLE library for the Arduino Primo board.
+   Connect the board to the phone through the phone's bluetooth settings,
+   open a text field in the phone and try to write something in the Primo serial terminal.
+ */
+
 #include <BLEHIDPeripheral.h>
 #include <BLEKeyboard.h>
 
 
-// create peripheral instance, see pinouts above
+// create peripheral instance
 BLEHIDPeripheral bleHIDPeripheral = BLEHIDPeripheral();
 BLEKeyboard bleKeyboard;
 

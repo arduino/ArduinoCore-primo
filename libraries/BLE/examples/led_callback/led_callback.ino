@@ -1,9 +1,21 @@
+/* Copyright (c) Sandeep Mistry. All rights reserved.
+   Licensed under the MIT license. See LICENSE file in the project root for full license information.
+   Modified by Chiara Ruggeri <chiara@arduino.org>
+
+   This example shows how to read/write a characteristic to turn a LED on or off.
+   In this implementation, after the configuration is set, the board is put in low power mode
+   and the BLE features continue to work through callbacks.
+   You can use nRFConnect app to read/write the characteristic
+   https://www.nordicsemi.com/eng/Products/Nordic-mobile-Apps/nRF-Connect-for-mobile-previously-called-nRF-Master-Control-Panel
+ */
+
 #include <BLEPeripheral.h>
+#include <LowPower.h>
 
 // LED pin
 #define LED_PIN   13
 
-// create peripheral instance, see pinouts above
+// create peripheral instance
 BLEPeripheral           blePeripheral        = BLEPeripheral();
 
 // create service
@@ -40,8 +52,8 @@ void setup() {
 }
 
 void loop() {
-  // poll peripheral
-  blePeripheral.poll();
+  // put the board in low power mode
+  LowPower.standby();
 }
 
 void blePeripheralConnectHandler(BLECentral& central) {

@@ -1,3 +1,12 @@
+/* Copyright (c) Sandeep Mistry. All rights reserved.
+   Licensed under the MIT license. See LICENSE file in the project root for full license information.
+   Modified by Chiara Ruggeri <chiara@arduino.org>
+   
+   This example shows the use of the HID BLE library for the Arduino Primo board.
+   Connect the board to the phone through the phone's bluetooth settings,
+   open a serial terminal and type any characters.
+*/
+
 #include <BLEHIDPeripheral.h>
 #include <BLEMouse.h>
 #include <BLEKeyboard.h>
@@ -16,7 +25,9 @@ void setup() {
   // clears bond data on every boot
   bleHID.clearBondStoreData();
   
-   bleHID.setDeviceName("Arduino BLE HID");
+  bleHID.setReportIdOffset(1);
+  
+  bleHID.setDeviceName("Arduino BLE HID");
 //  bleHID.setAppearance(961);
 
   bleHID.setLocalName("HID");
@@ -42,11 +53,13 @@ void loop() {
     while (bleHID.connected()) {
       if (Serial.available() > 0) {
         Serial.read();
-        
-//        bleMouse.move(100, 100, 0);
-//        bleKeyboard.press(KEYCODE_A);
+
+        // comment out one of the following lines to try a different feature
+
+        //bleMouse.move(100, 100, 0);
+        //bleKeyboard.press(KEYCODE_A);
         bleMultimedia.write(MMKEY_VOL_UP);
-//        bleSystemControl.write(SYSCTRLKEY_POWER);
+        //bleSystemControl.write(SYSCTRLKEY_POWER);
       }
     }
 
@@ -55,4 +68,3 @@ void loop() {
     Serial.println(central.address());
   }
 }
-

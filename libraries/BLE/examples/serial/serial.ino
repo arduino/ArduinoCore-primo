@@ -1,4 +1,7 @@
-/*
+/* Copyright (c) Sandeep Mistry. All rights reserved.
+ * Licensed under the MIT license. See LICENSE file in the project root for full license information.
+ * Modified by Chiara Ruggeri <chiara@arduino.org>
+
  * Serial Port over BLE
  * Create UART service compatible with Nordic's *nRF Toolbox* and Adafruit's *Bluefruit LE* iOS/Android apps.
  *

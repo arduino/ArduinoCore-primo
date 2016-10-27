@@ -1,3 +1,9 @@
+/* Copyright (c) Sandeep Mistry. All rights reserved.
+   Licensed under the MIT license. See LICENSE file in the project root for full license information.
+   Modified by Chiara Ruggeri <chiara@arduino.org>
+*/
+
+
 #include <BLEPeripheral.h>
 #include <BLEUtil.h>
 
