@@ -11,6 +11,8 @@ Enables you to create more customized BLE Peripheral's compared to the basic UAR
 
 ## Compatible Hardware
 
+### [Arduino Primo] (http://www.arduino.org)
+
 ### [Nordic Semiconductor nRF8001](http://www.nordicsemi.com/eng/Products/Bluetooth-R-low-energy/nRF8001)
 
  * [Adafruit](http://www.adafruit.com)
