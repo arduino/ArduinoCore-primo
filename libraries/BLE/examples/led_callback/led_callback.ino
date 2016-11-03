@@ -5,12 +5,15 @@
    This example shows how to read/write a characteristic to turn a LED on or off.
    In this implementation, after the configuration is set, the board is put in low power mode
    and the BLE features continue to work through callbacks.
+   Furthermore NFC capabilities was added to show how to set different NFC messages depending
+   the characteristic value.
    You can use nRFConnect app to read/write the characteristic
    https://www.nordicsemi.com/eng/Products/Nordic-mobile-Apps/nRF-Connect-for-mobile-previously-called-nRF-Master-Control-Panel
  */
 
 #include <BLEPeripheral.h>
 #include <LowPower.h>
+#include <NFC.h>
 
 // LED pin
 #define LED_PIN   13
@@ -47,7 +50,11 @@ void setup() {
 
   // begin initialization
   blePeripheral.begin();
-
+  
+  // set the NFC message
+  NFC.setTXTmessage("No client connected", "en");
+  NFC.start();
+  
   Serial.println(F("BLE LED Peripheral"));
 }
 
@@ -60,12 +67,20 @@ void blePeripheralConnectHandler(BLECentral& central) {
   // central connected event handler
   Serial.print(F("Connected event, central: "));
   Serial.println(central.address());
+  // NFC needs to be stopped before to set another message
+  NFC.stop();
+  NFC.setTXTmessage("Client connected!", "en");
+  NFC.start();
 }
 
 void blePeripheralDisconnectHandler(BLECentral& central) {
   // central disconnected event handler
   Serial.print(F("Disconnected event, central: "));
   Serial.println(central.address());
+  // NFC needs to be stopped before to set another message
+  NFC.stop();
+  NFC.setTXTmessage("No client connected", "en");
+  NFC.start();
 }
 
 void switchCharacteristicWritten(BLECentral& central, BLECharacteristic& characteristic) {
@@ -75,8 +90,16 @@ void switchCharacteristicWritten(BLECentral& central, BLECharacteristic& charact
   if (switchCharacteristic.value()) {
     Serial.println(F("LED on"));
     digitalWrite(LED_PIN, HIGH);
+    // NFC needs to be stopped before to set another message
+    NFC.stop();
+    NFC.setTXTmessage("LED is on", "en");
+    NFC.start();
   } else {
     Serial.println(F("LED off"));
     digitalWrite(LED_PIN, LOW);
+    // NFC needs to be stopped before to set another message
+    NFC.stop();
+    NFC.setTXTmessage("LED is off", "en");
+    NFC.start();
   }
 }

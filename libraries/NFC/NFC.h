@@ -45,14 +45,6 @@ extern "C" {
 class NFCClass{
 
 	public:
-		/**
-		* @brief
-		* Name:
-		*			begin
-		* Description:
-		*			Begin the NFCT module.
-		*/
-		void begin(void);
 		
 		/**
 		* @brief
@@ -62,10 +54,10 @@ class NFCClass{
 		*			Specify a text message that will pop up on a device when it is
 		*			near to the board.
 		* Arguments:
-		*			-TXTMessage: array of uint8_t containing the message
-		*			-language: array of uint8_t containing the message's language code
+		*			-TXTMessage: array of char containing the message
+		*			-language: array of char containing the message's language code
 		*/
-		void setTXTmessage(const uint8_t TXTMessage[], const uint8_t language[]);
+		void setTXTmessage(const char TXTMessage[], const char language[]);
 	
 	
 		/**
@@ -93,8 +85,28 @@ class NFCClass{
 		*			-android_app: package of the Android application
 		*			-windows_app: ID of the Windows application
 		*/
-		void setAPPmessage(const uint8_t android_app[], const uint8_t windows_app[]);
+		void setAPPmessage(const char android_app[], const char windows_app[]);
 	
+	
+		/**
+		* @brief
+		* Name:
+		*			start
+		* Description:
+		*			Start the NFC module.
+		*/
+		void start(void);
+		
+		
+		/**
+		* @brief
+		* Name:
+		*			stop
+		* Description:
+		*			Stop the NFC module.
+		*/
+		void stop(void);
+		
 		
 		/**
 		* @brief
@@ -107,6 +119,7 @@ class NFCClass{
 		*/
 		void registerCallback(void(*function)(void));
 		
+		
 		/**
 		* @brief
 		* Name:
@@ -115,6 +128,7 @@ class NFCClass{
 		*			Service function called by ISR.
 		*/
 		void onService(void);
+		
 		
 	private:
 		// Callback user function

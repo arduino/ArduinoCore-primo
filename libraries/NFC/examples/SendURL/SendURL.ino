@@ -5,8 +5,8 @@
   
   This example for the Arduino Primo board shows how to use
   NFC library.
-  It first initialize the NFC and then set an URI message so
-  that when a device with NFC is near to the board the message
+  It sets an URI message and then starts the module, so that
+  when a device with NFC is near to the board the message
   http://www.arduino.org will be sent.
   A list of all possible URI message can be found here:
 
@@ -52,15 +52,11 @@
 
 #include <NFC.h>
 
-static const char url[]={'a', 'r', 'd', 'u', 'i', 'n', 'o', '.', 'o', 'r', 'g'};
-
 void setup() {
-  NFC.begin();
-  NFC.setURImessage(url, NFC_URI_HTTP_WWW);
+  NFC.setURImessage("arduino.org", NFC_URI_HTTP_WWW);
+  NFC.start();
 }
 
 
 void loop() {
 }
-
-

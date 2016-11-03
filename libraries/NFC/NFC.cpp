@@ -33,28 +33,20 @@ void nfc_callback(void *context, NfcEvent event, const char *data, size_t dataLe
 
 uint8_t ndef_msg_buf[256];
 
-void NFCClass::begin(){
+
+void NFCClass::setTXTmessage(const char TXTMessage[], const char language[]){
+
 	nfcSetup(nfc_callback, NULL);
-}
-
-void NFCClass::setTXTmessage(const uint8_t TXTMessage[], const uint8_t language[]){
-
 	uint32_t len = sizeof(ndef_msg_buf);
-
-	char message[256];
-	strcpy(message, (char *)TXTMessage);
-	uint8_t sizeM=strlen(message);
-
-	char lang[256];
-	strcpy(lang, (char *)language);
-	uint8_t sizeL=strlen(lang);
+	uint8_t sizeM=strlen(TXTMessage);
+	uint8_t sizeL=strlen(language);	
 
 	NFC_NDEF_MSG_DEF(welcome_msg, 1);	
     NFC_NDEF_TEXT_RECORD_DESC_DEF(en_text_rec,
                                   UTF_8,
-                                  (uint8_t *)lang,
+                                  (uint8_t *)language,
                                   sizeL,
-                                  (uint8_t *)message,
+                                  (uint8_t *)TXTMessage,
                                   sizeM);
 	nfc_ndef_msg_record_add( &NFC_NDEF_MSG(welcome_msg),
                                         &NFC_NDEF_TEXT_RECORD_DESC(en_text_rec));
@@ -64,46 +56,48 @@ void NFCClass::setTXTmessage(const uint8_t TXTMessage[], const uint8_t language[
                                             &len);
 	 
 	nfcSetPayload((char *) ndef_msg_buf, len);
-	nfcStartEmulation();
 }
 
 void NFCClass::setURImessage( const char URL[], nfc_uri_id_t type){
-	char url[256];
-	strcpy(url, URL);
-	uint8_t size=strlen(url);
+	
+	uint8_t size=strlen(URL);
+	memset(ndef_msg_buf, 0, 256);
+	
 	uint32_t len = sizeof(ndef_msg_buf);
+	nfcSetup(nfc_callback, NULL);
 	nfc_uri_msg_encode( type,
-                         (uint8_t *) url,
+                         (uint8_t *) URL,
                          size,
                          ndef_msg_buf,
                          &len);
 								   
-	nfcSetPayload( (char*)ndef_msg_buf, len);
-	nfcStartEmulation();
+	nfcSetPayload((char*)ndef_msg_buf, len);
 	
 }
 
-void NFCClass::setAPPmessage(const uint8_t android_app[], const uint8_t windows_app[]){
+void NFCClass::setAPPmessage(const char android_app[], const char windows_app[]){
 	
-	char Aapp[256];
-	strcpy(Aapp, (char *)android_app);
-	uint8_t sizeA=strlen(Aapp);
-
-	char Wapp[256];
-	strcpy(Wapp, (char *)windows_app);
-	uint8_t sizeW=strlen(Wapp);
-
+	uint8_t sizeA=strlen(android_app);
+	uint8_t sizeW=strlen(windows_app);
 	uint32_t len = sizeof(ndef_msg_buf);
 	
-	nfc_launchapp_msg_encode((uint8_t *)Aapp,
+	nfcSetup(nfc_callback, NULL);
+	nfc_launchapp_msg_encode((uint8_t *)android_app,
                                     sizeA,
-                                    (uint8_t *)Wapp,
+                                    (uint8_t *)windows_app,
                                     sizeW,
                                     ndef_msg_buf,
                                     &len);
   
 	nfcSetPayload((char *) ndef_msg_buf, len);
-	nfcStartEmulation();
+}
+
+void NFCClass::start(){
+	nfcStartEmulation();	
+}
+
+void NFCClass::stop(){
+	nfcStopEmulation();
 }
 
 void NFCClass::registerCallback(void(*function)(void)){
