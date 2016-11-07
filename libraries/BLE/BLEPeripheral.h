@@ -137,6 +137,9 @@ class BLEPeripheral : public BLEDeviceEventListener,
     const unsigned char*           _manufacturerData;
     unsigned char                  _manufacturerDataLength;
     const char*                    _localName;
+	char                           _servicesUuid[32];
+	uint8_t                        _servicesUuidLength=0;
+	//uint8_t                        _advertisedServicesNo=0;
 
     BLELocalAttribute**            _localAttributes;
     unsigned char                  _numLocalAttributes;

@@ -53,7 +53,8 @@ BLEPeripheral::BLEPeripheral(unsigned char req, unsigned char rdy, unsigned char
 #endif
 
   memset(this->_eventHandlers, 0x00, sizeof(this->_eventHandlers));
-
+  memset(this->_servicesUuid, 0x00, 32);
+  
   this->setDeviceName(DEFAULT_DEVICE_NAME);
   this->setAppearance(DEFAULT_APPEARANCE);
 
@@ -78,7 +79,7 @@ void systemEvent(ble_evt_t *bleEvent){
 void BLEPeripheral::begin() {
   unsigned char advertisementDataSize = 0;
 
-  BLEEirData advertisementData[3];
+  BLEEirData advertisementData[4];
   BLEEirData scanData = { 0 };
 
   unsigned char remainingAdvertisementDataLength = BLE_ADVERTISEMENT_DATA_MAX_VALUE_LENGTH + 2;
@@ -93,17 +94,32 @@ void BLEPeripheral::begin() {
     advertisementDataSize += 1;
     remainingAdvertisementDataLength -= uuidLength + 2;
   }
-  if (this->_advertisedServiceUuid){
-    BLEUuid advertisedServiceUuid = BLEUuid(this->_advertisedServiceUuid);
+  if (this->_servicesUuid[0]){
+	  if (this->_servicesUuidLength  <= remainingAdvertisementDataLength) {
+	  //add the first type found in the array (16 or 128 bit)
+	  unsigned char len = this->_servicesUuid[0];
+	  unsigned char lenSecondType = 0;
+	  unsigned char type = this->_servicesUuid[1];
+	  
+      advertisementData[advertisementDataSize].length = len;
+      advertisementData[advertisementDataSize].type = type;
 
-    unsigned char uuidLength = advertisedServiceUuid.length();
-    if (uuidLength + 2 <= remainingAdvertisementDataLength) {
-      advertisementData[advertisementDataSize].length = uuidLength;
-      advertisementData[advertisementDataSize].type = (uuidLength > 2) ? 0x06 : 0x02;
-
-      memcpy(advertisementData[advertisementDataSize].data, advertisedServiceUuid.data(), uuidLength);
-      advertisementDataSize += 1;
-      remainingAdvertisementDataLength -= uuidLength + 2;
+      memcpy(advertisementData[advertisementDataSize].data, &this->_servicesUuid[2], len);
+      advertisementDataSize += 1;	
+	
+	  //add the other type if present
+	  if(this->_servicesUuid[len + 2] != 0 && len < 31){
+		  lenSecondType = this->_servicesUuid[len + 2];
+		  type = this->_servicesUuid[len + 3];
+		  
+		  advertisementData[advertisementDataSize].length = lenSecondType;
+          advertisementData[advertisementDataSize].type = type;
+      
+	      memcpy(advertisementData[advertisementDataSize].data, &this->_servicesUuid[len + 4], lenSecondType);
+          advertisementDataSize += 1;
+	  }
+		  
+      remainingAdvertisementDataLength -= len + lenSecondType + 2;
     }
   }
   if (this->_manufacturerData && this->_manufacturerDataLength > 0) {
@@ -162,7 +178,6 @@ void BLEPeripheral::begin() {
     this->addRemoteAttribute(this->_remoteGenericAttributeService);
     this->addRemoteAttribute(this->_remoteServicesChangedCharacteristic);
   }
-
   this->_device->begin(advertisementDataSize, advertisementData,
                         scanData.length > 0 ? 1 : 0, &scanData,
                         this->_localAttributes, this->_numLocalAttributes,
@@ -182,7 +197,42 @@ void BLEPeripheral::end() {
 }
 
 void BLEPeripheral::setAdvertisedServiceUuid(const char* advertisedServiceUuid) {
-  this->_advertisedServiceUuid = advertisedServiceUuid;
+	
+    BLEUuid advServiceUuid = BLEUuid(advertisedServiceUuid);
+	unsigned char uuidLength = advServiceUuid.length();
+	uint8_t type = uuidLength > 2 ? 0x06 : 0x02;
+	uint8_t pos;
+	bool inPck = false;
+		
+	//if maximum size is reached or the room is not enough return
+	if(this->_servicesUuidLength >= 31 || (31-this->_servicesUuidLength) < uuidLength)
+		return;
+		
+	//check if the field is already in the packet
+	for(pos = 0; pos < 32 && this->_servicesUuid[pos] != 0; pos += this->_servicesUuid[pos] + 2)
+		if(this->_servicesUuid[pos+1] == type){
+			inPck = true;
+			break;
+		}
+	if(inPck){
+		//move fields if necessary to make room for the extension
+		for(int i = this->_servicesUuidLength + uuidLength - 1; i >= (pos + this->_servicesUuid[pos] + 1 + uuidLength); i--){
+			this->_servicesUuid[i] = this->_servicesUuid[i - uuidLength];
+		}
+		//copy the new data into the field and update the length byte
+		memcpy(&this->_servicesUuid[pos + this->_servicesUuid[pos] +2], advServiceUuid.data(), uuidLength);
+		this->_servicesUuid[pos] += uuidLength;
+		this->_servicesUuidLength += uuidLength;
+	}
+	else{
+		//add the packet
+		this->_servicesUuid[this->_servicesUuidLength] = uuidLength;
+		this->_servicesUuid[this->_servicesUuidLength + 1] = type;
+		
+		memcpy(&this->_servicesUuid[this->_servicesUuidLength + 2], advServiceUuid.data(), uuidLength);
+		
+		this->_servicesUuidLength += uuidLength + 2;
+	}
 }
 
 void BLEPeripheral::setServiceSolicitationUuid(const char* serviceSolicitationUuid) {
