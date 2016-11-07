@@ -132,14 +132,14 @@ class BLEPeripheral : public BLEDeviceEventListener,
     nRF8001                        _nRF8001;
 #endif
 
-    const char*                    _advertisedServiceUuid;
     const char*                    _serviceSolicitationUuid;
     const unsigned char*           _manufacturerData;
     unsigned char                  _manufacturerDataLength;
     const char*                    _localName;
 	char                           _servicesUuid[32];
 	uint8_t                        _servicesUuidLength=0;
-	//uint8_t                        _advertisedServicesNo=0;
+	unsigned short                 _appearance=0;
+	int                            _txPower=0;
 
     BLELocalAttribute**            _localAttributes;
     unsigned char                  _numLocalAttributes;

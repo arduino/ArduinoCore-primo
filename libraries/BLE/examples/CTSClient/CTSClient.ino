@@ -21,7 +21,7 @@
 #include <BLEPeripheral.h>
 #include <LowPower.h>
 
-char * months [] = {"Unknown", "January", "February", "March", "April", "May", "June", "July", "September", "October", "November", "December"};
+char * months [] = {"Unknown", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 char * days [] = {"Unknown", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 
 // create peripheral instance
@@ -41,7 +41,7 @@ void setup() {
 
   // set device name and appearance
   blePeripheral.setDeviceName("CTS client");
-  blePeripheral.setAppearance(0x0080);
+  blePeripheral.setAppearance(BLE_APPEARANCE_GENERIC_CLOCK);
 
   blePeripheral.addRemoteAttribute(remoteCtsService);
   blePeripheral.addRemoteAttribute(remoteCtsCharacteristic);
