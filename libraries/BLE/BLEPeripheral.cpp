@@ -6,6 +6,7 @@
 
 #include "BLEDeviceLimits.h"
 #include "BLEUtil.h"
+#include "BLEManager.h"
 
 #include "BLEPeripheral.h"
 
@@ -13,8 +14,6 @@
 
 #define DEFAULT_DEVICE_NAME "Arduino"
 #define DEFAULT_APPEARANCE  0x0000
-
-BLEPeripheral *thisPeripheral;
 
 BLEPeripheral::BLEPeripheral(unsigned char req, unsigned char rdy, unsigned char rst) :
 #if defined(NRF51) || defined(NRF52) || defined(__RFduino__)
@@ -44,7 +43,6 @@ BLEPeripheral::BLEPeripheral(unsigned char req, unsigned char rdy, unsigned char
 
   _central(this)
 {
-	thisPeripheral = this;
 #if defined(NRF51) || defined(NRF52) || defined(__RFduino__)
   this->_device = &this->_nRF51822;
 #else
@@ -58,6 +56,8 @@ BLEPeripheral::BLEPeripheral(unsigned char req, unsigned char rdy, unsigned char
   this->setAppearance(DEFAULT_APPEARANCE);
 
   this->_device->setEventListener(this);
+  
+  BLEManager.registerPeripheral(this);
 }
 
 BLEPeripheral::~BLEPeripheral() {
@@ -72,9 +72,7 @@ BLEPeripheral::~BLEPeripheral() {
   }
 }
 
-void systemEvent(ble_evt_t *bleEvent){
-	thisPeripheral->poll(bleEvent);
-}
+
 void BLEPeripheral::begin() {
   unsigned char advertisementDataSize = 0;
   unsigned char scanDataSize = 0;
@@ -227,8 +225,6 @@ void BLEPeripheral::begin() {
                         this->_remoteAttributes, this->_numRemoteAttributes);
 
   this->_device->requestAddress();
-  
-  softdevice_ble_evt_handler_set(systemEvent);
 }
 
 void BLEPeripheral::poll(ble_evt_t *bleEvent) {
