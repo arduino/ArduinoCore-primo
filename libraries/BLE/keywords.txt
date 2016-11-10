@@ -9,9 +9,11 @@
 BLEAttribute	KEYWORD1
 BLEBondStore	KEYWORD1
 BLECentral	KEYWORD1
+BLECentralRole	KEYWORD1
 BLECharacteristic	KEYWORD1
 BLEDescriptor	KEYWORD1
 BLELocalAttribute	KEYWORD1
+BLENode	KEYWORD1
 BLEPeripheral	KEYWORD1
 BLERemoteAttribute	KEYWORD1
 BLERemoteCharacteristic	KEYWORD1
@@ -119,6 +121,22 @@ isPressed	KEYWORD2
 write	KEYWORD2
 releaseAll	KEYWORD2
 
+setScanParameters	KEYWORD2
+setScanInterval	KEYWORD2
+setScanWindow	KEYWORD2
+setScanTimeout	KEYWORD2
+setActiveScan	KEYWORD2
+startScan	KEYWORD2
+stopScan	KEYWORD2
+connect	KEYWORD2
+
+setAdvPck	KEYWORD2
+rawAdvPck	KEYWORD2
+dataLen	KEYWORD2
+isScanRsp	KEYWORD2
+rssi	KEYWORD2
+printAdvertisement	KEYWORD2
+
 #######################################
 # Constants (LITERAL1)
 #######################################
@@ -142,5 +160,6 @@ BLEConnected	LITERAL1
 BLEDisconnected	LITERAL1
 BLEBonded	LITERAL1
 BLERemoteServicesDiscovered	LITERAL1
+BLEScanReceived	LITERAL1
 
 BLEValueUpdated	LITERAL1
