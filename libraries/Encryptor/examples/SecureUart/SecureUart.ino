@@ -31,20 +31,21 @@ void setup() {
   // Open Serial and SoftwareSerial ports
   Serial.begin(9600);
   mySerial.begin(9600);
+  Encryptor.setKey(key);
 }
 
 void loop() {
   if (mySerial.available()){
     //if a data on SoftwareSerial is available, decrypt it before printing
     ciphertext[0] = mySerial.read();
-    Encryptor.decrypt(key, ciphertext, cleartext, BUFFER_LENGTH);
+    Encryptor.decrypt(ciphertext, cleartext, BUFFER_LENGTH);
     Serial.write(cleartext);
     }
 
   if (Serial.available()){
     //if a data on Serial is available, encrypt it before sending
     cleartext[0] = Serial.read();
-    Encryptor.encrypt(key, cleartext, ciphertext, BUFFER_LENGTH);
+    Encryptor.encrypt(cleartext, ciphertext, BUFFER_LENGTH);
     mySerial.write(ciphertext);
     }
 }

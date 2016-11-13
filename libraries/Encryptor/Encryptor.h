@@ -27,10 +27,15 @@
 #include "Arduino.h"
 #include "nrf_ecb.h"
 
+#define ENC_KEY_SIZE    16
+#define MIC_SIZE        2
+
 class EncryptorClass{
 	
 	public:
 		
+        EncryptorClass(void);
+        
 		/**
 		* @brief
 		* Name:
@@ -45,7 +50,7 @@ class EncryptorClass{
 		*			-ture  - encryption succeeded
 		*			-false - encryption failed
 		*/
-		bool encrypt(const char key [], const char cleartext [], char ciphertext [], uint32_t buff_len);
+		bool encrypt(const char cleartext [], char ciphertext [], uint32_t buff_len);
 		
 		/**
 		* @brief
@@ -61,11 +66,22 @@ class EncryptorClass{
 		*			-ture  - decryption succeeded
 		*			-false - decryption failed		
 		*/
-		bool decrypt(const char key [], const char ciphertext [], char cleartext [], uint32_t buff_len);
+		bool decrypt(const char ciphertext [], char cleartext [], uint32_t buff_len);
 	
-	private:
-		uint32_t _rx_counter = 0;
-		uint32_t _tx_counter = 0;
+        void setKey(const char *key);
+        
+        void setInitVector(const char *iv);
+        
+        void setCounter(uint32_t counter);
+        
+        uint32_t getCounter(void);
+        
+	private:        
+        char     _key[ENC_KEY_SIZE];
+        char     _iv[ENC_KEY_SIZE];
+        uint32_t _counter;
+        bool     _micEnabled;
+        char     _micValue[MIC_SIZE];
 };
 
 extern EncryptorClass Encryptor;

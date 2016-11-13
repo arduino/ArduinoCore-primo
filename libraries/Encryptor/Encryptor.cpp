@@ -24,89 +24,100 @@
 
 #include "Encryptor.h"
 
+EncryptorClass::EncryptorClass(void){
+    memset(_key, 0,    ENC_KEY_SIZE);
+    memset(_iv,  0xF0, ENC_KEY_SIZE);
+    _counter = 0;
+    for(int i = 0; i < MIC_SIZE; i++) _micValue[i] = (char)(i * 39);
+}
 
-bool EncryptorClass::encrypt(const char key [], const char cleartext [], char ciphertext[], uint32_t buff_len){
-	uint8_t i;
+bool EncryptorClass::encrypt(const char cleartext [], char ciphertext[], uint32_t buff_len){
 	uint32_t err_code;
-	uint32_t kLen = strlen(key);
-	if(kLen > 16)
-		kLen = 16;
 
 	nrf_ecb_hal_data_t ecb_struct;
 	memset(&ecb_struct, 0, sizeof(ecb_struct));
 
-	// initializing key
-	for(i = 0; i < kLen; i++)
-		ecb_struct.key[i] = key[i];
+    // initializing key
+    memcpy(ecb_struct.key, _key, ENC_KEY_SIZE);
+        
+    for(int i = 0; i < buff_len; i += ENC_KEY_SIZE){
+        // initializing nounce
+        memcpy(ecb_struct.cleartext, _iv, ENC_KEY_SIZE);
+        ecb_struct.cleartext[0] ^= (uint8_t)_counter;
+        ecb_struct.cleartext[1] ^= (uint8_t)(_counter >> 8);
+        ecb_struct.cleartext[2] ^= (uint8_t)(_counter >> 16);
+        ecb_struct.cleartext[3] ^= (uint8_t)(_counter >> 24);
+        
+        // Auto increment the counter between each block
+        _counter++;
+        
+        err_code = sd_ecb_block_encrypt(&ecb_struct);
+        if(err_code != 0) return false;
+                
+        // Encrypt 
+        int blockDataLength = ((buff_len - i) >= 16) ? 16 : (buff_len - i);
+        for(int j = 0; j < blockDataLength; j++){
+            ciphertext[i + j] = cleartext[i + j] ^ ecb_struct.ciphertext[j];
+        }
+    }
 	
-	// initializing nouncence
-	memset(ecb_struct.cleartext, 0xF0, sizeof(ecb_struct.cleartext));
-	err_code = sd_ecb_block_encrypt(&ecb_struct);
-	
-	ecb_struct.ciphertext[0] += (uint8_t)_tx_counter;
-	ecb_struct.ciphertext[1] += (uint8_t)(_tx_counter>>8);
-	ecb_struct.ciphertext[2] += (uint8_t)(_tx_counter>>16);
-	ecb_struct.ciphertext[3] += (uint8_t)(_tx_counter>>24);
-	_tx_counter++;
-	
-	// ecb_struct.ciphertext
-	
-	uint8_t j=0;
-	// Encrypt 
-	for(i = 0; i < buff_len-1; i++){
-		ciphertext[i] = cleartext[i] ^ ecb_struct.ciphertext[j];
-		ecb_struct.ciphertext[j]+=i;
-		if(++j==16)
-			j=0;
-	}
-	
-	// Most probably the value will be treated as string. Add the terminator character
-	ciphertext[i] = '\0';
-	
-	// check for error and return
-	return err_code == 0 ? true : false;
+	return true;
 }
 
 
 
-bool EncryptorClass::decrypt(const char key [], const char ciphertext [], char cleartext [], uint32_t buff_len){
-	uint8_t i;
+bool EncryptorClass::decrypt(const char ciphertext [], char cleartext [], uint32_t buff_len){
 	uint32_t err_code;
-	uint32_t kLen = strlen(key);
-	if(kLen > 16)
-		kLen = 16;
 
 	nrf_ecb_hal_data_t ecb_struct;
 	memset(&ecb_struct, 0, sizeof(ecb_struct));
 	
 	// initializing key
-	for(i = 0; i < kLen; i++)
-		ecb_struct.key[i] = key[i];
+    memcpy(ecb_struct.key, _key, ENC_KEY_SIZE);
 	
-	// initializing nouncence
-	memset(ecb_struct.cleartext, 0xF0, sizeof(ecb_struct.cleartext));
-	err_code=sd_ecb_block_encrypt(&ecb_struct);
-	
-	ecb_struct.ciphertext[0] += (uint8_t)_rx_counter;
-	ecb_struct.ciphertext[1] += (uint8_t)(_rx_counter>>8);
-	ecb_struct.ciphertext[2] += (uint8_t)(_rx_counter>>16);
-	ecb_struct.ciphertext[3] += (uint8_t)(_rx_counter>>24);
-	_rx_counter++;
-	
-	uint8_t j=0;
-	// Decrypt 
-	for(i = 0; i < buff_len-1; i++){
-		cleartext[i] = ciphertext[i] ^ ecb_struct.ciphertext[j];
-		ecb_struct.ciphertext[j]+=i;
-		if(++j==16)
-			j=0;
+    for(int i = 0; i < buff_len; i += ENC_KEY_SIZE){
+            
+        // initializing nounce
+        memcpy(ecb_struct.cleartext, _iv, ENC_KEY_SIZE);
+        ecb_struct.cleartext[0] ^= (uint8_t)_counter;
+        ecb_struct.cleartext[1] ^= (uint8_t)(_counter >> 8);
+        ecb_struct.cleartext[2] ^= (uint8_t)(_counter >> 16);
+        ecb_struct.cleartext[3] ^= (uint8_t)(_counter >> 24);
+        
+        // Auto increment the counter between each block
+        _counter++;
+        
+        err_code = sd_ecb_block_encrypt(&ecb_struct);
+        if(err_code != 0) return false;
+        
+        // Decrypt 
+        int blockDataLength = ((buff_len - i) >= 16) ? 16 : (buff_len - i);
+        for(int j = 0; j < blockDataLength; j++){
+            cleartext[i + j] = ciphertext[i + j] ^ ecb_struct.ciphertext[j];
+        }
 	}
-	
-	// Most probably the value will be treated as string. Add the terminator character
-	cleartext[i] = '\0';
-	
-	// check for error and return
-	return err_code == 0 ? true : false;
+
+	return true;
+}
+
+void EncryptorClass::setKey(const char *key){
+    memcpy(_key, key, ENC_KEY_SIZE);
+}
+
+void EncryptorClass::setInitVector(const char *iv){
+    memcpy(_iv, iv, ENC_KEY_SIZE);
+}
+
+void EncryptorClass::setCounter(uint32_t counter){
+    _counter = counter;
+}
+
+uint32_t EncryptorClass::getCounter(void){
+    return _counter;
+}
+
+void enableMic(bool enabled){
+    _micEnabled = enabled;
 }
 
 EncryptorClass Encryptor;
