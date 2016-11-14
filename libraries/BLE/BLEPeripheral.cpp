@@ -50,7 +50,14 @@ BLEPeripheral::BLEPeripheral(unsigned char req, unsigned char rdy, unsigned char
 #endif
 
   memset(this->_eventHandlers, 0x00, sizeof(this->_eventHandlers));
-  memset(this->_servicesUuid, 0x00, 32);
+  memset(this->_advData, 0x00, 32);
+  memset(this->_scanData, 0x00, 32);
+  
+  this->_advData[0] = 2;
+  this->_advData[1] = 0x01;
+  this->_advData[2] = 0x06;
+  
+  this->_advDataLength = 3;
   
   this->setDeviceName(DEFAULT_DEVICE_NAME);
   this->setAppearance(DEFAULT_APPEARANCE);
@@ -74,125 +81,6 @@ BLEPeripheral::~BLEPeripheral() {
 
 
 void BLEPeripheral::begin() {
-  unsigned char advertisementDataSize = 0;
-  unsigned char scanDataSize = 0;
-
-  BLEEirData advertisementData[6];
-  BLEEirData scanData[3];
-
-  unsigned char remainingAdvertisementDataLength = BLE_ADVERTISEMENT_DATA_MAX_VALUE_LENGTH + 2;
-  unsigned char remainingScanDataLength = BLE_SCAN_DATA_MAX_VALUE_LENGTH + 2;
-  
-  if (this->_serviceSolicitationUuid){
-    BLEUuid serviceSolicitationUuid = BLEUuid(this->_serviceSolicitationUuid);
-
-    unsigned char uuidLength = serviceSolicitationUuid.length();
-    advertisementData[advertisementDataSize].length = uuidLength;
-    advertisementData[advertisementDataSize].type = (uuidLength > 2) ? 0x15 : 0x14;
-
-    memcpy(advertisementData[advertisementDataSize].data, serviceSolicitationUuid.data(), uuidLength);
-    advertisementDataSize += 1;
-    remainingAdvertisementDataLength -= uuidLength + 2;
-  }
-  if (this->_servicesUuid[0]){
-	  if (this->_servicesUuidLength  <= remainingAdvertisementDataLength) {
-	  //add the first type found in the array (16 or 128 bit)
-	  unsigned char len = this->_servicesUuid[0];
-	  unsigned char lenSecondType = 0;
-	  unsigned char type = this->_servicesUuid[1];
-	  
-      advertisementData[advertisementDataSize].length = len;
-      advertisementData[advertisementDataSize].type = type;
-
-      memcpy(advertisementData[advertisementDataSize].data, &this->_servicesUuid[2], len);
-      advertisementDataSize += 1;	
-	  remainingAdvertisementDataLength -= len + 2;
-	
-	  //add the other type if present
-	  if(this->_servicesUuid[len + 2] != 0 && len < (BLE_ADVERTISEMENT_DATA_MAX_VALUE_LENGTH + 2)){
-		  lenSecondType = this->_servicesUuid[len + 2];
-		  type = this->_servicesUuid[len + 3];
-		  
-		  advertisementData[advertisementDataSize].length = lenSecondType;
-          advertisementData[advertisementDataSize].type = type;
-      
-	      memcpy(advertisementData[advertisementDataSize].data, &this->_servicesUuid[len + 4], lenSecondType);
-          advertisementDataSize += 1;
-		  remainingAdvertisementDataLength -= lenSecondType + 2;
-	  }
-    }
-  }
-  if (this->_manufacturerData && this->_manufacturerDataLength > 0) {
-    if (remainingAdvertisementDataLength >= 3) {
-      unsigned char dataLength = this->_manufacturerDataLength;
-
-      if (dataLength + 2 > remainingAdvertisementDataLength) {
-        dataLength = remainingAdvertisementDataLength - 2;
-      }
-
-      advertisementData[advertisementDataSize].length = dataLength;
-      advertisementData[advertisementDataSize].type = 0xff;
-
-      memcpy(advertisementData[advertisementDataSize].data, this->_manufacturerData, dataLength);
-      advertisementDataSize += 1;
-      remainingAdvertisementDataLength -= dataLength + 2;
-    }
-  }
-
-  if (this->_localName){
-    unsigned char localNameLength = strlen(this->_localName);
-    scanData[scanDataSize].length = localNameLength;
-
-    if (scanData[scanDataSize].length > BLE_SCAN_DATA_MAX_VALUE_LENGTH) {
-      scanData[scanDataSize].length = BLE_SCAN_DATA_MAX_VALUE_LENGTH;
-    }
-
-    scanData[scanDataSize].type = (localNameLength > scanData[scanDataSize].length) ? 0x08 : 0x09;
-
-    memcpy(scanData[scanDataSize].data, this->_localName, scanData[scanDataSize].length);
-	
-    remainingScanDataLength -= scanData[scanDataSize].length + 2;
-	scanDataSize += 1;
-  }
-  
-  if(this->_appearance){
-	  if(remainingAdvertisementDataLength >= 4){
-		  advertisementData[advertisementDataSize].length = 2;
-		  advertisementData[advertisementDataSize].type = 0x19;
-		  memcpy(advertisementData[advertisementDataSize].data, &this->_appearance, 2);
-		  remainingAdvertisementDataLength -= 4;
-		  advertisementDataSize += 1;
-	  }
-	  // if there is no room in advertisement data packet try to add the field in the scan response packet
-	  else
-		  if(remainingScanDataLength >= 4){
-			  scanData[scanDataSize].length = 2;
-			  scanData[scanDataSize].type = 0x19;
-			  memcpy(scanData[scanDataSize].data, &this->_appearance, 2);
-			  remainingScanDataLength -= 4;
-			  scanDataSize += 1;
-		  }
-	  }
-	  
-  if(this->_txPower){
-	  if(remainingAdvertisementDataLength >= 3){
-		  advertisementData[advertisementDataSize].length = 1;
-		  advertisementData[advertisementDataSize].type = 0x0A;
-		  memcpy(advertisementData[advertisementDataSize].data, &this->_txPower, 1);
-		  remainingAdvertisementDataLength -= 3;
-		  advertisementDataSize += 1;
-	  }
-   // if there is no room in advertisement data packet try to add the field in the scan response packet
-   else
-	  if(remainingScanDataLength >= 3){
-		  scanData[scanDataSize].length = 1;
-		  scanData[scanDataSize].type = 0x0A;
-		  memcpy(scanData[scanDataSize].data, &this->_txPower, 1);
-		  remainingScanDataLength -= 2;
-		  scanDataSize += 1;
-	  }	  
-  }
-
   if (this->_localAttributes == NULL) {
     this->initLocalAttributes();
   }
@@ -219,8 +107,8 @@ void BLEPeripheral::begin() {
     this->addRemoteAttribute(this->_remoteGenericAttributeService);
     this->addRemoteAttribute(this->_remoteServicesChangedCharacteristic);
   }
-  this->_device->begin(advertisementDataSize, advertisementData,
-                        scanDataSize, scanData,
+  this->_device->begin((unsigned char)this->_advDataLength, (unsigned char *)this->_advData,
+                        (unsigned char)this->_scanDataLength, (unsigned char *)this->_scanData,
                         this->_localAttributes, this->_numLocalAttributes,
                         this->_remoteAttributes, this->_numRemoteAttributes);
 
@@ -235,56 +123,35 @@ void BLEPeripheral::end() {
   this->_device->end();
 }
 
-void BLEPeripheral::setAdvertisedServiceUuid(const char* advertisedServiceUuid) {
-	
+void BLEPeripheral::setAdvertisedServiceUuid(const char* advertisedServiceUuid) {	
     BLEUuid advServiceUuid = BLEUuid(advertisedServiceUuid);
 	unsigned char uuidLength = advServiceUuid.length();
 	uint8_t type = uuidLength > 2 ? 0x06 : 0x02;
-	uint8_t pos;
-	bool inPck = false;
-		
-	//if maximum size is reached or the room is not enough return
-	if(this->_servicesUuidLength >= BLE_ADVERTISEMENT_DATA_MAX_VALUE_LENGTH + 2 || ((BLE_ADVERTISEMENT_DATA_MAX_VALUE_LENGTH + 2) - this->_servicesUuidLength) < uuidLength)
-		return;
-		
-	//check if the field is already in the packet
-	for(pos = 0; pos < 32 && this->_servicesUuid[pos] != 0; pos += this->_servicesUuid[pos] + 2)
-		if(this->_servicesUuid[pos+1] == type){
-			inPck = true;
-			break;
-		}
-	if(inPck){
-		//move fields if necessary to make room for the extension
-		for(int i = this->_servicesUuidLength + uuidLength - 1; i >= (pos + this->_servicesUuid[pos] + 1 + uuidLength); i--){
-			this->_servicesUuid[i] = this->_servicesUuid[i - uuidLength];
-		}
-		//copy the new data into the field and update the length byte
-		memcpy(&this->_servicesUuid[pos + this->_servicesUuid[pos] +2], advServiceUuid.data(), uuidLength);
-		this->_servicesUuid[pos] += uuidLength;
-		this->_servicesUuidLength += uuidLength;
-	}
-	else{
-		//add the packet
-		this->_servicesUuid[this->_servicesUuidLength] = uuidLength;
-		this->_servicesUuid[this->_servicesUuidLength + 1] = type;
-		
-		memcpy(&this->_servicesUuid[this->_servicesUuidLength + 2], advServiceUuid.data(), uuidLength);
-		
-		this->_servicesUuidLength += uuidLength + 2;
-	}
+	
+	addFieldInPck(type, uuidLength, (unsigned char *)advServiceUuid.data());
 }
 
-void BLEPeripheral::setServiceSolicitationUuid(const char* serviceSolicitationUuid) {
-  this->_serviceSolicitationUuid = serviceSolicitationUuid;
+void BLEPeripheral::setServiceSolicitationUuid(const char* serviceSolicitationUuid) { 
+  BLEUuid sSolUuid = BLEUuid(serviceSolicitationUuid);
+
+  uint8_t len = sSolUuid.length();
+  uint8_t type = (len > 2) ? 0x15 : 0x14;
+ 
+  addFieldInPck(type, len, (unsigned char *)sSolUuid.data());
 }
 
 void BLEPeripheral::setManufacturerData(const unsigned char manufacturerData[], unsigned char manufacturerDataLength) {
-  this->_manufacturerData = manufacturerData;
-  this->_manufacturerDataLength = manufacturerDataLength;
+  addFieldInPck(0xff, manufacturerDataLength, (unsigned char *) manufacturerData);
 }
 
 void BLEPeripheral::setLocalName(const char* localName) {
-  this->_localName = localName;
+  uint8_t len = strlen(localName);
+  uint8_t type = 0x09;
+  if(len > BLE_SCAN_DATA_MAX_VALUE_LENGTH){
+	  len = BLE_SCAN_DATA_MAX_VALUE_LENGTH;
+	  type = 0x08;
+  }
+  addFieldInPck(type, len, (unsigned char *)localName);
 }
 
 void BLEPeripheral::setConnectable(bool connectable) {
@@ -292,7 +159,7 @@ void BLEPeripheral::setConnectable(bool connectable) {
 }
 
 bool  BLEPeripheral::setTxPower(int txPower) {
-  this->_txPower = txPower;
+  addFieldInPck(0x0A, 1, (unsigned char *)&txPower);
   return this->_device->setTxPower(txPower);
 }
 
@@ -305,8 +172,8 @@ void BLEPeripheral::setDeviceName(const char* deviceName) {
 }
 
 void BLEPeripheral::setAppearance(unsigned short appearance) {
+  addFieldInPck(0x19, 2, (unsigned char *)&appearance);
   this->_appearanceCharacteristic.setValue((unsigned char *)&appearance, sizeof(appearance));
-  _appearance=appearance;
 }
 
 void BLEPeripheral::addAttribute(BLELocalAttribute& attribute) {
@@ -501,4 +368,50 @@ void BLEPeripheral::initLocalAttributes() {
   this->_localAttributes[4] = &this->_servicesChangedCharacteristic;
 
   this->_numLocalAttributes = 5;
+}
+
+void BLEPeripheral::addFieldInPck(uint8_t type, uint8_t len, unsigned char* data){
+	uint8_t *packet;
+	uint8_t *pckLen;
+	bool inPck = false;
+	uint8_t pos = 0;
+
+	//check if there is room enough in one of the two packets
+	if(this->_advDataLength < BLE_ADVERTISEMENT_DATA_MAX_VALUE_LENGTH + 2 && ((BLE_ADVERTISEMENT_DATA_MAX_VALUE_LENGTH + 2) - this->_advDataLength) >= len){
+		packet = (uint8_t *)_advData;
+		pckLen = &_advDataLength;
+	}
+	else if(this->_scanDataLength < BLE_SCAN_DATA_MAX_VALUE_LENGTH && (BLE_SCAN_DATA_MAX_VALUE_LENGTH - this->_scanDataLength) >= len){
+		packet = (uint8_t *)_scanData;
+		pckLen = &_scanDataLength;
+	}
+	// if the room is not enough return
+	else
+		return;
+	
+	//check if the field is already in the packet
+	for(pos = 0; pos < BLE_GAP_ADV_MAX_SIZE && packet[pos] != 0; pos += packet[pos] + 1)
+		if(packet[pos+1] == type){
+			inPck = true;
+			break;
+		}
+	if(inPck){
+		//move fields if necessary to make room for the extension
+		for(int i = *pckLen + len - 1; i >= (pos + packet[pos] + 1 + len); i--){
+			packet[i] = packet[i - len];
+		}
+		//copy the new data into the field and update the length byte
+		memcpy(&packet[pos + packet[pos] + 1], data, len);
+		packet[pos] += len;
+		*pckLen += len;
+	}
+	else{
+		//add the packet
+		packet[*pckLen] = len + 1;
+		packet[*pckLen + 1] = type;
+		
+		memcpy(&packet[*pckLen + 2], data, len);
+		
+		*pckLen += len + 2;
+	}
 }

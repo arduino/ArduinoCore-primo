@@ -123,6 +123,7 @@ class BLEPeripheral : public BLEDeviceEventListener,
 
   private:
     void initLocalAttributes();
+    void addFieldInPck(uint8_t type, uint8_t len, unsigned char* data);
 
   private:
     BLEDevice*                     _device;
@@ -137,10 +138,12 @@ class BLEPeripheral : public BLEDeviceEventListener,
     const unsigned char*           _manufacturerData;
     unsigned char                  _manufacturerDataLength;
     const char*                    _localName;
-	char                           _servicesUuid[32];
-	uint8_t                        _servicesUuidLength=0;
-	unsigned short                 _appearance=0;
-	int                            _txPower=0;
+    unsigned char                  _advData[32];
+    uint8_t                        _advDataLength=0;
+    unsigned char                  _scanData[32];
+    uint8_t                        _scanDataLength=0;
+    unsigned short                 _appearance=0;
+    int                            _txPower=0;
 
     BLELocalAttribute**            _localAttributes;
     unsigned char                  _numLocalAttributes;
