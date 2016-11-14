@@ -22,11 +22,6 @@ BLEPeripheral::BLEPeripheral(unsigned char req, unsigned char rdy, unsigned char
   _nRF8001(req, rdy, rst),
 #endif
 
-  _serviceSolicitationUuid(NULL),
-  _manufacturerData(NULL),
-  _manufacturerDataLength(0),
-  _localName(NULL),
-
   _localAttributes(NULL),
   _numLocalAttributes(0),
   _remoteAttributes(NULL),
@@ -107,6 +102,7 @@ void BLEPeripheral::begin() {
     this->addRemoteAttribute(this->_remoteGenericAttributeService);
     this->addRemoteAttribute(this->_remoteServicesChangedCharacteristic);
   }
+
   this->_device->begin((unsigned char)this->_advDataLength, (unsigned char *)this->_advData,
                         (unsigned char)this->_scanDataLength, (unsigned char *)this->_scanData,
                         this->_localAttributes, this->_numLocalAttributes,
@@ -396,14 +392,20 @@ void BLEPeripheral::addFieldInPck(uint8_t type, uint8_t len, unsigned char* data
 			break;
 		}
 	if(inPck){
-		//move fields if necessary to make room for the extension
-		for(int i = *pckLen + len - 1; i >= (pos + packet[pos] + 1 + len); i--){
-			packet[i] = packet[i - len];
+		//in case of fixed length types, do a simple update of the existing values
+		if(type == 0x0A || type == 0x19)
+			memcpy(&packet[pos + 2], data, len);
+		//otherwise append the value at the end of the list
+		else{
+			//move fields if necessary to make room for the extension
+			for(int i = *pckLen + len - 1; i >= (pos + packet[pos] + 1 + len); i--){
+				packet[i] = packet[i - len];
+			}
+			//copy the new data into the field and update the length byte
+			memcpy(&packet[pos + packet[pos] + 1], data, len);
+			packet[pos] += len;
+			*pckLen += len;
 		}
-		//copy the new data into the field and update the length byte
-		memcpy(&packet[pos + packet[pos] + 1], data, len);
-		packet[pos] += len;
-		*pckLen += len;
 	}
 	else{
 		//add the packet
