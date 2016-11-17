@@ -19,7 +19,6 @@ class BLEHIDPeripheral : public BLEPeripheral
 
     void begin();
 
-    void clearBondStoreData();
     void setReportIdOffset(unsigned char reportIdOffset);
 
     void poll();
@@ -31,8 +30,6 @@ class BLEHIDPeripheral : public BLEPeripheral
 
   private:
     static BLEHIDPeripheral*            _instance;
-
-    BLEBondStore                        _bleBondStore;
 
     BLEService                          _hidService;
     BLEHIDReportMapCharacteristic       _hidReportMapCharacteristic;

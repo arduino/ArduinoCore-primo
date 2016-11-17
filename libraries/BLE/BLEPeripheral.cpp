@@ -22,6 +22,8 @@ BLEPeripheral::BLEPeripheral(unsigned char req, unsigned char rdy, unsigned char
   _nRF8001(req, rdy, rst),
 #endif
 
+  _bleBondStore(),
+
   _localAttributes(NULL),
   _numLocalAttributes(0),
   _remoteAttributes(NULL),
@@ -102,7 +104,6 @@ void BLEPeripheral::begin() {
     this->addRemoteAttribute(this->_remoteGenericAttributeService);
     this->addRemoteAttribute(this->_remoteServicesChangedCharacteristic);
   }
-
   this->_device->begin((unsigned char)this->_advDataLength, (unsigned char *)this->_advData,
                         (unsigned char)this->_scanDataLength, (unsigned char *)this->_scanData,
                         this->_localAttributes, this->_numLocalAttributes,
@@ -161,6 +162,42 @@ bool  BLEPeripheral::setTxPower(int txPower) {
 
 void BLEPeripheral::setBondStore(BLEBondStore& bondStore) {
   this->_device->setBondStore(bondStore);
+}
+
+void BLEPeripheral::enableBond(BLEBondingType type){
+  this->setBondStore(this->_bleBondStore);
+  this->clearBondStoreData();
+  switch(type){
+    case DISPLAY_PASSKEY:
+      this->_device->_mitm = true;
+      this->_device->_io_caps = BLE_GAP_IO_CAPS_DISPLAY_ONLY;
+    break;
+	
+    case CONFIRM_PASSKEY:
+      this->_device->_mitm = true;
+      this->_device->_io_caps = BLE_GAP_IO_CAPS_KEYBOARD_ONLY;
+    default:
+    break;
+  }
+	
+}
+
+void BLEPeripheral::clearBondStoreData() {
+  this->_bleBondStore.clearData(); 
+}
+
+void BLEPeripheral::saveBondData(){
+  if(this->_bleBondStore.getTempData() != NULL)
+    this->_bleBondStore.putData(this->_bleBondStore.getTempData(), this->_bleBondStore.getTempOffset(), this->_bleBondStore.getTempLength());
+}
+
+char * BLEPeripheral::getPasskey(){
+  if(this->_device->_passkey[0] != 0)
+    return (char *)this->_device->_passkey;
+}
+
+void BLEPeripheral::sendPasskey(char passkey[]){
+  this->_device->sendPasskey(passkey);
 }
 
 void BLEPeripheral::setDeviceName(const char* deviceName) {
@@ -319,6 +356,20 @@ void BLEPeripheral::BLEDeviceRemoteServicesDiscovered(BLEDevice& /*device*/) {
 #endif
 
   BLEPeripheralEventHandler eventHandler = this->_eventHandlers[BLERemoteServicesDiscovered];
+  if (eventHandler) {
+    eventHandler(this->_central);
+  }
+}
+
+void BLEPeripheral::BLEDevicePasskeyReceived(BLEDevice& /*device*/){
+  BLEPeripheralEventHandler eventHandler = this->_eventHandlers[BLEPasskeyReceived];
+  if (eventHandler) {
+    eventHandler(this->_central);
+  }
+}
+
+void BLEPeripheral::BLEDevicePasskeyRequested(BLEDevice& /*device*/){
+  BLEPeripheralEventHandler eventHandler = this->_eventHandlers[BLEPasskeyRequested];
   if (eventHandler) {
     eventHandler(this->_central);
   }

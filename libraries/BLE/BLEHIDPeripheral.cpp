@@ -10,7 +10,6 @@ BLEHIDPeripheral* BLEHIDPeripheral::_instance = NULL;
 
 BLEHIDPeripheral::BLEHIDPeripheral(unsigned char req, unsigned char rdy, unsigned char rst) :
   BLEPeripheral(req, rdy, rst),
-  _bleBondStore(),
 
   _hidService("1812"),
   _hidReportMapCharacteristic(),
@@ -60,10 +59,6 @@ void BLEHIDPeripheral::begin() {
 
   // begin initialization
   BLEPeripheral::begin();
-}
-
-void BLEHIDPeripheral::clearBondStoreData() {
-  this->_bleBondStore.clearData();
 }
 
 void BLEHIDPeripheral::setReportIdOffset(unsigned char reportIdOffset) {

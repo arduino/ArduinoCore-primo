@@ -20,10 +20,13 @@
 
 BLEBondStore::BLEBondStore(int offset)
 #if defined(__AVR__) || defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MKL26Z64__)
-  : _offset(offset)
+  : _offset(offset),
 #elif defined(NRF51) || defined(NRF52) || defined(__RFduino__)
-  : _flashPageStartAddress((uint32_t *)(NRF_FICR->CODEPAGESIZE * (NRF_FICR->CODESIZE - 1 - (uint32_t)offset)))
+  : _flashPageStartAddress((uint32_t *)(NRF_FICR->CODEPAGESIZE * (NRF_FICR->CODESIZE - 1 - (uint32_t)offset))),
 #endif
+    _tempData(NULL),
+    _tempOffset(0),
+    _tempLength(0)
 {
 }
 
@@ -125,4 +128,22 @@ void BLEBondStore::getData(unsigned char* data, unsigned int offset, unsigned in
     in++;
   }
 #endif
+}
+
+void BLEBondStore::saveTempData(const unsigned char* data, unsigned int offset, unsigned int length){
+	this->_tempData   = data;
+	this->_tempOffset = offset;
+	this->_tempLength = length;
+}
+
+const unsigned char* BLEBondStore::getTempData(){
+    return this->_tempData;
+}
+    
+unsigned int BLEBondStore::getTempOffset(){
+    return this->_tempOffset;
+}
+
+unsigned int BLEBondStore::getTempLength(){
+    return this->_tempLength;	
 }

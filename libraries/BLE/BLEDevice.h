@@ -28,7 +28,9 @@ class BLEDeviceEventListener
     virtual void BLEDeviceDisconnected(BLEDevice& /*device*/) { }
     virtual void BLEDeviceBonded(BLEDevice& /*device*/) { }
     virtual void BLEDeviceRemoteServicesDiscovered(BLEDevice& /*device*/) { }
-
+    virtual void BLEDevicePasskeyReceived(BLEDevice& /*device*/) {}
+    virtual void BLEDevicePasskeyRequested(BLEDevice& /*device*/) {}
+	
     virtual void BLEDeviceCharacteristicValueChanged(BLEDevice& /*device*/, BLECharacteristic& /*characteristic*/, const unsigned char* /*value*/, unsigned char /*valueLength*/) { }
     virtual void BLEDeviceCharacteristicSubscribedChanged(BLEDevice& /*device*/, BLECharacteristic& /*characteristic*/, bool /*subscribed*/) { }
 
@@ -56,6 +58,7 @@ class BLEDevice
     void setConnectionInterval(unsigned short minimumConnectionInterval, unsigned short maximumConnectionInterval);
     void setConnectable(bool connectable);
     void setBondStore(BLEBondStore& bondStore);
+    void sendPasskey(char passkey[]);
 
     virtual void begin(unsigned char /*advertisementDataSize*/,
                 unsigned char * /*advertisementData*/,
@@ -94,10 +97,14 @@ class BLEDevice
     virtual void requestBatteryLevel() { }
 
   protected:
+    uint16_t                      _connectionHandle;
     unsigned short                _advertisingInterval;
     unsigned short                _minimumConnectionInterval;
     unsigned short                _maximumConnectionInterval;
     bool                          _connectable;
+    bool                          _mitm;
+    uint8_t                       _io_caps;
+    uint8_t                       _passkey[6];
     BLEBondStore*                 _bondStore;
     BLEDeviceEventListener*       _eventListener;
 };

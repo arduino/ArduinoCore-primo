@@ -52,8 +52,6 @@ nRF51822::nRF51822() :
   _advDataLen(0),
   _broadcastCharacteristic(NULL),
 
-  _connectionHandle(BLE_CONN_HANDLE_INVALID),
-
   _numLocalCharacteristics(0),
   _localCharacteristicInfo(NULL),
 
@@ -292,7 +290,7 @@ void nRF51822::begin(unsigned char advertisementDataSize,
         memset(&characteristicValueAttributeMetaData, 0, sizeof(characteristicValueAttributeMetaData));
 
         if (properties & (BLERead | BLENotify | BLEIndicate)) {
-          if (this->_bondStore) {
+          if (this->_bondStore && !this->_bondStore->hasData()) {
             BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&characteristicValueAttributeMetaData.read_perm);
           } else {
             BLE_GAP_CONN_SEC_MODE_SET_OPEN(&characteristicValueAttributeMetaData.read_perm);
@@ -300,7 +298,7 @@ void nRF51822::begin(unsigned char advertisementDataSize,
         }
 
         if (properties & (BLEWriteWithoutResponse | BLEWrite)) {
-          if (this->_bondStore) {
+          if (this->_bondStore && !this->_bondStore->hasData()) {
             BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&characteristicValueAttributeMetaData.write_perm);
           } else {
             BLE_GAP_CONN_SEC_MODE_SET_OPEN(&characteristicValueAttributeMetaData.write_perm);
@@ -372,7 +370,7 @@ void nRF51822::begin(unsigned char advertisementDataSize,
       descriptorMetaData.vloc = BLE_GATTS_VLOC_STACK;
       descriptorMetaData.vlen = (valueLength == descriptor->valueLength()) ? 0 : 1;
 
-      if (this->_bondStore) {
+      if (this->_bondStore && !this->_bondStore->hasData()) {
         BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&descriptorMetaData.read_perm);
       } else {
         BLE_GAP_CONN_SEC_MODE_SET_OPEN(&descriptorMetaData.read_perm);
@@ -631,8 +629,8 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
           gapSecParams.timeout          = 30; // must be 30s
 #endif
           gapSecParams.bond             = true;
-          gapSecParams.mitm             = false;
-          gapSecParams.io_caps          = BLE_GAP_IO_CAPS_NONE;
+          gapSecParams.mitm             = this->_mitm;
+          gapSecParams.io_caps          = this->_io_caps;
           gapSecParams.oob              = false;
           gapSecParams.min_key_size     = 7;
           gapSecParams.max_key_size     = 16;
@@ -718,7 +716,7 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
             Serial.println(F("Storing bond data"));
 #endif
 #if defined(NRF5) || defined(NRF51_S130)
-            this->_bondStore->putData(this->_bondData, 0, sizeof(this->_bondData));
+            this->_bondStore->saveTempData(this->_bondData, 0, sizeof(this->_bondData));
 #else
 			this->_bondStore->putData(this->_authStatusBuffer, 0, sizeof(this->_authStatusBuffer));
 #endif
@@ -893,8 +891,8 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
           gapSecParams.timeout          = 30; // must be 30s
 #endif
           gapSecParams.bond             = true;
-          gapSecParams.mitm             = false;
-          gapSecParams.io_caps          = BLE_GAP_IO_CAPS_NONE;
+          gapSecParams.mitm             = this->_mitm;
+          gapSecParams.io_caps          = this->_io_caps;
           gapSecParams.oob              = false;
           gapSecParams.min_key_size     = 7;
           gapSecParams.max_key_size     = 16;
@@ -937,8 +935,8 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
           gapSecParams.timeout          = 30; // must be 30s
 #endif
           gapSecParams.bond             = true;
-          gapSecParams.mitm             = false;
-          gapSecParams.io_caps          = BLE_GAP_IO_CAPS_NONE;
+          gapSecParams.mitm             = this->_mitm;
+          gapSecParams.io_caps          = this->_io_caps;
           gapSecParams.oob              = false;
           gapSecParams.min_key_size     = 7;
           gapSecParams.max_key_size     = 16;
@@ -970,6 +968,19 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
         break;
       }
 
+      case BLE_GAP_EVT_PASSKEY_DISPLAY:
+		memcpy(this->_passkey, bleEvt->evt.gap_evt.params.passkey_display.passkey, 6);
+        if (this->_eventListener) {
+          this->_eventListener->BLEDevicePasskeyReceived(*this);
+        }
+      break;
+
+      case BLE_GAP_EVT_AUTH_KEY_REQUEST:
+        if (this->_eventListener) {
+         this->_eventListener->BLEDevicePasskeyRequested(*this);
+        }
+      break;	  
+	  
       default:
 #ifdef NRF_51822_DEBUG
         Serial.print(F("bleEvt->header.evt_id = 0x"));
