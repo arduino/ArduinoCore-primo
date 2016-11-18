@@ -92,6 +92,40 @@ void NFCClass::setAPPmessage(const char android_app[], const char windows_app[])
 	nfcSetPayload((char *) ndef_msg_buf, len);
 }
 
+void NFCClass::setOobPairingKey(){
+	
+	uint8_t key[16];
+	uint8_t random_values_length, rand_values, generated;
+	static ble_advdata_tk_value_t oob_auth_key;
+	uint32_t len=sizeof(ndef_msg_buf);
+	
+	//try to generate the key randomly
+	sd_rand_application_pool_capacity_get(&random_values_length);
+	//we need only 16 bytes
+	if(random_values_length>16)
+		random_values_length=16;
+	//wait until values are generated
+	do
+		sd_rand_application_bytes_available_get(&generated);
+	while(generated<random_values_length);
+	//get the random data
+	sd_rand_application_vector_get(key, random_values_length);
+	//if random values are less than 16 add static data to fill the buffer
+	if(random_values_length<16)
+		for(int i=random_values_length; i<16; i++)
+			key[i]=i;
+
+	memcpy(oob_auth_key.tk, key, 16);	
+
+	nfcSetup(nfc_callback, NULL);
+	nfc_ble_pair_default_msg_encode(NFC_BLE_PAIR_MSG_FULL,
+                                               &oob_auth_key,
+                                               ndef_msg_buf,
+                                               &len);
+											   
+	nfcSetPayload((char *) ndef_msg_buf, len);
+}
+
 void NFCClass::start(){
 	nfcStartEmulation();	
 }
@@ -108,7 +142,6 @@ void NFCClass::onService(){
 	if(Callback)
 		Callback();
  }
-
-
+ 
 
 NFCClass NFC;

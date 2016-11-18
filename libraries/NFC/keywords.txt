@@ -16,6 +16,7 @@ stop	KEYWORD2
 setTXTmessage	KEYWORD2
 setURImessage	KEYWORD2
 setAPPmessage	KEYWORD2
+setOobPairingKey	KEYWORD2
 registerCallback	KEYWORD2
 
 #######################################

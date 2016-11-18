@@ -36,6 +36,7 @@ extern "C" {
 #include "nfc_uri_msg.h"
 #include "nfc_text_rec.h"
 #include "nfc_launchapp_msg.h"
+#include "nfc_ble_pair_msg.h"
 
 #ifdef __cplusplus
 }
@@ -91,6 +92,18 @@ class NFCClass{
 		/**
 		* @brief
 		* Name:
+		*			setOobPairingKey
+		* Description:
+		*			Set a message for pairing the board with another BLE device.
+		*			This function is part of OOB bond procedure and should be
+		*			used with BLE library.
+		*/
+		void setOobPairingKey(void);
+	
+	
+		/**
+		* @brief
+		* Name:
 		*			start
 		* Description:
 		*			Start the NFC module.
@@ -128,7 +141,6 @@ class NFCClass{
 		*			Service function called by ISR.
 		*/
 		void onService(void);
-		
 		
 	private:
 		// Callback user function
