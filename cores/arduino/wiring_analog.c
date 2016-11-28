@@ -183,7 +183,7 @@ void analogWrite(uint32_t ulPin, uint32_t ulValue) {
 	nrf_pwm_enable(PWMInstance);
 	
 	//configure pwm channel	- Prescaler, mode and counter top
-	nrf_pwm_configure(PWMInstance, NRF_PWM_CLK_500kHz, NRF_PWM_MODE_UP, 10000);
+	nrf_pwm_configure(PWMInstance, NRF_PWM_CLK_16MHz, NRF_PWM_MODE_UP, 10000);
 	
 	//set decoder
 	nrf_pwm_decoder_set(PWMInstance, NRF_PWM_LOAD_COMMON, NRF_PWM_STEP_AUTO);
