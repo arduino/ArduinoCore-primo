@@ -112,6 +112,11 @@ class nRF51822 : public BLEDevice
     unsigned char                     _numRemoteCharacteristics;
     struct remoteCharacteristicInfo*  _remoteCharacteristicInfo;
     bool                              _remoteRequestInProgress;
+	
+    __ALIGN(4) ble_gap_lesc_p256_pk_t            _privateKey;
+    __ALIGN(4) ble_gap_lesc_p256_pk_t            _publicKey;
+    __ALIGN(4) ble_gap_lesc_p256_pk_t            _peerKey;
+    __ALIGN(4) ble_gap_lesc_dhkey_t              _dhkey;
 };
 
 #endif

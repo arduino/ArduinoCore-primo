@@ -85,6 +85,10 @@ setAdvertisingInterval	KEYWORD2
 setConnectionInterval	KEYWORD2
 setConnectable	KEYWORD2
 setBondStore	KEYWORD2
+enableBond	KEYWORD2
+saveBondData	KEYWORD2
+getPasskey	KEYWORD2
+setPasskey	KEYWORD2
 addAttribute	KEYWORD2
 addLocalAttribute	KEYWORD2
 addRemoteAttribute	KEYWORD2
@@ -159,6 +163,8 @@ BLEUnsubscribed	LITERAL1
 BLEConnected	LITERAL1
 BLEDisconnected	LITERAL1
 BLEBonded	LITERAL1
+BLEPasskeyReceived	LITERAL1
+BLEPasskeyRequested	LITERAL1
 BLERemoteServicesDiscovered	LITERAL1
 BLEScanReceived	LITERAL1
 

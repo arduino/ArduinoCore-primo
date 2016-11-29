@@ -54,7 +54,11 @@ enum BLEPeripheralEvent {
 enum BLEBondingType {
   JUST_WORKS = 0,
   DISPLAY_PASSKEY = 1,
-  CONFIRM_PASSKEY = 2
+  CONFIRM_PASSKEY = 2,
+  LESC = 3,
+  LESC_NUM_COMPARISON = 4,
+  LESC_DISPLAY_PASSKEY = 5,
+  LESC_CONFIRM_PASSKEY = 6
 };
 
 typedef void (*BLEPeripheralEventHandler)(BLECentral& central);

@@ -12,6 +12,14 @@
   #include <ble.h>
   #include <ble_hci.h>
   #include <nrf_sdm.h>
+  #ifdef __cplusplus
+  extern "C"{
+  #endif
+    #include <ecc.h>
+  #ifdef __cplusplus
+  }
+  #endif
+  
 #else
   #include <s110/ble.h>
   #include <s110/ble_hci.h>
@@ -43,6 +51,7 @@ uint32_t sd_ble_gatts_value_set(uint16_t handle, uint16_t offset, uint16_t* cons
 // #define NRF_51822_DEBUG
 
 #define BLE_STACK_EVT_MSG_BUF_SIZE       (sizeof(ble_evt_t) + (GATT_MTU_SIZE_DEFAULT))
+
 
 nRF51822::nRF51822() :
   BLEDevice(),
@@ -291,7 +300,10 @@ void nRF51822::begin(unsigned char advertisementDataSize,
 
         if (properties & (BLERead | BLENotify | BLEIndicate)) {
           if (this->_bondStore && !this->_bondStore->hasData()) {
-            BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&characteristicValueAttributeMetaData.read_perm);
+            if(this->_lesc > 1)
+                BLE_GAP_CONN_SEC_MODE_SET_LESC_ENC_WITH_MITM(&characteristicValueAttributeMetaData.read_perm);
+            else
+                BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&characteristicValueAttributeMetaData.read_perm);
           } else {
             BLE_GAP_CONN_SEC_MODE_SET_OPEN(&characteristicValueAttributeMetaData.read_perm);
           }
@@ -299,7 +311,10 @@ void nRF51822::begin(unsigned char advertisementDataSize,
 
         if (properties & (BLEWriteWithoutResponse | BLEWrite)) {
           if (this->_bondStore && !this->_bondStore->hasData()) {
-            BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&characteristicValueAttributeMetaData.write_perm);
+            if(this->_lesc > 1)
+                BLE_GAP_CONN_SEC_MODE_SET_LESC_ENC_WITH_MITM(&characteristicValueAttributeMetaData.write_perm);
+            else
+                BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&characteristicValueAttributeMetaData.write_perm);
           } else {
             BLE_GAP_CONN_SEC_MODE_SET_OPEN(&characteristicValueAttributeMetaData.write_perm);
           }
@@ -371,7 +386,10 @@ void nRF51822::begin(unsigned char advertisementDataSize,
       descriptorMetaData.vlen = (valueLength == descriptor->valueLength()) ? 0 : 1;
 
       if (this->_bondStore && !this->_bondStore->hasData()) {
-        BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&descriptorMetaData.read_perm);
+        if(this->_lesc > 1)
+            BLE_GAP_CONN_SEC_MODE_SET_LESC_ENC_WITH_MITM(&descriptorMetaData.read_perm);
+        else
+            BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&descriptorMetaData.read_perm);
       } else {
         BLE_GAP_CONN_SEC_MODE_SET_OPEN(&descriptorMetaData.read_perm);
       }
@@ -613,7 +631,6 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
         Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.max_key_size);
         Serial.println();
 #endif
-
         if (this->_bondStore && !this->_bondStore->hasData()) {
           // only allow bonding if bond store exists and there is no data
 
@@ -629,6 +646,7 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
           gapSecParams.timeout          = 30; // must be 30s
 #endif
           gapSecParams.bond             = true;
+          gapSecParams.lesc             = (bool)this->_lesc;
           gapSecParams.mitm             = this->_mitm;
           gapSecParams.io_caps          = this->_io_caps;
           gapSecParams.oob              = false;
@@ -637,14 +655,20 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
 
 #if defined(NRF5) && !defined(S110)
           ble_gap_sec_keyset_t keyset;
-
+          memset(&keyset, 0, sizeof(ble_gap_sec_keyset_t));
+          if(this->_lesc > 0){
+            ecc_init();
+            ecc_p256_keypair_gen(this->_privateKey.pk, this->_publicKey.pk);
+            keyset.keys_own.p_pk=&this->_publicKey;
+            keyset.keys_peer.p_pk=&this->_peerKey;
+          }
           keyset.keys_peer.p_enc_key  = NULL;
           keyset.keys_peer.p_id_key   = NULL;
           keyset.keys_peer.p_sign_key = NULL;
           keyset.keys_own.p_enc_key   = this->_encKey;
           keyset.keys_own.p_id_key    = NULL;
           keyset.keys_own.p_sign_key  = NULL;
-
+		  
           sd_ble_gap_sec_params_reply(this->_connectionHandle, BLE_GAP_SEC_STATUS_SUCCESS, &gapSecParams, &keyset);
 #elif defined(NRF51_S130) || defined(S110)
           ble_gap_sec_keyset_t keyset;
@@ -891,6 +915,7 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
           gapSecParams.timeout          = 30; // must be 30s
 #endif
           gapSecParams.bond             = true;
+          gapSecParams.lesc             = (bool)this->_lesc;
           gapSecParams.mitm             = this->_mitm;
           gapSecParams.io_caps          = this->_io_caps;
           gapSecParams.oob              = false;
@@ -935,6 +960,7 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
           gapSecParams.timeout          = 30; // must be 30s
 #endif
           gapSecParams.bond             = true;
+          gapSecParams.lesc             = (bool)this->_lesc;
           gapSecParams.mitm             = this->_mitm;
           gapSecParams.io_caps          = this->_io_caps;
           gapSecParams.oob              = false;
@@ -969,9 +995,14 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
       }
 
       case BLE_GAP_EVT_PASSKEY_DISPLAY:
-		memcpy(this->_passkey, bleEvt->evt.gap_evt.params.passkey_display.passkey, 6);
+        memcpy(this->_passkey, bleEvt->evt.gap_evt.params.passkey_display.passkey, 6);
         if (this->_eventListener) {
           this->_eventListener->BLEDevicePasskeyReceived(*this);
+        }
+        if(this->_lesc == 2){
+          sd_ble_gap_auth_key_reply(this->_connectionHandle, BLE_GAP_AUTH_KEY_TYPE_PASSKEY, NULL);
+          /* Due to DRGN-7235, dhkey_reply() must come after auth_key_reply() */
+          sd_ble_gap_lesc_dhkey_reply(this->_connectionHandle, &_dhkey);
         }
       break;
 
@@ -979,8 +1010,17 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
         if (this->_eventListener) {
          this->_eventListener->BLEDevicePasskeyRequested(*this);
         }
-      break;	  
-	  
+      break;
+
+      case BLE_GAP_EVT_LESC_DHKEY_REQUEST:
+        ecc_p256_shared_secret_compute(&this->_privateKey.pk[0], &bleEvt->evt.gap_evt.params.lesc_dhkey_request.p_pk_peer->pk[0], &this->_dhkey.key[0]);
+        if(this->_lesc == 1 || this->_lesc == 3){
+          sd_ble_gap_auth_key_reply(this->_connectionHandle, BLE_GAP_AUTH_KEY_TYPE_PASSKEY, NULL);
+          /* Due to DRGN-7235, dhkey_reply() must come after auth_key_reply() */
+          sd_ble_gap_lesc_dhkey_reply(this->_connectionHandle, &_dhkey);
+        }
+      break;
+
       default:
 #ifdef NRF_51822_DEBUG
         Serial.print(F("bleEvt->header.evt_id = 0x"));
