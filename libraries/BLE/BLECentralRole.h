@@ -69,7 +69,7 @@ private:
     //uint8_t          _selective;
 
     BLENode       _node;
-    BLECentralEventHandler      _eventHandlers[5];
+    BLECentralEventHandler      _eventHandlers[7];
 
 };
 

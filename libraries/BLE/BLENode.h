@@ -29,11 +29,12 @@ class BLENode {
 public:
     bool connected();
     const char* address();
-    const uint8_t * rawAdvPck();
+    char* rawAdvPck();
     uint8_t dataLen();
     uint8_t type();
     bool isScanRsp();
     int8_t rssi();
+    void getFieldInAdvPck(uint8_t type, char* result, uint8_t& len);
     void printAdvertisement();
 	
 protected:
@@ -41,16 +42,16 @@ protected:
     void setAdvPck(ble_gap_evt_adv_report_t advPck);
 	
 private:
-	void printAdvData();
+    void printAdvData();
 
     unsigned char _address[6];
-    uint8_t       _advPck[31];
+    char          _advPck[31];
     uint8_t       _dlen;
     uint8_t       _type;
     bool          _sRsp;
     int8_t        _rssi;
-	char          *_typeString[4] = {"Connectable undirected node", "Connectable directed node", "Non connectable undirected node", "Scannable undirected node"};
-	char          *_flagsString[5] = {"LimitedDiscoverable", "GeneralDiscoverable", "BrEdrNotSupported", "LeBrEdrController", "LeBrEdrHost"};
+    char          *_typeString[4] = {"Connectable undirected node", "Connectable directed node", "Non connectable undirected node", "Scannable undirected node"};
+    char          *_flagsString[5] = {"LimitedDiscoverable", "GeneralDiscoverable", "BrEdrNotSupported", "LeBrEdrController", "LeBrEdrHost"};
 };
 
 #endif _BLE_NODE_H

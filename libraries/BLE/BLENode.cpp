@@ -20,7 +20,10 @@
 #include "BLENode.h"
 #include "BLEUtil.h"
 
-BLENode::BLENode(){}
+BLENode::BLENode() : 
+_advPck ({0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}),
+_dlen (0)
+{}
 
 void BLENode::setAdvPck(ble_gap_evt_adv_report_t advPck){
     for(uint8_t i = 0; i < 6; i++)
@@ -45,8 +48,8 @@ const char* BLENode::address(){
     return address;
 }
 
-const uint8_t * BLENode::rawAdvPck(){
-    return (uint8_t *)_advPck;
+char* BLENode::rawAdvPck(){
+	return _advPck;
 }
 
 uint8_t BLENode::dataLen(){
@@ -63,6 +66,18 @@ bool BLENode::isScanRsp(){
 
 int8_t BLENode::rssi(){
     return _rssi;
+}
+
+void BLENode::getFieldInAdvPck(uint8_t type, char* result, uint8_t& len){
+    len = 0;
+    for(int i = 0; i < _dlen; i += _advPck[i] + 1){
+        if(_advPck[i + 1] == type){
+            memcpy(result, &_advPck[i + 2], _advPck[i] - 1);
+            result[_advPck[i]+1] = '\0';
+			len =_advPck[i] - 1;
+            break;
+        }
+    }
 }
 
 void BLENode::printAdvertisement(){
@@ -115,7 +130,7 @@ void BLENode::printAdvData(){
                     default:
                         Serial.println();
                     break;
-				}
+                }
             break;
             case BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE:
             case BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_COMPLETE:
