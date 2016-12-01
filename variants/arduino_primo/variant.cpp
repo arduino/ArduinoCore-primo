@@ -180,7 +180,7 @@ const PinDescription g_APinDescription[]=
   //34..35 - USER2
   // --------------------
   { PORT0, 7, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // button
-  { PORT0, 8, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // buzzer
+  { PORT0, 8, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, PWM0, NOT_ON_TIMER}, // buzzer
   
   //36..37 - NFC
   // --------------------

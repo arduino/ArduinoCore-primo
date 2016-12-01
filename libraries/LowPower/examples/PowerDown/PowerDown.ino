@@ -44,8 +44,8 @@ void setup() {
 
   Serial.println("Hi all, I return to sleep");
 
-  //set digital button USER2 to wake up the board when LOW level is detected
-  LowPower.wakeUpByGPIO(USER2_BUTTON, LOW);
+  //set digital button USER1 to wake up the board when LOW level is detected
+  LowPower.wakeUpByGPIO(USER1_BUTTON, LOW);
   //let the board be woken up by any NFC field
   LowPower.wakeUpByNFC();
   //wake up the board when the voltage on pin A0 goes below the voltage on pin AREF

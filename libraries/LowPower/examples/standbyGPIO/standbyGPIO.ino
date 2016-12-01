@@ -26,9 +26,9 @@ void setup() {
   Serial.begin(9600);
 
   pinMode(13, OUTPUT);
-  pinMode(USER2_BUTTON, INPUT);
-  //attach an interrupt on button USER2 to wake up the board when a low level is detected
-  attachInterrupt(USER2_BUTTON, myFunction, LOW); 
+  pinMode(USER1_BUTTON, INPUT);
+  //attach an interrupt on button USER1 to wake up the board when a low level is detected
+  attachInterrupt(USER1_BUTTON, myFunction, LOW); 
 
 }
 
