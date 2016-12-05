@@ -230,6 +230,17 @@ int TwoWire_read(void)
 
 void pinMode( uint32_t ulPin, uint32_t ulMode )
 {
+
+  if ( (ulPin == 34) && (ulMode == STM32_IT) )
+  {
+	  delay(15);
+	  TwoWire_begin();
+	  TwoWire_beginTransmission(0x28);
+	  TwoWire_write(GPIO_USER1_IT);
+	  TwoWire_endTransmission();
+	  return ;
+  }
+
   if ( g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
   {
     return ;
@@ -388,11 +399,11 @@ int digitalRead( uint32_t ulPin )
 			 TwoWire_endTransmission();
 			 TwoWire_requestFrom(0x28, 2, true);
 			 char c = TwoWire_read();
-			 if (c == 0x01)
+			 if (c == 0xC3)
 			 {
 				 return HIGH ;
 			 }
-			 else if (c == 0x00)
+			 else if (c == 0x3C)
 				 return LOW ;
 			 else
 				 return -1;

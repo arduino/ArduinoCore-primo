@@ -89,11 +89,14 @@ static const uint8_t GPIO_ESP_EN_H  	= 0b11101010;
 static const uint8_t GPIO_ESP_EN_L  	= 0b11101011;
 
 static const uint8_t USER2_BUTTON_IN  	= 0b11101110;
+static const uint8_t GPIO_USER1_IT  	= 0b11111000;
 
 /*
  * SPI Interfaces
  */
+
 #define SPI_INTERFACES_COUNT 1
+
 
 #define PIN_SPI_MOSI         (27u)
 #define PIN_SPI_MISO         (24u)
@@ -109,8 +112,8 @@ static const uint8_t SCK  = PIN_SPI_SCK;
  */
 #define WIRE_INTERFACES_COUNT 1
 
-#define PIN_WIRE_SDA         (20u)
-#define PIN_WIRE_SCL         (21u)
+#define PIN_WIRE_SDA         (22u)
+#define PIN_WIRE_SCL         (23u)
 
 
 
