@@ -162,7 +162,7 @@ void analogWrite(uint32_t ulPin, uint32_t ulValue) {
     };
 	
 	//assign pin to pwm channel - look at WVariant.h for details about ulPWMChannel attribute
-	uint8_t pwm_type=g_APinDescription[ulPin].ulPWMChannel;
+	int8_t pwm_type=g_APinDescription[ulPin].ulPWMChannel;
 	if(pwm_type == NOT_ON_PWM)
 		return;
 	
