@@ -101,8 +101,7 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
   
   uint8_t i;
   //buffer for EasyDMA
-  static uint8_t * rx_buffer;
-  rx_buffer=(uint8_t *)malloc(sizeof(uint8_t)*quantity);
+  static uint8_t rx_buffer[SERIAL_BUFFER_SIZE];
   
   nrf_twim_rx_buffer_set(_TWIInstance, rx_buffer, quantity);
   nrf_twim_address_set(_TWIInstance, address);
