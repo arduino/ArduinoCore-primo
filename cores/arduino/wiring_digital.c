@@ -235,7 +235,7 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
   {
 	  delay(15);
 	  TwoWire_begin();
-	  TwoWire_beginTransmission(0x28);
+	  TwoWire_beginTransmission(0x48);
 	  TwoWire_write(GPIO_USER1_IT);
 	  TwoWire_endTransmission();
 	  return ;
@@ -278,14 +278,14 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 			if(ulVal == HIGH)
 			{
 				TwoWire_begin();
-				TwoWire_beginTransmission(0x28);
+				TwoWire_beginTransmission(0x48);
 				TwoWire_write(USER2_LED_H);
 				TwoWire_endTransmission();
 			}
 			else if (ulVal == LOW)
 			{
 				 TwoWire_begin();
-				 TwoWire_beginTransmission(0x28);
+				 TwoWire_beginTransmission(0x48);
 				 TwoWire_write(USER2_LED_L);
 				 TwoWire_endTransmission();
 			}
@@ -296,14 +296,14 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 			if(ulVal == HIGH)
 			{
 				 TwoWire_begin();
-				 TwoWire_beginTransmission(0x28);
+				 TwoWire_beginTransmission(0x48);
 				 TwoWire_write(POWER_LED_H);
 				 TwoWire_endTransmission();
 			}
 			else if (ulVal == LOW)
 			{
 				 TwoWire_begin();
-				 TwoWire_beginTransmission(0x28);
+				 TwoWire_beginTransmission(0x48);
 				 TwoWire_write(POWER_LED_L);
 				 TwoWire_endTransmission();
 			 }
@@ -314,14 +314,14 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 			if(ulVal == HIGH)
 			{
 				 TwoWire_begin();
-				 TwoWire_beginTransmission(0x28);
+				 TwoWire_beginTransmission(0x48);
 				 TwoWire_write(BLE_LED_H);
 				 TwoWire_endTransmission();
 			}
 			else if (ulVal == LOW)
 			{
 				 TwoWire_begin();
-				 TwoWire_beginTransmission(0x28);
+				 TwoWire_beginTransmission(0x48);
 				 TwoWire_write(BLE_LED_L);
 				 TwoWire_endTransmission();
 			 }
@@ -332,14 +332,14 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 			if(ulVal == HIGH)
 			{
 				 TwoWire_begin();
-				 TwoWire_beginTransmission(0x28);
+				 TwoWire_beginTransmission(0x48);
 				 TwoWire_write(GPIO_ESP_PW_H);
 				 TwoWire_endTransmission();
 			}
 			else if (ulVal == LOW)
 			{
 				 TwoWire_begin();
-				 TwoWire_beginTransmission(0x28);
+				 TwoWire_beginTransmission(0x48);
 				 TwoWire_write(GPIO_ESP_PW_L);
 				 TwoWire_endTransmission();
 			 }
@@ -350,14 +350,14 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 			if(ulVal == HIGH)
 			{
 				 TwoWire_begin();
-				 TwoWire_beginTransmission(0x28);
+				 TwoWire_beginTransmission(0x48);
 				 TwoWire_write(GPIO_ESP_EN_H);
 				 TwoWire_endTransmission();
 			}
 			else if (ulVal == LOW)
 			{
 				 TwoWire_begin();
-				 TwoWire_beginTransmission(0x28);
+				 TwoWire_beginTransmission(0x48);
 				 TwoWire_write(GPIO_ESP_EN_L);
 				 TwoWire_endTransmission();
 			 }
@@ -394,10 +394,10 @@ int digitalRead( uint32_t ulPin )
    	   case 44:
    		   	 delay(15);
 			 TwoWire_begin();
-			 TwoWire_beginTransmission(0x28);
+			 TwoWire_beginTransmission(0x48);
 			 TwoWire_write(USER2_BUTTON_IN);
 			 TwoWire_endTransmission();
-			 TwoWire_requestFrom(0x28, 2, true);
+			 TwoWire_requestFrom(0x48, 2, true);
 			 char c = TwoWire_read();
 			 if (c == 0xC3)
 			 {
