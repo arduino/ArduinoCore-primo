@@ -92,7 +92,7 @@ uint32_t analogRead( uint32_t ulPin ){
 	//no analogRead for digital pin
 	else if(ulPin<=13)
 		return 0;
-
+	
 	//enable ADC
     NRF_SAADC->ENABLE = SAADC_ENABLE_ENABLE_Enabled << SAADC_ENABLE_ENABLE_Pos;       
 	
@@ -124,9 +124,9 @@ uint32_t analogRead( uint32_t ulPin ){
     NRF_SAADC->TASKS_START = 1;
     while(NRF_SAADC->EVENTS_STARTED == 0);
  
-    NRF_SAADC->EVENTS_DONE = 0;
+    NRF_SAADC->EVENTS_END = 0;
     NRF_SAADC->TASKS_SAMPLE = 1;
-    while(NRF_SAADC->EVENTS_DONE == 0);
+    while(NRF_SAADC->EVENTS_END == 0);
     	
 	//disable ADC
 	NRF_SAADC->ENABLE = (SAADC_ENABLE_ENABLE_Disabled << SAADC_ENABLE_ENABLE_Pos);
@@ -162,7 +162,7 @@ void analogWrite(uint32_t ulPin, uint32_t ulValue) {
     };
 	
 	//assign pin to pwm channel - look at WVariant.h for details about ulPWMChannel attribute
-	uint8_t pwm_type=g_APinDescription[ulPin].ulPWMChannel;
+	int8_t pwm_type=g_APinDescription[ulPin].ulPWMChannel;
 	if(pwm_type == NOT_ON_PWM)
 		return;
 	

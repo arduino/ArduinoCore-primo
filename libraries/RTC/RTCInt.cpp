@@ -283,7 +283,7 @@ void RTCInt::setTime(void)
 *************************************************************************************************************************************/  
 void RTCInt::setDay(unsigned int day)
 {
-  if((day > 1) && (day <=31))
+  if((day >= 1) && (day <=31))
   {
   dateInt.day = day;
   }
@@ -297,7 +297,7 @@ void RTCInt::setDay(unsigned int day)
 *************************************************************************************************************************************/  
 void RTCInt::setMonth(unsigned int month)
 {
-  if((month > 1) && (month <=12))
+  if((month >= 1) && (month <=12))
   {	  
   dateInt.month = month;
   }
