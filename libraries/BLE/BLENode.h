@@ -44,14 +44,15 @@ protected:
 private:
     void printAdvData();
 
-    unsigned char _address[6];
-    char          _advPck[31];
-    uint8_t       _dlen;
-    uint8_t       _type;
-    bool          _sRsp;
-    int8_t        _rssi;
-    char          *_typeString[4] = {"Connectable undirected node", "Connectable directed node", "Non connectable undirected node", "Scannable undirected node"};
-    char          *_flagsString[5] = {"LimitedDiscoverable", "GeneralDiscoverable", "BrEdrNotSupported", "LeBrEdrController", "LeBrEdrHost"};
+    unsigned char               _address[6];
+    char                        _advPck[31];
+    uint8_t                     _dlen;
+    uint8_t                     _type;
+    bool                        _sRsp;
+    int8_t                      _rssi;
+    char                        *_typeString[4] = {"Connectable undirected node", "Connectable directed node", "Non connectable undirected node", "Scannable undirected node"};
+    char                        *_flagsString[5] = {"LimitedDiscoverable", "GeneralDiscoverable", "BrEdrNotSupported", "LeBrEdrController", "LeBrEdrHost"};
+    ble_gap_evt_adv_report_t    _advReport;
 };
 
 #endif _BLE_NODE_H

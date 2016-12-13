@@ -125,6 +125,12 @@ void BLERemoteCharacteristic::setEventHandler(BLERemoteCharacteristicEvent event
   }
 }
 
+void BLERemoteCharacteristic::setEventHandler(BLERemoteCharacteristicEvent event, BleRemoteCharacteristicEventHandler eventHandler) {
+  if (event < sizeof(this->_evtHandlers)) {
+    this->_evtHandlers[event] = eventHandler;
+  }
+}
+
 void BLERemoteCharacteristic::setValue(BLECentral& central, const unsigned char value[], unsigned char length) {
   this->_valueLength = length;
   memcpy(this->_value, value, length);
@@ -134,6 +140,18 @@ void BLERemoteCharacteristic::setValue(BLECentral& central, const unsigned char 
   BLERemoteCharacteristicEventHandler eventHandler = this->_eventHandlers[BLEValueUpdated];
   if (eventHandler) {
     eventHandler(central, *this);
+  }
+}
+
+void BLERemoteCharacteristic::setValue(BLENode& node, const unsigned char value[], unsigned char length) {
+  this->_valueLength = length;
+  memcpy(this->_value, value, length);
+
+  this->_valueUpdated = true;
+
+  BleRemoteCharacteristicEventHandler eventHandler = this->_evtHandlers[BLEValueUpdated];
+  if (eventHandler) {
+    eventHandler(node, *this);
   }
 }
 

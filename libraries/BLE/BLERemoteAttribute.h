@@ -10,6 +10,7 @@
 class BLERemoteAttribute : public BLEAttribute
 {
   friend class BLEPeripheral;
+  friend class BLECentralRole;
 
   public:
     BLERemoteAttribute(const char* uuid, enum BLEAttributeType type);

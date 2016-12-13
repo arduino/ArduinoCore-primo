@@ -25,11 +25,16 @@
 
 #include "BLENode.h"
 #include "BLEManager.h"
+#include "BLERemoteAttribute.h"
+#include "BLERemoteCharacteristic.h"
+#include "BLERemoteService.h"
+#include "BLEUuid.h"
 
 
 typedef void (*BLECentralEventHandler)(BLENode& node);
 
-class BLECentralRole {
+class BLECentralRole : public BLERemoteCharacteristicValueChangeListener 
+{
 public:
     BLECentralRole();
 
@@ -49,27 +54,77 @@ public:
 	
     void setActiveScan(bool activeScan);
 	
+    void addRemoteAttribute(BLERemoteAttribute& remoteAttribute);
+	
     void startScan();
 	
     void stopScan();
 	
-    void connect();
+    void connect(BLENode& node);
 	
-	void disconnect();
+    bool connected();
 	
-	void poll(ble_evt_t *bleEvt = 0);
+    void disconnect();
 	
-	void setEventHandler(BLEPeripheralEvent event, BLECentralEventHandler);
+    void begin();
+	
+    void poll(ble_evt_t *bleEvt = 0);
+	
+    void setEventHandler(BLEPeripheralEvent event, BLECentralEventHandler);
+	
+    virtual bool canNotifyCharacteristic(BLECharacteristic& characteristic);
+    virtual bool canIndicateCharacteristic(BLECharacteristic& characteristic);
+
+    virtual bool canReadRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
+    virtual bool readRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
+    virtual bool canWriteRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
+    virtual bool writeRemoteCharacteristic(BLERemoteCharacteristic& characteristic, const unsigned char value[], unsigned char length);
+    virtual bool canSubscribeRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
+    virtual bool subscribeRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
+    virtual bool canUnsubscribeRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
+    virtual bool unsubcribeRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
 	
 private:
-    short              _scanInterval = 0x0004;
-    short              _scanWindow   = 0x0004;
-    short              _scanTimeout  = 0;
-    bool               _activeScan   = true;
-    //uint8_t          _selective;
 
-    BLENode       _node;
-    BLECentralEventHandler      _eventHandlers[7];
+    struct remoteServiceInfo {
+      BLERemoteService* service;
+
+      ble_uuid_t uuid;
+      ble_gattc_handle_range_t handlesRange;
+    };
+
+    struct remoteCharacteristicInfo {
+      BLERemoteCharacteristic* characteristic;
+      BLERemoteService* service;
+
+      ble_uuid_t uuid;
+      ble_gatt_char_props_t properties;
+      uint16_t valueHandle;
+    };
+
+    short                             _scanInterval = 0x0004;
+    short                             _scanWindow   = 0x0004;
+    short                             _scanTimeout  = 0;
+    bool                              _activeScan   = true;
+    //uint8_t                         _selective;
+
+    BLENode                           _node;
+    BLECentralEventHandler            _eventHandlers[7];
+    BLERemoteAttribute**              _remoteAttributes;
+    unsigned char                     _numRemoteAttributes;
+    uint16_t                          _connectionHandle;
+    ble_gap_scan_params_t             _scanParams;
+
+    unsigned char                     _txBufferCount;
+	
+    BLERemoteService                  _remoteGenericAttributeService;
+    BLERemoteCharacteristic           _remoteServicesChangedCharacteristic;
+    unsigned char                     _numRemoteServices;
+    struct remoteServiceInfo*         _remoteServiceInfo;
+    unsigned char                     _remoteServiceDiscoveryIndex;
+    unsigned char                     _numRemoteCharacteristics;
+    struct remoteCharacteristicInfo*  _remoteCharacteristicInfo;
+    bool                              _remoteRequestInProgress;
 
 };
 

@@ -26,6 +26,7 @@ _dlen (0)
 {}
 
 void BLENode::setAdvPck(ble_gap_evt_adv_report_t advPck){
+	_advReport=advPck;
     for(uint8_t i = 0; i < 6; i++)
         _address[i] = advPck.peer_addr.addr[i];
     _dlen    = advPck.dlen;
@@ -73,7 +74,7 @@ void BLENode::getFieldInAdvPck(uint8_t type, char* result, uint8_t& len){
     for(int i = 0; i < _dlen; i += _advPck[i] + 1){
         if(_advPck[i + 1] == type){
             memcpy(result, &_advPck[i + 2], _advPck[i] - 1);
-            result[_advPck[i]+1] = '\0';
+            result[_advPck[i]-1] = '\0';
 			len =_advPck[i] - 1;
             break;
         }
