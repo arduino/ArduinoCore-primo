@@ -208,6 +208,8 @@ void BLECentralRole::begin(){
       remoteCharacteristicIndex++;
     }
   }
+  
+  this->startScan();
 	
 }
 

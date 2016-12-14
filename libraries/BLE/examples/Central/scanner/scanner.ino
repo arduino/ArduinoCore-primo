@@ -16,24 +16,24 @@
 #include "LowPower.h"
 
 // create central instance
-BLECentralRole central;
+BLECentralRole bleCentral;
 
 void setup() {
   Serial.begin(9600);
   
   // assign event handler for scanReceived event
-  central.setEventHandler(BLEScanReceived, receiveAdvPck);
+  bleCentral.setEventHandler(BLEScanReceived, receiveAdvPck);
   
   // set scan parameters
   // interval and window in 0.625 ms increments 
-  central.setScanInterval(1600); // 1 sec
-  central.setScanWindow(800);  // 0.5 sec
+  bleCentral.setScanInterval(3200); // 2 sec
+  bleCentral.setScanWindow(800);  // 0.5 sec
   // timeout in seconds. 0 disables timeout
-  central.setScanTimeout(0);
+  bleCentral.setScanTimeout(0);
   // active scan true to ask for scan response packet
-  central.setActiveScan(true);
-  // start scanning
-  central.startScan();
+  bleCentral.setActiveScan(true);
+  // begin initialization and start scanning
+  bleCentral.begin();
 }
 
 void loop() {

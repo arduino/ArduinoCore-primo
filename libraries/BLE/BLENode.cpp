@@ -98,107 +98,164 @@ void BLENode::printAdvertisement(){
 }
 
 void BLENode::printAdvData(){
-	uint16_t aCode;
-    for(int i = 0; i < _dlen; i += _advPck[i] + 1){
-        switch(_advPck[i+1]){
-            case BLE_GAP_AD_TYPE_FLAGS:
-                Serial.print("Flags : ");
-                switch(_advPck[i+2]){
-                    case 0x01:
-                        Serial.println(_flagsString[0]);
-                    break;
-                    case 0x02:
-                        Serial.println(_flagsString[1]);
-                    break;
-                    case 0x04:
-                        Serial.println(_flagsString[2]);
-                    break;
-                    case 0x05:
-                        Serial.print(_flagsString[0]);
-                        Serial.print(", ");
-                        Serial.println(_flagsString[2]);
-                     case 0x06:
-                        Serial.print(_flagsString[1]);
-                        Serial.print(", ");
-                        Serial.println(_flagsString[2]);
-                    break;
-                    case 0x08:
-                        Serial.println(_flagsString[3]);
-                    break;
-                    case 0x10:
-                        Serial.println(_flagsString[4]);
-                    break;
-                    default:
-                        Serial.println();
-                    break;
-                }
+    char data[31];
+    uint8_t len;
+
+    getFieldInAdvPck(BLE_GAP_AD_TYPE_FLAGS, data, len);
+    if(len != 0){
+        Serial.print("Flags : ");
+        switch(data[0]){
+            case 0x01:
+                Serial.println(_flagsString[0]);
             break;
-            case BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE:
-            case BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_COMPLETE:
-            case BLE_GAP_AD_TYPE_SOLICITED_SERVICE_UUIDS_16BIT:
-                if(_advPck[i+1] == BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_COMPLETE)
-                    Serial.print("Complete list of 16-bit Service UUIDs:");
-                else if(_advPck[i+1] == BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE)
-                    Serial.print("Incomplete list of 16-bit Service UUIDs:");
-                else
-                    Serial.print("List of 16-bit Solicited Serivce UUIDs: ");
-                for(int j = 0; j < (_advPck[i] - 1) / 2; j++){
-                    Serial.print(" 0x");
-                    if(_advPck[i + 3 + (j * 2)] <= 0x0F)
-                        Serial.print("0");						
-                    Serial.print(_advPck[i + 3 + (j * 2)], HEX);
-                    if(_advPck[i + 2 + (j * 2)] <= 0x0F)
-                        Serial.print("0");						
-                    Serial.print(_advPck[i + 2 + (j * 2)], HEX);
-                }
-                Serial.println();
+            case 0x02:
+                Serial.println(_flagsString[1]);
             break;
-            case BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE:
-            case BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_COMPLETE:
-            case BLE_GAP_AD_TYPE_SOLICITED_SERVICE_UUIDS_128BIT:
-                if(_advPck[i+1] == BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_COMPLETE)			
-                    Serial.print("Complete list of 128-bit Service UUIDs: ");			
-                else if(_advPck[i+1] == BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE)
-                    Serial.print("Incomplete list of 128-bit Service UUIDs: ");
-                else
-                    Serial.print("List of 128-bit Solicited Service UUIDs");
-                for(int j = 15; j >= 0; j--){
-                    if(_advPck[i + 2 + j] <= 0x0F)
-                        Serial.print("0");
-                    Serial.print(_advPck[i + 2 + j], HEX);
-                    if(j == 6 || j == 8 || j == 10 || j == 12)
-                        Serial.print("-");	
-                }
-                Serial.println();
+            case 0x04:
+                Serial.println(_flagsString[2]);
             break;
-            case BLE_GAP_AD_TYPE_SHORT_LOCAL_NAME:
-            case BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME:
-                if(_advPck[i+1] == BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME)			
-                    Serial.print("Complete Local Name: ");
-                else
-                    Serial.print("Short Local Name: ");
-                for(int j = 0; j < _advPck[i] - 1; j++)
-                    Serial.print((char)_advPck[i + 2 + j]);
-                Serial.println();
+            case 0x05:
+                Serial.print(_flagsString[0]);
+                Serial.print(", ");
+                Serial.println(_flagsString[2]);
+            case 0x06:
+                Serial.print(_flagsString[1]);
+                Serial.print(", ");
+                Serial.println(_flagsString[2]);
             break;
-            case BLE_GAP_AD_TYPE_TX_POWER_LEVEL:
-                Serial.print("Tx Power Level: ");
-                Serial.print((int8_t)_advPck[i + 2]);
-                Serial.println(" dBm");
+            case 0x08:
+                Serial.println(_flagsString[3]);
             break;
-            case BLE_GAP_AD_TYPE_APPEARANCE:
-                aCode=_advPck[i + 2] | (_advPck[i + 3] << 8);
-                Serial.print("Appearance: ["); Serial.print(aCode); Serial.println("] ");
-                break;
-            case BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA:
-                Serial.print("Manufacturer data: 0x");
-                for(int j = 0; j < _advPck[i] -1; j++){
-                    if(_advPck[i + 2 + j] <= 0x0F)
-                        Serial.print("0");
-    				Serial.print(_advPck[i + 2 + j], HEX);
-                }
+            case 0x10:
+                Serial.println(_flagsString[4]);
+            break;
+            default:
                 Serial.println();
             break;
         }
+    }
+
+    getFieldInAdvPck(BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE, data, len);
+    if(len != 0){
+        Serial.print("Incomplete list of 16-bit Service UUIDs: ");
+        for(int i = 0; i < len; i+=2){
+            Serial.print(" 0x");
+            if(data[i] <= 0x0F)
+                Serial.print("0");						
+            Serial.print(data[i + 1], HEX);
+            if(data[i + 1] <= 0x0F)
+                Serial.print("0");						
+            Serial.print(data[i], HEX);
+        }
+    Serial.println();
+    }
+
+    getFieldInAdvPck(BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_COMPLETE, data, len);
+    if(len != 0){
+        Serial.print("Complete list of 16-bit Service UUIDs: ");
+        for(int i = 0; i < len; i+=2){
+            Serial.print(" 0x");
+            if(data[i] <= 0x0F)
+                Serial.print("0");						
+            Serial.print(data[i+1], HEX);
+            if(data[i + 1] <= 0x0F)
+                Serial.print("0");						
+            Serial.print(data[i], HEX);
+        }
+        Serial.println();
+	}
+	
+    getFieldInAdvPck(BLE_GAP_AD_TYPE_SOLICITED_SERVICE_UUIDS_16BIT, data, len);
+    if(len != 0){
+        Serial.print("List of 16-bit Solicited Service UUIDs: ");
+        for(int i = 0; i < len; i+=2){
+            Serial.print(" 0x");
+            if(data[i] <= 0x0F)
+                Serial.print("0");						
+            Serial.print(data[i + 1], HEX);
+            if(data[i + 1] <= 0x0F)
+                Serial.print("0");						
+            Serial.print(data[i], HEX);
+        }
+        Serial.println();
+	}
+	
+    getFieldInAdvPck(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE, data, len);
+    if(len != 0){
+       Serial.print("Incomplete list of 128-bit Service UUIDs: ");
+        for(int j = 15; j >= 0; j--){
+            if(data[j] <= 0x0F)
+                Serial.print("0");
+            Serial.print(data[j], HEX);
+            if(j == 6 || j == 8 || j == 10 || j == 12)
+                Serial.print("-");	
+            }
+            Serial.println();
+    }
+
+    getFieldInAdvPck(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_COMPLETE, data, len);
+    if(len != 0){
+       Serial.print("Complete list of 128-bit Service UUIDs: ");
+        for(int j = 15; j >= 0; j--){
+            if(data[j] <= 0x0F)
+                Serial.print("0");
+            Serial.print(data[j], HEX);
+            if(j == 6 || j == 8 || j == 10 || j == 12)
+                Serial.print("-");	
+            }
+            Serial.println();
+    }
+	
+    getFieldInAdvPck(BLE_GAP_AD_TYPE_SOLICITED_SERVICE_UUIDS_128BIT, data, len);
+    if(len != 0){
+       Serial.print("List of 128-bit Solicited Service UUIDs: ");
+        for(int j = 15; j >= 0; j--){
+            if(data[j] <= 0x0F)
+                Serial.print("0");
+            Serial.print(data[j], HEX);
+            if(j == 6 || j == 8 || j == 10 || j == 12)
+                Serial.print("-");	
+            }
+            Serial.println();
+    }
+	
+    getFieldInAdvPck(BLE_GAP_AD_TYPE_SHORT_LOCAL_NAME, data, len);
+    if(len != 0){
+        Serial.print("Short Local Name: ");
+        for(int j = 0; j < len; j++)
+            Serial.print((char)data[j]);
+        Serial.println();
+    }
+	
+    getFieldInAdvPck(BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME, data, len);
+    if(len != 0){
+        Serial.print("Complete Local Name: ");
+        for(int j = 0; j < len; j++)
+            Serial.print((char)data[j]);
+        Serial.println();
+    }
+	
+    getFieldInAdvPck(BLE_GAP_AD_TYPE_TX_POWER_LEVEL, data, len);
+    if(len != 0){
+        Serial.print("Tx Power Level: ");
+        Serial.print((int8_t)data[0]);
+        Serial.println(" dBm");
+    }
+	
+    getFieldInAdvPck(BLE_GAP_AD_TYPE_APPEARANCE, data, len);
+    if(len != 0){
+        uint16_t aCode=data[0] | (data[1] << 8);
+        Serial.print("Appearance: ["); Serial.print(aCode); Serial.println("] ");
+    }
+
+    getFieldInAdvPck(BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA, data, len);
+    if(len != 0){
+        Serial.print("Manufacturer data: 0x");
+        for(int j = 0; j < len; j++){
+            if(data[j] <= 0x0F)
+                Serial.print("0");
+            Serial.print(data[j], HEX);
+        }
+        Serial.println();
     }
 }
