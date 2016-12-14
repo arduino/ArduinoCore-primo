@@ -100,7 +100,7 @@ size_t BLESerial::write(uint8_t byte) {
   BLEPeripheral::poll();
   if (this->_txCharacteristic.subscribed() == false) return 0;
   this->_txBuffer[this->_txCount++] = byte;
-  if (this->_txCount == sizeof(this->_txBuffer)) flush();
+  if (this->_txCount == sizeof(this->_txBuffer) || byte == '\n') flush();
   #ifdef BLE_SERIAL_DEBUG
     Serial.print(F("BLESerial::write("));
     Serial.print((char) byte);

@@ -24,6 +24,7 @@
 
 BLECentralRole::BLECentralRole() : 
   _remoteAttributes(NULL),
+  _txBufferCount(0),
   _numRemoteAttributes(0),
   _remoteGenericAttributeService("1801"),
   _remoteServicesChangedCharacteristic("2a05", BLEIndicate),
@@ -231,6 +232,11 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
         break;
         case BLE_GAP_EVT_CONNECTED:
             this->_connectionHandle = bleEvt->evt.gap_evt.conn_handle;
+
+            uint8_t count;
+            sd_ble_tx_packet_count_get(this->_connectionHandle, &count);
+            this->_txBufferCount = count;
+
             eventHandler = _eventHandlers[BLEConnected];
             if (eventHandler) {
               eventHandler(_node);
@@ -252,6 +258,8 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
         break;
         case BLE_GAP_EVT_DISCONNECTED:
             this->_connectionHandle = BLE_CONN_HANDLE_INVALID;
+            this->_txBufferCount = 0;
+
             eventHandler = _eventHandlers[BLEDisconnected];
             if (eventHandler) {
               eventHandler(_node);
@@ -268,7 +276,15 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
 
         this->_remoteRequestInProgress = false;
         break;
-		
+
+      case BLE_EVT_TX_COMPLETE:
+#ifdef BLE_CENTRAL_DEBUG
+        Serial.print(F("Evt TX complete "));
+        Serial.println(bleEvt->evt.common_evt.params.tx_complete.count);
+#endif
+        this->_txBufferCount += bleEvt->evt.common_evt.params.tx_complete.count;
+      break;
+
       case BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP:
 #ifdef BLE_CENTRAL_DEBUG
         Serial.print(F("Evt Prim Srvc Disc Rsp 0x"));
