@@ -277,6 +277,7 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
         }
 
         this->_remoteRequestInProgress = false;
+        this->startScan();
         break;
 
       case BLE_EVT_TX_COMPLETE:
