@@ -16,7 +16,7 @@
 #include "LowPower.h"
 
 // create central instance
-BLECentralRole bleCentral;
+BLECentralRole bleCentral = BLECentralRole();;
 
 void setup() {
   Serial.begin(9600);
