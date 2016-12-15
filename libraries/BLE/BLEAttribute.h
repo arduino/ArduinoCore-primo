@@ -25,6 +25,7 @@ class BLEAttribute
   public:
     BLEAttribute(const char* uuid, enum BLEAttributeType type);
     const char* uuid() const;
+    const char* rawUuid() const;
 
     enum BLEAttributeType type() const;
 
