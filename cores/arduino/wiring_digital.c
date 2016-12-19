@@ -164,8 +164,7 @@ uint8_t TwoWire_requestFrom(uint8_t address, size_t quantity, bool stopBit)
 
   uint8_t i;
   //buffer for EasyDMA
-  static uint8_t * rx_buffer;
-  rx_buffer=(uint8_t *)malloc(sizeof(uint8_t)*quantity);
+  static uint8_t rx_buffer[64];
 
   nrf_twim_rx_buffer_set(_TWIInstance, rx_buffer, quantity);
   nrf_twim_address_set(_TWIInstance, address);
@@ -397,6 +396,7 @@ int digitalRead( uint32_t ulPin )
 			 TwoWire_beginTransmission(0x48);
 			 TwoWire_write(USER2_BUTTON_IN);
 			 TwoWire_endTransmission();
+			 delay(15);
 			 TwoWire_requestFrom(0x48, 2, true);
 			 char c = TwoWire_read();
 			 if (c == 0xC3)
