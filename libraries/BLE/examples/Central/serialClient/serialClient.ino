@@ -21,7 +21,7 @@ BLECentralRole                   bleCentral                       = BLECentralRo
 // create remote service with UUID compliant to NUS service
 BLERemoteService                 remoteService                    = BLERemoteService("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
 
-// create remote characteristics with UUID and properties compliant to CTS service 
+// create remote characteristics with UUID and properties compliant NUS service
 BLERemoteCharacteristic          remoteRxCharacteristic           = BLERemoteCharacteristic("6E400002-B5A3-F393-E0A9-E50E24DCCA9E", BLEWriteWithoutResponse);
 BLERemoteCharacteristic          remoteTxCharacteristic           = BLERemoteCharacteristic("6E400003-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLENotify);
 
@@ -40,7 +40,7 @@ void setup() {
   bleCentral.setEventHandler(BLERemoteServicesDiscovered, bleCentralRemoteServicesDiscoveredHandler);
 
   // assign event handlers for characteristic
-  remoteTxCharacteristic.setEventHandler(BLEValueUpdated, bleRemoteCtsCharacteristicValueUpdatedHandle);
+  remoteTxCharacteristic.setEventHandler(BLEValueUpdated, bleRemoteTxCharacteristicValueUpdatedHandle);
  
   // set scan parameters
   // interval and window in 0.625 ms increments 
@@ -116,7 +116,7 @@ void bleCentralRemoteServicesDiscoveredHandler(BLENode& node) {
 }
 
 
-void bleRemoteCtsCharacteristicValueUpdatedHandle(BLENode& node, BLERemoteCharacteristic& characteristic) {
+void bleRemoteTxCharacteristicValueUpdatedHandle(BLENode& node, BLERemoteCharacteristic& characteristic) {
   Serial.println("Remote characteristic value update handle");
   Serial.println((char *)remoteTxCharacteristic.value());
  }

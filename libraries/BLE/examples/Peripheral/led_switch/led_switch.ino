@@ -63,8 +63,8 @@ void loop() {
     buttonCharacteristic.setValue(buttonValue);
   }
 
-  if (switchCharacteristic.written() || buttonChanged) {
-    // update LED, either central has written to characteristic or button state has changed
+  if (switchCharacteristic.written()) {
+    // update LED if central has written to characteristic
     if (switchCharacteristic.value()) {
       Serial.println(F("LED on"));
       digitalWrite(LED_PIN, HIGH);
