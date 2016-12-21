@@ -13,7 +13,8 @@ template<typename T> class BLETypedCharacteristic : public BLEFixedLengthCharact
 {
   public:
     BLETypedCharacteristic(const char* uuid, unsigned char properties);
-
+    BLETypedCharacteristic(const char* uuid, unsigned char properties, bool remote);
+	
     bool setValue(T value);
     T value();
 
@@ -75,5 +76,58 @@ template<typename T> T BLETypedCharacteristic<T>::byteSwap(T value) {
 
   return result;
 }
+
+
+//
+
+template<typename T> class BLERemoteTypedCharacteristic : public BLEFixedLengthRemoteCharacteristic
+{
+  public:
+    BLERemoteTypedCharacteristic(const char* uuid, unsigned char properties);
+	
+    T value();
+
+    T valueLE();
+
+    T valueBE();
+
+  private:
+    T byteSwap(T value);
+};
+
+template<typename T> BLERemoteTypedCharacteristic<T>::BLERemoteTypedCharacteristic(const char* uuid, unsigned char properties) :
+  BLEFixedLengthRemoteCharacteristic(uuid, properties)
+{
+}
+
+template<typename T> T BLERemoteTypedCharacteristic<T>::value() {
+  T value;
+
+  memcpy(&value, (unsigned char*)this->BLERemoteCharacteristic::value(), this->BLERemoteCharacteristic::valueLength());
+
+  return value;
+}
+
+template<typename T> T BLERemoteTypedCharacteristic<T>::valueLE() {
+  return this->getValue();
+}
+
+template<typename T> T BLERemoteTypedCharacteristic<T>::valueBE() {
+  return this->byteSwap(this->value());
+}
+
+template<typename T> T BLERemoteTypedCharacteristic<T>::byteSwap(T value) {
+  T result;
+  unsigned char* src = (unsigned char*)&value;
+  unsigned char* dst = (unsigned char*)&result;
+
+  for (int i = 0; i < sizeof(T); i++) {
+    dst[i] = src[sizeof(T) - i - 1];
+  }
+
+  return result;
+}
+
+
 
 #endif

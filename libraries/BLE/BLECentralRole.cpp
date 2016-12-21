@@ -518,8 +518,7 @@ bool BLECentralRole::writeRemoteCharacteristic(BLERemoteCharacteristic& characte
   for (int i = 0; i < this->_numRemoteCharacteristics; i++) {
     if (this->_remoteCharacteristicInfo[i].characteristic == &characteristic) {
       if (this->_remoteCharacteristicInfo[i].valueHandle &&
-                  (this->_remoteCharacteristicInfo[i].properties.write_wo_resp || this->_remoteCharacteristicInfo[i].properties.write) &&
-                  (this->_txBufferCount > 0)) {
+                  (this->_remoteCharacteristicInfo[i].properties.write_wo_resp || this->_remoteCharacteristicInfo[i].properties.write)) {
 
         ble_gattc_write_params_t writeParams;
 
@@ -530,8 +529,6 @@ bool BLECentralRole::writeRemoteCharacteristic(BLERemoteCharacteristic& characte
         writeParams.p_value = (uint8_t*)value;
 
         this->_remoteRequestInProgress = true;
-
-        this->_txBufferCount--;
 
         success = (sd_ble_gattc_write(this->_connectionHandle, &writeParams) == NRF_SUCCESS);
       }

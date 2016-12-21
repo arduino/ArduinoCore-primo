@@ -6,6 +6,7 @@
 #define _BLE_FIXED_LENGTH_CHARACTERISTIC_H_
 
 #include "BLECharacteristic.h"
+#include "BLERemoteCharacteristic.h"
 
 class BLEFixedLengthCharacteristic : public BLECharacteristic {
   public:
@@ -13,6 +14,13 @@ class BLEFixedLengthCharacteristic : public BLECharacteristic {
     BLEFixedLengthCharacteristic(const char* uuid, unsigned char properties, const char* value);
 
     virtual bool fixedLength() const;
+};
+
+class BLEFixedLengthRemoteCharacteristic : public BLERemoteCharacteristic {
+  public:
+    BLEFixedLengthRemoteCharacteristic(const char* uuid, unsigned char properties);
+
+    virtual bool fixedLength() const;	
 };
 
 #endif

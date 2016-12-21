@@ -18,3 +18,16 @@ BLEFixedLengthCharacteristic::BLEFixedLengthCharacteristic(const char* uuid, uns
 bool BLEFixedLengthCharacteristic::fixedLength() const {
   return true;
 }
+
+
+//
+
+BLEFixedLengthRemoteCharacteristic::BLEFixedLengthRemoteCharacteristic(const char* uuid, unsigned char properties) :
+  BLERemoteCharacteristic(uuid, properties)
+{
+}
+
+bool BLEFixedLengthRemoteCharacteristic::fixedLength() const {
+  return true;
+}
+
