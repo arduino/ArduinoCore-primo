@@ -17,7 +17,6 @@
 */
 
 #include "SoftDeviceManager.h"
-//#include "BLEManager.h"
 
 volatile static uint8_t _flashOperationPending;
 
@@ -57,7 +56,7 @@ void SoftDeviceManager::begin(){
     SOFTDEVICE_HANDLER_INIT(&clock_lf_cfg, NULL);
 	
 	ble_enable_params_t ble_enable_params;
-    err_code = softdevice_enable_get_default_config(1/*number of central*/,
+    err_code = softdevice_enable_get_default_config(7/*number of central*/,
                                                     1/*number of peripheral*/,
                                                     &ble_enable_params);
     APP_ERROR_CHECK(err_code);
@@ -66,7 +65,7 @@ void SoftDeviceManager::begin(){
 	ble_enable_params.gatts_enable_params.service_changed = 1;
 	
 	 //Check the ram settings against the used number of links
-    CHECK_RAM_START_ADDR(1/*number of central*/,1/*number of peripheral*/);
+    CHECK_RAM_START_ADDR(7/*number of central*/,1/*number of peripheral*/);
 
     // Enable BLE stack.
     err_code = softdevice_enable(&ble_enable_params);

@@ -26,6 +26,8 @@ BLECentralRole::BLECentralRole() :
   _remoteAttributes(NULL),
   _txBufferCount(0),
   _numRemoteAttributes(0),
+  _peripheralConnected(0),
+  _allowedPeripherals(1),
   _remoteGenericAttributeService("1801"),
   _remoteServicesChangedCharacteristic("2a05", BLEIndicate),
   _numRemoteServices(0),
@@ -34,7 +36,7 @@ BLECentralRole::BLECentralRole() :
   _numRemoteCharacteristics(0),
   _remoteCharacteristicInfo(NULL),
   _remoteRequestInProgress(false),
-  _connectionHandle(BLE_CONN_HANDLE_INVALID)
+  _connectionHandle({BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID})
 {
 	BLEManager.registerCentral(this);
 }
@@ -125,9 +127,19 @@ void BLECentralRole::connect(BLENode& node){
 
 bool BLECentralRole::connected(){
   bool connected = false;
-  if(this->_connectionHandle != BLE_CONN_HANDLE_INVALID)
+  // check if at least one peripheral is connected
+  for(int i = 0; i < _allowedPeripherals; i++)
+  if(this->_connectionHandle[i] != BLE_CONN_HANDLE_INVALID){
     connected = true;
+    break;
+  }
   return connected;
+}
+
+void BLECentralRole::allowMultilink(uint8_t linksNo){
+  if(linksNo > MAX_PERIPHERAL)
+    linksNo = MAX_PERIPHERAL;
+  _allowedPeripherals = linksNo;
 }
 
 void BLECentralRole::begin(){
@@ -226,23 +238,30 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
   if(event){
     switch (bleEvt->header.evt_id) {
         case BLE_GAP_EVT_ADV_REPORT:
-            _node.setAdvPck(bleEvt->evt.gap_evt.params.adv_report);
+            _tempNode.setAdvPck(bleEvt->evt.gap_evt.params.adv_report);
             eventHandler = _eventHandlers[BLEScanReceived];
             if (eventHandler) {
-              eventHandler(_node);
+              eventHandler(_tempNode);
             }
         break;
         case BLE_GAP_EVT_CONNECTED:
-            this->_connectionHandle = bleEvt->evt.gap_evt.conn_handle;
+            uint8_t index;
+            //save the handler in the first free location
+            for(index = 0; index < _allowedPeripherals; index++)
+              if(this->_connectionHandle[index] == BLE_CONN_HANDLE_INVALID)
+                break;
+            this->_connectionHandle[index] = bleEvt->evt.gap_evt.conn_handle;
+            _node[index] = _tempNode;			
 
             uint8_t count;
-            sd_ble_tx_packet_count_get(this->_connectionHandle, &count);
+            sd_ble_tx_packet_count_get(this->_connectionHandle[index], &count);
             this->_txBufferCount = count;
 
             eventHandler = _eventHandlers[BLEConnected];
             if (eventHandler) {
-              eventHandler(_node);
+              eventHandler(_node[index]);
             }
+
             // if (this->_minimumConnectionInterval >= BLE_GAP_CP_MIN_CONN_INTVL_MIN &&
                 // this->_maximumConnectionInterval <= BLE_GAP_CP_MAX_CONN_INTVL_MAX) {
               // ble_gap_conn_params_t gap_conn_params;
@@ -255,25 +274,36 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
               // sd_ble_gap_conn_param_update(this->_connectionHandle, &gap_conn_params);
             // }
             if (this->_numRemoteServices > 0) {
-			  sd_ble_gattc_primary_services_discover(this->_connectionHandle, 1, NULL);
+			  sd_ble_gattc_primary_services_discover(this->_connectionHandle[index], 1, NULL);
             }
+
+            _peripheralConnected++;
+            if(_peripheralConnected < _allowedPeripherals)
+              this->startScan();
         break;
         case BLE_GAP_EVT_DISCONNECTED:
-            this->_connectionHandle = BLE_CONN_HANDLE_INVALID;
+            uint8_t currentPeripheral;
+            for(currentPeripheral = 0; currentPeripheral < _allowedPeripherals; currentPeripheral++)
+              if(this->_connectionHandle[currentPeripheral] == bleEvt->evt.gap_evt.conn_handle)
+                break;
+            this->_connectionHandle[currentPeripheral] = BLE_CONN_HANDLE_INVALID;
+            _peripheralConnected--;
             this->_txBufferCount = 0;
 
             eventHandler = _eventHandlers[BLEDisconnected];
             if (eventHandler) {
-              eventHandler(_node);
+              eventHandler(_node[currentPeripheral]);
             }
         // clear remote handle info
         for (int i = 0; i < this->_numRemoteServices; i++) {
           memset(&this->_remoteServiceInfo[i].handlesRange, 0, sizeof(this->_remoteServiceInfo[i].handlesRange));
         }
 
-        for (int i = 0; i < this->_numRemoteCharacteristics; i++) {
-          memset(&this->_remoteCharacteristicInfo[i].properties, 0, sizeof(this->_remoteCharacteristicInfo[i].properties));
-          this->_remoteCharacteristicInfo[i].valueHandle = 0;
+        if(_peripheralConnected == 0){
+          for (int i = 0; i < this->_numRemoteCharacteristics; i++) {
+            memset(&this->_remoteCharacteristicInfo[i].properties, 0, sizeof(this->_remoteCharacteristicInfo[i].properties));
+            this->_remoteCharacteristicInfo[i].valueHandle = 0;
+          }
         }
 
         this->_remoteRequestInProgress = false;
@@ -293,6 +323,11 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
         Serial.print(F("Evt Prim Srvc Disc Rsp 0x"));
         Serial.println(bleEvt->evt.gattc_evt.gatt_status, HEX);
 #endif
+        uint8_t pIndex;
+        for(pIndex = 0; pIndex < _allowedPeripherals; pIndex++)
+          if(this->_connectionHandle[pIndex] == bleEvt->evt.gap_evt.conn_handle)
+            break;
+
         if (bleEvt->evt.gattc_evt.gatt_status == BLE_GATT_STATUS_SUCCESS) {
           uint16_t count = bleEvt->evt.gattc_evt.params.prim_srvc_disc_rsp.count;
           for (int i = 0; i < count; i++) {
@@ -307,13 +342,13 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
 
           uint16_t startHandle = bleEvt->evt.gattc_evt.params.prim_srvc_disc_rsp.services[count - 1].handle_range.end_handle + 1;
 
-          sd_ble_gattc_primary_services_discover(this->_connectionHandle, startHandle, NULL);
+          sd_ble_gattc_primary_services_discover(this->_connectionHandle[pIndex], startHandle, NULL);
         } else {
           // done discovering services
           for (int i = 0; i < this->_numRemoteServices; i++) {
             if (this->_remoteServiceInfo[i].handlesRange.start_handle != 0 && this->_remoteServiceInfo[i].handlesRange.end_handle != 0) {
               this->_remoteServiceDiscoveryIndex = i;
-              sd_ble_gattc_characteristics_discover(this->_connectionHandle, &this->_remoteServiceInfo[i].handlesRange);
+              sd_ble_gattc_characteristics_discover(this->_connectionHandle[pIndex], &this->_remoteServiceInfo[i].handlesRange);
               break;
             }
           }
@@ -325,6 +360,11 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
         Serial.print(F("Evt Char Disc Rsp 0x"));
         Serial.println(bleEvt->evt.gattc_evt.gatt_status, HEX);
 #endif
+        uint8_t periphIndex;
+        for(periphIndex = 0; periphIndex < _allowedPeripherals; periphIndex++)
+          if(this->_connectionHandle[periphIndex] == bleEvt->evt.gap_evt.conn_handle)
+            break;
+
         if (bleEvt->evt.gattc_evt.gatt_status == BLE_GATT_STATUS_SUCCESS) {
           ble_gattc_handle_range_t serviceHandlesRange = this->_remoteServiceInfo[this->_remoteServiceDiscoveryIndex].handlesRange;
 
@@ -343,7 +383,7 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
             serviceHandlesRange.start_handle = bleEvt->evt.gattc_evt.params.char_disc_rsp.chars[i].handle_value;
           }
 
-          sd_ble_gattc_characteristics_discover(this->_connectionHandle, &serviceHandlesRange);
+          sd_ble_gattc_characteristics_discover(this->_connectionHandle[periphIndex], &serviceHandlesRange);
         } else {
           bool discoverCharacteristics = false;
 
@@ -351,7 +391,7 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
             if (this->_remoteServiceInfo[i].handlesRange.start_handle != 0 && this->_remoteServiceInfo[i].handlesRange.end_handle != 0) {
               this->_remoteServiceDiscoveryIndex = i;
 
-              sd_ble_gattc_characteristics_discover(this->_connectionHandle, &this->_remoteServiceInfo[i].handlesRange);
+              sd_ble_gattc_characteristics_discover(this->_connectionHandle[periphIndex], &this->_remoteServiceInfo[i].handlesRange);
               discoverCharacteristics = true;
               break;
             }
@@ -360,7 +400,7 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
           if (!discoverCharacteristics) {
             eventHandler = _eventHandlers[BLERemoteServicesDiscovered];
             if (eventHandler) {
-              eventHandler(_node);
+              eventHandler(_node[periphIndex]);
             }
           }
         }
@@ -381,11 +421,16 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
         } else {
           uint16_t handle = bleEvt->evt.gattc_evt.params.read_rsp.handle;
 
+          uint8_t j = 0;
+          for(; j < _allowedPeripherals; j++)
+          if(this->_connectionHandle[j] == bleEvt->evt.gap_evt.conn_handle)
+            break;
+
           for (int i = 0; i < this->_numRemoteCharacteristics; i++) {
             if (this->_remoteCharacteristicInfo[i].valueHandle == handle) {
             // BLERemoteCharacteristicEventHandler * evtHandler = *this->_remoteCharacteristicInfo[i].characteristic->_eventHandlers[BLEValueUpdated]);
             // if(evtHandler)
-                this->_remoteCharacteristicInfo[i].characteristic->setValue(_node, bleEvt->evt.gattc_evt.params.read_rsp.data, bleEvt->evt.gattc_evt.params.read_rsp.len); 
+                this->_remoteCharacteristicInfo[i].characteristic->setValue(_node[j], bleEvt->evt.gattc_evt.params.read_rsp.data, bleEvt->evt.gattc_evt.params.read_rsp.len); 
               // if (this->_eventListener) {
                 // this->_eventListener->BLEDeviceRemoteCharacteristicValueChanged(*this, *this->_remoteCharacteristicInfo[i].characteristic, bleEvt->evt.gattc_evt.params.read_rsp.data, bleEvt->evt.gattc_evt.params.read_rsp. len);
               // }
@@ -416,17 +461,22 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
         Serial.println(bleEvt->evt.gattc_evt.gatt_status, HEX);
         Serial.println(bleEvt->evt.gattc_evt.params.hvx.handle, DEC);
 #endif
+        uint8_t currentPeripheral;
+        for(currentPeripheral = 0; currentPeripheral < _allowedPeripherals; currentPeripheral++)
+          if(this->_connectionHandle[currentPeripheral] == bleEvt->evt.gap_evt.conn_handle)
+            break;
+
         uint16_t handle = bleEvt->evt.gattc_evt.params.hvx.handle;
 
         if (bleEvt->evt.gattc_evt.params.hvx.type == BLE_GATT_HVX_INDICATION) {
-          sd_ble_gattc_hv_confirm(this->_connectionHandle, handle);
+          sd_ble_gattc_hv_confirm(this->_connectionHandle[currentPeripheral], handle);
         }
 
         for (int i = 0; i < this->_numRemoteCharacteristics; i++) {
           if (this->_remoteCharacteristicInfo[i].valueHandle == handle) {
             // BLERemoteCharacteristicEventHandler * evtHandler = *this->_remoteCharacteristicInfo[i].characteristic->_eventHandlers[BLEValueUpdated]);
             // if(evtHandler)
-                this->_remoteCharacteristicInfo[i].characteristic->setValue(_node, bleEvt->evt.gattc_evt.params.read_rsp.data, bleEvt->evt.gattc_evt.params.read_rsp.len); 
+                this->_remoteCharacteristicInfo[i].characteristic->setValue(_node[currentPeripheral], bleEvt->evt.gattc_evt.params.read_rsp.data, bleEvt->evt.gattc_evt.params.read_rsp.len); 
 				// BLEPeripheral::BLEDeviceRemoteCharacteristicValueChanged(*this, *this->_remoteCharacteristicInfo[i].characteristic, bleEvt->evt.gattc_evt.params.read_rsp.data, bleEvt->evt.gattc_evt.params.read_rsp. len);
               // this->_eventListener->BLEDeviceRemoteCharacteristicValueChanged(*this, *this->_remoteCharacteristicInfo[i].characteristic, bleEvt->evt.gattc_evt.params.read_rsp.data, bleEvt->evt.gattc_evt.params.read_rsp. len);
             // }
@@ -484,7 +534,9 @@ bool BLECentralRole::readRemoteCharacteristic(BLERemoteCharacteristic& character
     if (this->_remoteCharacteristicInfo[i].characteristic == &characteristic) {
       if (this->_remoteCharacteristicInfo[i].valueHandle && this->_remoteCharacteristicInfo[i].properties.read) {
         this->_remoteRequestInProgress = true;
-        success = (sd_ble_gattc_read(this->_connectionHandle, this->_remoteCharacteristicInfo[i].valueHandle, 0) == NRF_SUCCESS);
+        for(int currentPeripheral = 0; currentPeripheral < _allowedPeripherals; currentPeripheral++)
+          if(this->_connectionHandle[currentPeripheral] != BLE_CONN_HANDLE_INVALID)
+            success = (sd_ble_gattc_read(this->_connectionHandle[currentPeripheral], this->_remoteCharacteristicInfo[i].valueHandle, 0) == NRF_SUCCESS);
       }
       break;
     }
@@ -530,7 +582,9 @@ bool BLECentralRole::writeRemoteCharacteristic(BLERemoteCharacteristic& characte
 
         this->_remoteRequestInProgress = true;
 
-        success = (sd_ble_gattc_write(this->_connectionHandle, &writeParams) == NRF_SUCCESS);
+        for(int currentPeripheral = 0; currentPeripheral < _allowedPeripherals; currentPeripheral++)
+          if(this->_connectionHandle[currentPeripheral] != BLE_CONN_HANDLE_INVALID)
+            success = (sd_ble_gattc_write(this->_connectionHandle[currentPeripheral], &writeParams) == NRF_SUCCESS);
       }
       break;
     }
@@ -574,7 +628,9 @@ bool BLECentralRole::subscribeRemoteCharacteristic(BLERemoteCharacteristic& char
 
         this->_remoteRequestInProgress = true;
 
-        success = (sd_ble_gattc_write(this->_connectionHandle, &writeParams) == NRF_SUCCESS);
+        for(int currentPeripheral = 0; currentPeripheral < _allowedPeripherals; currentPeripheral++)
+          if(this->_connectionHandle[currentPeripheral] != BLE_CONN_HANDLE_INVALID)
+            success = (sd_ble_gattc_write(this->_connectionHandle[currentPeripheral], &writeParams) == NRF_SUCCESS);
       }
       break;
     }
@@ -607,7 +663,9 @@ bool BLECentralRole::unsubcribeRemoteCharacteristic(BLERemoteCharacteristic& cha
 
         this->_remoteRequestInProgress = true;
 
-        success = (sd_ble_gattc_write(this->_connectionHandle, &writeParams) == NRF_SUCCESS);
+        for(int currentPeripheral = 0; currentPeripheral < _allowedPeripherals; currentPeripheral++)
+          if(this->_connectionHandle[currentPeripheral] != BLE_CONN_HANDLE_INVALID)
+            success = (sd_ble_gattc_write(this->_connectionHandle[currentPeripheral], &writeParams) == NRF_SUCCESS);
       }
       break;
     }

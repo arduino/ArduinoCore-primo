@@ -30,6 +30,7 @@
 #include "BLERemoteService.h"
 #include "BLEUuid.h"
 
+#define  MAX_PERIPHERAL   7
 
 typedef void (*BLECentralEventHandler)(BLENode& node);
 
@@ -65,6 +66,8 @@ public:
     bool connected();
 	
     void disconnect();
+	
+    void allowMultilink(uint8_t linksNo);
 	
     void begin();
 	
@@ -108,13 +111,16 @@ private:
     bool                              _activeScan   = true;
     //uint8_t                         _selective;
 
-    BLENode                           _node;
+    BLENode                           _node[7];
+	BLENode                           _tempNode;
     BLECentralEventHandler            _eventHandlers[7];
     BLERemoteAttribute**              _remoteAttributes;
     unsigned char                     _numRemoteAttributes;
-    uint16_t                          _connectionHandle;
+    uint16_t                          _connectionHandle[7];
     ble_gap_scan_params_t             _scanParams;
-
+	uint8_t                           _peripheralConnected;
+    uint8_t                           _allowedPeripherals;
+	
     unsigned char                     _txBufferCount;
 	
     BLERemoteService                  _remoteGenericAttributeService;
