@@ -22,12 +22,26 @@
 
 // #define BLE_CENTRAL_DEBUG
 
+
 BLECentralRole::BLECentralRole() : 
+  _localAttributes(NULL),
+  _numLocalAttributes(0),
   _remoteAttributes(NULL),
-  _txBufferCount(0),
   _numRemoteAttributes(0),
+
+  _numLocalCharacteristics(0),
+  _localCharacteristicInfo(NULL),
+  
+  _txBufferCount(0),
   _peripheralConnected(0),
   _allowedPeripherals(1),
+
+  _genericAccessService("1800"),
+  _deviceNameCharacteristic("2a00", BLERead, 19),
+  _appearanceCharacteristic("2a01", BLERead, 2),
+  _genericAttributeService("1801"),
+  _servicesChangedCharacteristic("2a05", BLEIndicate, 4),
+
   _remoteGenericAttributeService("1801"),
   _remoteServicesChangedCharacteristic("2a05", BLEIndicate),
   _numRemoteServices(0),
@@ -36,6 +50,7 @@ BLECentralRole::BLECentralRole() :
   _numRemoteCharacteristics(0),
   _remoteCharacteristicInfo(NULL),
   _remoteRequestInProgress(false),
+
   _connectionHandle({BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID})
 {
 	BLEManager.registerCentral(this);
@@ -92,6 +107,32 @@ void BLECentralRole::setActiveScan(bool activeScan){
     _activeScan = activeScan;
 }
 
+void BLECentralRole::initLocalAttributes() {
+  this->_localAttributes = (BLELocalAttribute**)malloc(BLELocalAttribute::numAttributes() * sizeof(BLELocalAttribute*));
+
+  this->_localAttributes[0] = &this->_genericAccessService;
+  this->_localAttributes[1] = &this->_deviceNameCharacteristic;
+  this->_localAttributes[2] = &this->_appearanceCharacteristic;
+
+  this->_localAttributes[3] = &this->_genericAttributeService;
+  this->_localAttributes[4] = &this->_servicesChangedCharacteristic;
+
+  this->_numLocalAttributes = 5;
+}
+
+void BLECentralRole::addAttribute(BLELocalAttribute& attribute) {
+  this->addLocalAttribute(attribute);
+}
+
+void BLECentralRole::addLocalAttribute(BLELocalAttribute& localAttribute) {
+  if (this->_localAttributes == NULL) {
+    this->initLocalAttributes();
+  }
+
+  this->_localAttributes[this->_numLocalAttributes] = &localAttribute;
+  this->_numLocalAttributes++;
+}
+
 void BLECentralRole::addRemoteAttribute(BLERemoteAttribute& remoteAttribute) {
   if (this->_remoteAttributes == NULL) {
     this->_remoteAttributes = (BLERemoteAttribute**)malloc(BLERemoteAttribute::numAttributes() * sizeof(BLERemoteAttribute*));
@@ -143,6 +184,232 @@ void BLECentralRole::allowMultilink(uint8_t linksNo){
 }
 
 void BLECentralRole::begin(){
+
+  for (int i = 0; i < _numLocalAttributes; i++) {
+    BLELocalAttribute *localAttribute = _localAttributes[i];
+
+    if (localAttribute->type() == BLETypeCharacteristic) {
+      this->_numLocalCharacteristics++;
+    }
+  }
+
+  this->_numLocalCharacteristics -= 3; // 0x2a00, 0x2a01, 0x2a05
+
+  this->_localCharacteristicInfo = (struct localCharacteristicInfo*)malloc(sizeof(struct localCharacteristicInfo) * this->_numLocalCharacteristics);
+
+  unsigned char localCharacteristicIndex = 0;
+
+  uint16_t handle = 0;
+  BLEService *lastService = NULL;
+
+  for (int i = 0; i < _numLocalAttributes; i++) {
+    BLELocalAttribute *localAttribute = _localAttributes[i];
+    BLEUuid uuid = BLEUuid(localAttribute->uuid());
+    const unsigned char* uuidData = uuid.data();
+    unsigned char value[255];
+
+    ble_uuid_t nordicUUID;
+
+    if (uuid.length() == 2) {
+      nordicUUID.uuid = (uuidData[1] << 8) | uuidData[0];
+      nordicUUID.type = BLE_UUID_TYPE_BLE;
+    } else {
+      unsigned char uuidDataTemp[16];
+
+      memcpy(&uuidDataTemp, uuidData, sizeof(uuidDataTemp));
+
+      nordicUUID.uuid = (uuidData[13] << 8) | uuidData[12];
+
+      uuidDataTemp[13] = 0;
+      uuidDataTemp[12] = 0;
+
+      sd_ble_uuid_vs_add((ble_uuid128_t*)&uuidDataTemp, &nordicUUID.type);
+    }
+
+    if (localAttribute->type() == BLETypeService) {
+      BLEService *service = (BLEService *)localAttribute;
+
+      if (strcmp(service->uuid(), "1800") == 0 || strcmp(service->uuid(), "1801") == 0) {
+        continue; // skip
+      }
+
+      sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY, &nordicUUID, &handle);
+
+      lastService = service;
+    } else if (localAttribute->type() == BLETypeCharacteristic) {
+      BLECharacteristic *characteristic = (BLECharacteristic *)localAttribute;
+
+      characteristic->setValueChangeListener(*this);
+	  
+      if (strcmp(characteristic->uuid(), "2a00") == 0) {
+        ble_gap_conn_sec_mode_t secMode;
+        BLE_GAP_CONN_SEC_MODE_SET_OPEN(&secMode); // no security is needed
+
+      } else if (strcmp(characteristic->uuid(), "2a01") == 0) {
+        //do nothing
+      } else if (strcmp(characteristic->uuid(), "2a05") == 0) {
+        // do nothing
+      } else {
+        uint8_t properties = characteristic->properties() & 0xfe;
+        uint16_t valueLength = characteristic->valueLength();
+
+        this->_localCharacteristicInfo[localCharacteristicIndex].characteristic = characteristic;
+        this->_localCharacteristicInfo[localCharacteristicIndex].notifySubscribed = false;
+        this->_localCharacteristicInfo[localCharacteristicIndex].indicateSubscribed = false;
+        this->_localCharacteristicInfo[localCharacteristicIndex].service = lastService;
+
+        ble_gatts_char_md_t characteristicMetaData;
+        ble_gatts_attr_md_t clientCharacteristicConfigurationMetaData;
+        ble_gatts_attr_t    characteristicValueAttribute;
+        ble_gatts_attr_md_t characteristicValueAttributeMetaData;
+
+        memset(&characteristicMetaData, 0, sizeof(characteristicMetaData));
+
+        memcpy(&characteristicMetaData.char_props, &properties, 1);
+
+        characteristicMetaData.p_char_user_desc  = NULL;
+        characteristicMetaData.p_char_pf         = NULL;
+        characteristicMetaData.p_user_desc_md    = NULL;
+        characteristicMetaData.p_cccd_md         = NULL;
+        characteristicMetaData.p_sccd_md         = NULL;
+
+        if (properties & (BLENotify | BLEIndicate)) {
+          memset(&clientCharacteristicConfigurationMetaData, 0, sizeof(clientCharacteristicConfigurationMetaData));
+
+          BLE_GAP_CONN_SEC_MODE_SET_OPEN(&clientCharacteristicConfigurationMetaData.read_perm);
+          BLE_GAP_CONN_SEC_MODE_SET_OPEN(&clientCharacteristicConfigurationMetaData.write_perm);
+
+          clientCharacteristicConfigurationMetaData.vloc = BLE_GATTS_VLOC_STACK;
+
+          characteristicMetaData.p_cccd_md = &clientCharacteristicConfigurationMetaData;
+        }
+
+        memset(&characteristicValueAttributeMetaData, 0, sizeof(characteristicValueAttributeMetaData));
+
+        if (properties & (BLERead | BLENotify | BLEIndicate)) {
+          // if (this->_bondStore && !this->_bondStore->hasData()) {
+            // if(this->_lesc > 1)
+                // BLE_GAP_CONN_SEC_MODE_SET_LESC_ENC_WITH_MITM(&characteristicValueAttributeMetaData.read_perm);
+            // else
+                // BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&characteristicValueAttributeMetaData.read_perm);
+          // } else {
+            BLE_GAP_CONN_SEC_MODE_SET_OPEN(&characteristicValueAttributeMetaData.read_perm);
+          // }
+        }
+
+        if (properties & (BLEWriteWithoutResponse | BLEWrite)) {
+          // if (this->_bondStore && !this->_bondStore->hasData()) {
+            // if(this->_lesc > 1)
+                // BLE_GAP_CONN_SEC_MODE_SET_LESC_ENC_WITH_MITM(&characteristicValueAttributeMetaData.write_perm);
+            // else
+                // BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&characteristicValueAttributeMetaData.write_perm);
+          // } else {
+            BLE_GAP_CONN_SEC_MODE_SET_OPEN(&characteristicValueAttributeMetaData.write_perm);
+          // }
+        }
+
+        characteristicValueAttributeMetaData.vloc       = BLE_GATTS_VLOC_STACK;
+        characteristicValueAttributeMetaData.rd_auth    = 0;
+        characteristicValueAttributeMetaData.wr_auth    = 0;
+        characteristicValueAttributeMetaData.vlen       = !characteristic->fixedLength();
+
+        for (int j = (i + 1); j < _numLocalAttributes; j++) {
+          localAttribute = _localAttributes[j];
+
+          if (localAttribute->type() != BLETypeDescriptor) {
+            break;
+          }
+
+          BLEDescriptor *descriptor = (BLEDescriptor *)localAttribute;
+
+          if (strcmp(descriptor->uuid(), "2901") == 0) {
+            characteristicMetaData.p_char_user_desc        = (uint8_t*)descriptor->value();
+            characteristicMetaData.char_user_desc_max_size = descriptor->valueLength();
+            characteristicMetaData.char_user_desc_size     = descriptor->valueLength();
+          } else if (strcmp(descriptor->uuid(), "2904") == 0) {
+            characteristicMetaData.p_char_pf = (ble_gatts_char_pf_t *)descriptor->value();
+          }
+        }
+
+        memset(&characteristicValueAttribute, 0, sizeof(characteristicValueAttribute));
+
+        characteristicValueAttribute.p_uuid       = &nordicUUID;
+        characteristicValueAttribute.p_attr_md    = &characteristicValueAttributeMetaData;
+        characteristicValueAttribute.init_len     = valueLength;
+        characteristicValueAttribute.init_offs    = 0;
+        characteristicValueAttribute.max_len      = characteristic->valueSize();
+        characteristicValueAttribute.p_value      = NULL;
+
+        sd_ble_gatts_characteristic_add(BLE_GATT_HANDLE_INVALID, &characteristicMetaData, &characteristicValueAttribute, &this->_localCharacteristicInfo[localCharacteristicIndex].handles);
+
+        if (valueLength) {
+          for (int j = 0; j < valueLength; j++) {
+            value[j] = (*characteristic)[j];
+          }
+
+          ble_gatts_value_t val;
+
+          val.len = valueLength;
+          val.offset = 0;
+          val.p_value = (uint8_t*)value;
+          sd_ble_gatts_value_set(BLE_CONN_HANDLE_INVALID, this->_localCharacteristicInfo[localCharacteristicIndex].handles.value_handle, &val);
+		}
+
+        localCharacteristicIndex++;
+      }
+    } else if (localAttribute->type() == BLETypeDescriptor) {
+      BLEDescriptor *descriptor = (BLEDescriptor *)localAttribute;
+
+      if (strcmp(descriptor->uuid(), "2901") == 0 ||
+          strcmp(descriptor->uuid(), "2902") == 0 ||
+          strcmp(descriptor->uuid(), "2903") == 0 ||
+          strcmp(descriptor->uuid(), "2904") == 0) {
+        continue; // skip
+      }
+
+      uint16_t valueLength = descriptor->valueLength();
+
+      ble_gatts_attr_t descriptorAttribute;
+      ble_gatts_attr_md_t descriptorMetaData;
+
+      memset(&descriptorAttribute, 0, sizeof(descriptorAttribute));
+      memset(&descriptorMetaData, 0, sizeof(descriptorMetaData));
+
+      descriptorMetaData.vloc = BLE_GATTS_VLOC_STACK;
+      descriptorMetaData.vlen = (valueLength == descriptor->valueLength()) ? 0 : 1;
+
+      // if (this->_bondStore && !this->_bondStore->hasData()) {
+        // if(this->_lesc > 1)
+            // BLE_GAP_CONN_SEC_MODE_SET_LESC_ENC_WITH_MITM(&descriptorMetaData.read_perm);
+        // else
+            // BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&descriptorMetaData.read_perm);
+      // } else {
+        BLE_GAP_CONN_SEC_MODE_SET_OPEN(&descriptorMetaData.read_perm);
+//      }
+
+      descriptorAttribute.p_uuid    = &nordicUUID;
+      descriptorAttribute.p_attr_md = &descriptorMetaData;
+      descriptorAttribute.init_len  = valueLength;
+      descriptorAttribute.max_len   = descriptor->valueLength();
+      descriptorAttribute.p_value   = NULL;
+
+      sd_ble_gatts_descriptor_add(BLE_GATT_HANDLE_INVALID, &descriptorAttribute, &handle);
+
+      if (valueLength) {
+        for (int j = 0; j < valueLength; j++) {
+          value[j] = (*descriptor)[j];
+        }
+
+          ble_gatts_value_t val;
+
+          val.len = valueLength;
+          val.offset = 0;
+          val.p_value = (uint8_t*)value;
+          sd_ble_gatts_value_set(BLE_CONN_HANDLE_INVALID, handle, &val);
+      }
+    }
+  }
+
 
   for (int i = 0; i < this->_numRemoteAttributes; i++) {
     BLERemoteAttribute* remoteAttribute = this->_remoteAttributes[i];
@@ -262,17 +529,6 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
               eventHandler(_node[index]);
             }
 
-            // if (this->_minimumConnectionInterval >= BLE_GAP_CP_MIN_CONN_INTVL_MIN &&
-                // this->_maximumConnectionInterval <= BLE_GAP_CP_MAX_CONN_INTVL_MAX) {
-              // ble_gap_conn_params_t gap_conn_params;
-
-              // gap_conn_params.min_conn_interval = this->_minimumConnectionInterval;  // in 1.25ms units
-              // gap_conn_params.max_conn_interval = this->_maximumConnectionInterval;  // in 1.25ms unit
-              // gap_conn_params.slave_latency     = 0;
-              // gap_conn_params.conn_sup_timeout  = 4000 / 10; // in 10ms unit
-
-              // sd_ble_gap_conn_param_update(this->_connectionHandle, &gap_conn_params);
-            // }
             if (this->_numRemoteServices > 0) {
 			  sd_ble_gattc_primary_services_discover(this->_connectionHandle[index], 1, NULL);
             }
@@ -428,12 +684,7 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
 
           for (int i = 0; i < this->_numRemoteCharacteristics; i++) {
             if (this->_remoteCharacteristicInfo[i].valueHandle == handle) {
-            // BLERemoteCharacteristicEventHandler * evtHandler = *this->_remoteCharacteristicInfo[i].characteristic->_eventHandlers[BLEValueUpdated]);
-            // if(evtHandler)
                 this->_remoteCharacteristicInfo[i].characteristic->setValue(_node[j], bleEvt->evt.gattc_evt.params.read_rsp.data, bleEvt->evt.gattc_evt.params.read_rsp.len); 
-              // if (this->_eventListener) {
-                // this->_eventListener->BLEDeviceRemoteCharacteristicValueChanged(*this, *this->_remoteCharacteristicInfo[i].characteristic, bleEvt->evt.gattc_evt.params.read_rsp.data, bleEvt->evt.gattc_evt.params.read_rsp. len);
-              // }
               break;
             }
           }
@@ -474,12 +725,7 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
 
         for (int i = 0; i < this->_numRemoteCharacteristics; i++) {
           if (this->_remoteCharacteristicInfo[i].valueHandle == handle) {
-            // BLERemoteCharacteristicEventHandler * evtHandler = *this->_remoteCharacteristicInfo[i].characteristic->_eventHandlers[BLEValueUpdated]);
-            // if(evtHandler)
                 this->_remoteCharacteristicInfo[i].characteristic->setValue(_node[currentPeripheral], bleEvt->evt.gattc_evt.params.read_rsp.data, bleEvt->evt.gattc_evt.params.read_rsp.len); 
-				// BLEPeripheral::BLEDeviceRemoteCharacteristicValueChanged(*this, *this->_remoteCharacteristicInfo[i].characteristic, bleEvt->evt.gattc_evt.params.read_rsp.data, bleEvt->evt.gattc_evt.params.read_rsp. len);
-              // this->_eventListener->BLEDeviceRemoteCharacteristicValueChanged(*this, *this->_remoteCharacteristicInfo[i].characteristic, bleEvt->evt.gattc_evt.params.read_rsp.data, bleEvt->evt.gattc_evt.params.read_rsp. len);
-            // }
             break;
           }
         }
@@ -502,6 +748,71 @@ void BLECentralRole::setEventHandler(BLEPeripheralEvent event, BLECentralEventHa
 	if (event < sizeof(this->_eventHandlers)) {
     this->_eventHandlers[event] = eventHandler;
   }
+}
+
+bool BLECentralRole::updateCharacteristicValue(BLECharacteristic& characteristic) {
+  bool success = true;
+
+  for (int i = 0; i < this->_numLocalCharacteristics; i++) {
+    struct localCharacteristicInfo* localCharacteristicInfo = &this->_localCharacteristicInfo[i];
+
+    if (localCharacteristicInfo->characteristic == &characteristic) {
+
+      uint16_t valueLength = characteristic.valueLength();
+
+      ble_gatts_value_t val;
+
+      val.len = valueLength;
+      val.offset = 0;
+      val.p_value = (uint8_t*)characteristic.value();
+      sd_ble_gatts_value_set(BLE_CONN_HANDLE_INVALID, localCharacteristicInfo->handles.value_handle, &val);
+	
+
+      ble_gatts_hvx_params_t hvxParams;
+
+      memset(&hvxParams, 0, sizeof(hvxParams));
+
+      hvxParams.handle = localCharacteristicInfo->handles.value_handle;
+      hvxParams.offset = 0;
+      hvxParams.p_data = NULL;
+      hvxParams.p_len  = &valueLength;
+
+      if (localCharacteristicInfo->notifySubscribed) {
+        if (this->_txBufferCount > 0) {
+          this->_txBufferCount--;
+
+          hvxParams.type = BLE_GATT_HVX_NOTIFICATION;
+
+        for(int currentPeripheral = 0; currentPeripheral < _allowedPeripherals; currentPeripheral++)
+          if(this->_connectionHandle[currentPeripheral] != BLE_CONN_HANDLE_INVALID)
+            sd_ble_gatts_hvx(this->_connectionHandle[currentPeripheral], &hvxParams);
+        } else {
+          success = false;
+        }
+      }
+
+      if (localCharacteristicInfo->indicateSubscribed) {
+        if (this->_txBufferCount > 0) {
+          this->_txBufferCount--;
+
+          hvxParams.type = BLE_GATT_HVX_INDICATION;
+
+        for(int currentPeripheral = 0; currentPeripheral < _allowedPeripherals; currentPeripheral++)
+          if(this->_connectionHandle[currentPeripheral] != BLE_CONN_HANDLE_INVALID)
+            sd_ble_gatts_hvx(this->_connectionHandle[currentPeripheral], &hvxParams);
+        } else {
+          success = false;
+        }
+      }
+    }
+  }
+
+  return success;
+}
+
+
+bool BLECentralRole::characteristicValueChanged(BLECharacteristic& characteristic) {
+  return this->updateCharacteristicValue(characteristic);
 }
 
 bool BLECentralRole::canNotifyCharacteristic(BLECharacteristic& /*characteristic*/) {

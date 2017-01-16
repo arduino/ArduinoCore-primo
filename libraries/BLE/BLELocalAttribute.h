@@ -10,6 +10,7 @@
 class BLELocalAttribute : public BLEAttribute
 {
   friend class BLEPeripheral;
+  friend class BLECentralRole;
 
   public:
     BLELocalAttribute(const char* uuid, enum BLEAttributeType type);

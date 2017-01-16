@@ -34,7 +34,8 @@
 
 typedef void (*BLECentralEventHandler)(BLENode& node);
 
-class BLECentralRole : public BLERemoteCharacteristicValueChangeListener 
+class BLECentralRole : public BLECharacteristicValueChangeListener,
+                       public BLERemoteCharacteristicValueChangeListener 
 {
 public:
     BLECentralRole();
@@ -54,7 +55,11 @@ public:
     void setScanTimeout(short scanTimeout);
 	
     void setActiveScan(bool activeScan);
-	
+
+    void addAttribute(BLELocalAttribute& attribute);
+
+    void addLocalAttribute(BLELocalAttribute& localAttribute);
+
     void addRemoteAttribute(BLERemoteAttribute& remoteAttribute);
 	
     void startScan();
@@ -74,20 +79,32 @@ public:
     void poll(ble_evt_t *bleEvt = 0);
 	
     void setEventHandler(BLEPeripheralEvent event, BLECentralEventHandler);
-	
-    virtual bool canNotifyCharacteristic(BLECharacteristic& characteristic);
-    virtual bool canIndicateCharacteristic(BLECharacteristic& characteristic);
 
-    virtual bool canReadRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
-    virtual bool readRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
-    virtual bool canWriteRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
-    virtual bool writeRemoteCharacteristic(BLERemoteCharacteristic& characteristic, const unsigned char value[], unsigned char length);
-    virtual bool canSubscribeRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
-    virtual bool subscribeRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
-    virtual bool canUnsubscribeRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
-    virtual bool unsubcribeRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
+    bool updateCharacteristicValue(BLECharacteristic& characteristic);
+    bool characteristicValueChanged(BLECharacteristic& characteristic);
+    bool canNotifyCharacteristic(BLECharacteristic& characteristic);
+    bool canIndicateCharacteristic(BLECharacteristic& characteristic);
+
+    bool canReadRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
+    bool readRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
+    bool canWriteRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
+    bool writeRemoteCharacteristic(BLERemoteCharacteristic& characteristic, const unsigned char value[], unsigned char length);
+    bool canSubscribeRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
+    bool subscribeRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
+    bool canUnsubscribeRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
+    bool unsubcribeRemoteCharacteristic(BLERemoteCharacteristic& characteristic);
 	
 private:
+    void initLocalAttributes();
+
+    struct localCharacteristicInfo {
+      BLECharacteristic* characteristic;
+      BLEService* service;
+
+      ble_gatts_char_handles_t handles;
+      bool notifySubscribed;
+      bool indicateSubscribed;
+    };
 
     struct remoteServiceInfo {
       BLERemoteService* service;
@@ -112,16 +129,29 @@ private:
     //uint8_t                         _selective;
 
     BLENode                           _node[7];
-	BLENode                           _tempNode;
+    BLENode                           _tempNode;
     BLECentralEventHandler            _eventHandlers[7];
+
+    BLELocalAttribute**               _localAttributes;
+    unsigned char                     _numLocalAttributes;
     BLERemoteAttribute**              _remoteAttributes;
     unsigned char                     _numRemoteAttributes;
+
+    unsigned char                     _numLocalCharacteristics;
+    struct localCharacteristicInfo*   _localCharacteristicInfo;
+
     uint16_t                          _connectionHandle[7];
     ble_gap_scan_params_t             _scanParams;
-	uint8_t                           _peripheralConnected;
+    uint8_t                           _peripheralConnected;
     uint8_t                           _allowedPeripherals;
 	
     unsigned char                     _txBufferCount;
+	
+    BLEService                        _genericAccessService;
+    BLECharacteristic                 _deviceNameCharacteristic;
+    BLECharacteristic                 _appearanceCharacteristic;
+    BLEService                        _genericAttributeService;
+    BLECharacteristic                 _servicesChangedCharacteristic;
 	
     BLERemoteService                  _remoteGenericAttributeService;
     BLERemoteCharacteristic           _remoteServicesChangedCharacteristic;
