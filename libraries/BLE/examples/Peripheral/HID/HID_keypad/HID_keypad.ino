@@ -2,7 +2,7 @@
    Licensed under the MIT license. See LICENSE file in the project root for full license information.
    Modified by Chiara Ruggeri <chiara@arduino.org>
    
-   This example shows the use of the HID BLE library for the Arduino Primo board.
+   This example shows the use of the HID BLE library.
    Connect the keypad to the board using the following configuration:
    rows: A0, A1, A2, A3
    columns: 7, 6, 5

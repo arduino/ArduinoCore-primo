@@ -7,6 +7,7 @@
    is pressed the value is automatically updated on your central and the led will switch accordingly.
    You can use nRFConnect app to read/write the characteristic
    https://www.nordicsemi.com/eng/Products/Nordic-mobile-Apps/nRF-Connect-for-mobile-previously-called-nRF-Master-Control-Panel
+   or use another board with led_switch_client example in File->Examples->BLE->Central menu.
  */
 
 #include <BLEPeripheral.h>

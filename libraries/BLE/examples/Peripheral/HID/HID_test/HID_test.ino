@@ -2,7 +2,7 @@
    Licensed under the MIT license. See LICENSE file in the project root for full license information.
    Modified by Chiara Ruggeri <chiara@arduino.org>
    
-   This example shows the use of the HID BLE library for the Arduino Primo board.
+   This example shows the use of the HID BLE library.
    Connect the board to the phone through the phone's bluetooth settings,
    open a serial terminal and type any characters.
 */

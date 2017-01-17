@@ -4,6 +4,8 @@
 
  * Serial Port over BLE
  * Create UART service compatible with Nordic's *nRF Toolbox* and Adafruit's *Bluefruit LE* iOS/Android apps.
+ * You can also use another board with serial_client example in File->Examples->BLE->Central menu to set up
+ * a BLE serial connection between two different boards.
  *
  * BLESerial class implements same protocols as Arduino's built-in Serial class and can be used as it's wireless
  * replacement. Data transfers are routed through a BLE service with TX and RX characteristics. To make the 

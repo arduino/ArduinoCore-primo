@@ -3,13 +3,15 @@
   
   Written by Chiara Ruggeri (chiara@arduino.org)
   
-  This example for the Arduino Primo board shows the client
-  capabilities of the BLEPeripheral library.
+  This example shows the client capabilities of the
+  BLEPeripheral library.
   It acts as a CTS client and recovers the current date and
   time from a central every time USER1 button is pressed.
   The informations are transmitted as a string. A parse to
   byte type is needed to read the correct values.
-  You can use nRFConnect app to set up a CTS server.
+  You can use nRFConnect app to set up a CTS server or use
+  another board with CTSServer example in
+  File->Examples->BLE->Central menu.
   To have further informations about the CTS service please
   refer to the Bluetooth specifications:
   https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.service.current_time.xml

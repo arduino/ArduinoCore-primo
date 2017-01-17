@@ -2,7 +2,7 @@
    Licensed under the MIT license. See LICENSE file in the project root for full license information.
    Modified by Chiara Ruggeri <chiara@arduino.org>
 
-   This example shows how to use the BLEPeripheral library on Arduino Primo board.
+   This example shows how to use the BLEPeripheral library.
 */
 
 #include <BLEPeripheral.h>
