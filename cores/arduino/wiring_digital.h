@@ -26,6 +26,7 @@
 #define INPUT           (0x0ul)
 #define OUTPUT          (0x1ul)
 #define INPUT_PULLUP    (0x2ul)
+#define INPUT_PULLDOWN  (0x4ul)
 #define STM32_IT	(0x3ul)
 
 #define LOW             (0x0ul)

@@ -256,6 +256,11 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
       // Set pin to input mode with pull-up resistor enabled
 	  nrf_gpio_cfg_input(g_APinDescription[ulPin].ulPin, NRF_GPIO_PIN_PULLUP);     
 	break ;
+	
+	case INPUT_PULLDOWN:
+      // Set pin to input mode with pull-down resistor enabled
+	  nrf_gpio_cfg_input(g_APinDescription[ulPin].ulPin, NRF_GPIO_PIN_PULLDOWN);
+	break ;
 
     case OUTPUT:
       // Set pin to output mode
