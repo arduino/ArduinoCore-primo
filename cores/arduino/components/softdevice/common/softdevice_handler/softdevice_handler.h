@@ -64,7 +64,6 @@
 #include "app_error.h"
 #include "app_util.h"
 #include "ble_stack_handler_types.h"
-#include "ant_stack_handler_types.h"
 #if defined(BLE_STACK_SUPPORT_REQD)
     #include "ble.h"
 #endif
