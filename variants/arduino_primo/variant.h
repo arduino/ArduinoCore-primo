@@ -61,6 +61,16 @@ extern "C"{
 #define NUM_ANALOG_INPUTS    (5u)
 #define NUM_ANALOG_OUTPUTS   (1u)
 
+#define digitalPinToPort(P)        ( NRF_P0 )
+#define digitalPinToBitMask(P)     ( 1 << g_APinDescription[P].ulPin )
+#define digitalPinToTimer(P)       ( )
+#define portOutputRegister(port)   ( &(port->OUT) )
+#define portInputRegister(port)    ( &(port->IN)  )
+#define portModeRegister(port)     ( &(port->DIR) )
+#define analogInPinToBit(P)        ( g_APinDescription[P].ulPin )
+#define digitalPinHasPWM(P)        ( g_APinDescription[P].ulPWMChannel != NOT_ON_PWM )
+#define digitalPinToInterrupt(P)   ( P )
+
 #define PIN_LED_13           (13u)
 #define PIN_LED              PIN_LED_13
 #define LED_BUILTIN          PIN_LED_13
