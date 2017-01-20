@@ -35,6 +35,8 @@ BLECentralRole::BLECentralRole() :
   _txBufferCount(0),
   _peripheralConnected(0),
   _allowedPeripherals(1),
+  _minimumConnectionInterval(0),
+  _maximumConnectionInterval(0),
 
   _genericAccessService("1800"),
   _deviceNameCharacteristic("2a00", BLERead, 19),
@@ -51,8 +53,13 @@ BLECentralRole::BLECentralRole() :
   _remoteCharacteristicInfo(NULL),
   _remoteRequestInProgress(false),
 
-  _connectionHandle({BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID})
+  _connectionHandle({BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID, BLE_CONN_HANDLE_INVALID}),
+  _bond(false),
+  _bondStore()
 {
+    this->_encKey = (ble_gap_enc_key_t*)&this->_bondData;
+    memset(&this->_bondData, 0, sizeof(this->_bondData));
+
 	BLEManager.registerCentral(this);
 }
 
@@ -105,6 +112,15 @@ void BLECentralRole::setScanTimeout(short scanTimeout){
 
 void BLECentralRole::setActiveScan(bool activeScan){
     _activeScan = activeScan;
+}
+
+void BLECentralRole::setConnectionInterval(unsigned short minimumConnectionInterval, unsigned short maximumConnectionInterval) {
+  if (maximumConnectionInterval < minimumConnectionInterval) {
+    maximumConnectionInterval = minimumConnectionInterval;
+  }
+
+  this->_minimumConnectionInterval = minimumConnectionInterval;
+  this->_maximumConnectionInterval = maximumConnectionInterval;
 }
 
 void BLECentralRole::initLocalAttributes() {
@@ -181,6 +197,25 @@ void BLECentralRole::allowMultilink(uint8_t linksNo){
   if(linksNo > MAX_PERIPHERAL)
     linksNo = MAX_PERIPHERAL;
   _allowedPeripherals = linksNo;
+}
+
+void BLECentralRole::setBondStore(BLEBondStore& bondStore){
+  this->_bondStore = bondStore;
+}
+
+void BLECentralRole::enableBond(BLEBondingType type){
+  this->_bond = true;
+  this->clearBondStoreData();
+}
+
+
+void BLECentralRole::clearBondStoreData() {
+  this->_bondStore.clearData(); 
+}
+
+void BLECentralRole::saveBondData(){
+  if(this->_bondStore.getTempData() != NULL)
+    this->_bondStore.putData(this->_bondStore.getTempData(), this->_bondStore.getTempOffset(), this->_bondStore.getTempLength());
 }
 
 void BLECentralRole::begin(){
@@ -287,25 +322,25 @@ void BLECentralRole::begin(){
         memset(&characteristicValueAttributeMetaData, 0, sizeof(characteristicValueAttributeMetaData));
 
         if (properties & (BLERead | BLENotify | BLEIndicate)) {
-          // if (this->_bondStore && !this->_bondStore->hasData()) {
+          if (this->_bond) {
             // if(this->_lesc > 1)
                 // BLE_GAP_CONN_SEC_MODE_SET_LESC_ENC_WITH_MITM(&characteristicValueAttributeMetaData.read_perm);
             // else
-                // BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&characteristicValueAttributeMetaData.read_perm);
-          // } else {
+                BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&characteristicValueAttributeMetaData.read_perm);
+          } else {
             BLE_GAP_CONN_SEC_MODE_SET_OPEN(&characteristicValueAttributeMetaData.read_perm);
-          // }
+          }
         }
 
         if (properties & (BLEWriteWithoutResponse | BLEWrite)) {
-          // if (this->_bondStore && !this->_bondStore->hasData()) {
+          if (this->_bond) {
             // if(this->_lesc > 1)
                 // BLE_GAP_CONN_SEC_MODE_SET_LESC_ENC_WITH_MITM(&characteristicValueAttributeMetaData.write_perm);
             // else
-                // BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&characteristicValueAttributeMetaData.write_perm);
-          // } else {
+                BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&characteristicValueAttributeMetaData.write_perm);
+          } else {
             BLE_GAP_CONN_SEC_MODE_SET_OPEN(&characteristicValueAttributeMetaData.write_perm);
-          // }
+          }
         }
 
         characteristicValueAttributeMetaData.vloc       = BLE_GATTS_VLOC_STACK;
@@ -378,14 +413,14 @@ void BLECentralRole::begin(){
       descriptorMetaData.vloc = BLE_GATTS_VLOC_STACK;
       descriptorMetaData.vlen = (valueLength == descriptor->valueLength()) ? 0 : 1;
 
-      // if (this->_bondStore && !this->_bondStore->hasData()) {
+      if (this->_bond) {
         // if(this->_lesc > 1)
             // BLE_GAP_CONN_SEC_MODE_SET_LESC_ENC_WITH_MITM(&descriptorMetaData.read_perm);
         // else
-            // BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&descriptorMetaData.read_perm);
-      // } else {
+            BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&descriptorMetaData.read_perm);
+      } else {
         BLE_GAP_CONN_SEC_MODE_SET_OPEN(&descriptorMetaData.read_perm);
-//      }
+      }
 
       descriptorAttribute.p_uuid    = &nordicUUID;
       descriptorAttribute.p_attr_md = &descriptorMetaData;
@@ -488,8 +523,15 @@ void BLECentralRole::begin(){
     }
   }
   
+  // if (this->_bondStore.hasData()) {
+// #ifdef BLE_CENTRAL_DEBUG
+    // Serial.println(F("Restoring bond data"));
+// #endif
+    // this->_bondStore.getData(this->_bondData, 0, sizeof(this->_bondData));
+  // }
+  
   this->startScan();
-	
+
 }
 
 void BLECentralRole::poll(ble_evt_t *bleEvt){
@@ -529,10 +571,40 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
               eventHandler(_node[index]);
             }
 
+            if (this->_minimumConnectionInterval >= BLE_GAP_CP_MIN_CONN_INTVL_MIN &&
+                this->_maximumConnectionInterval <= BLE_GAP_CP_MAX_CONN_INTVL_MAX) {
+              ble_gap_conn_params_t gap_conn_params;
+
+              gap_conn_params.min_conn_interval = this->_minimumConnectionInterval;  // in 1.25ms units
+              gap_conn_params.max_conn_interval = this->_maximumConnectionInterval;  // in 1.25ms unit
+              gap_conn_params.slave_latency     = 0;
+              gap_conn_params.conn_sup_timeout  = 4000 / 10; // in 10ms unit
+
+              sd_ble_gap_conn_param_update(this->_connectionHandle[index], &gap_conn_params);
+            }
+
+			
             if (this->_numRemoteServices > 0) {
 			  sd_ble_gattc_primary_services_discover(this->_connectionHandle[index], 1, NULL);
             }
+            if(this->_bond){
+              ble_gap_sec_params_t gapSecParams;
 
+              memset(&gapSecParams, 0x00, sizeof(ble_gap_sec_params_t));
+
+              gapSecParams.kdist_own.enc = 1;
+
+              gapSecParams.bond             = true;
+              gapSecParams.lesc             = false;//(bool)this->_lesc;
+              gapSecParams.mitm             = false;//this->_mitm;
+              gapSecParams.io_caps          = BLE_GAP_IO_CAPS_NONE;//this->_io_caps;
+              gapSecParams.oob              = false;
+              gapSecParams.min_key_size     = 7;
+              gapSecParams.max_key_size     = 16;
+
+              sd_ble_gap_authenticate(this->_connectionHandle[index], &gapSecParams);
+			}
+			
             _peripheralConnected++;
             if(_peripheralConnected < _allowedPeripherals)
               this->startScan();
@@ -566,12 +638,82 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
         this->startScan();
         break;
 
+      case BLE_GAP_EVT_CONN_PARAM_UPDATE:
+#ifdef BLE_CENTRAL_DEBUG
+        Serial.print(F("Evt Conn Param Update 0x"));
+        Serial.print(bleEvt->evt.gap_evt.params.conn_param_update.conn_params.min_conn_interval, HEX);
+        Serial.print(F(" 0x"));
+        Serial.print(bleEvt->evt.gap_evt.params.conn_param_update.conn_params.max_conn_interval, HEX);
+        Serial.print(F(" 0x"));
+        Serial.print(bleEvt->evt.gap_evt.params.conn_param_update.conn_params.slave_latency, HEX);
+        Serial.print(F(" 0x"));
+        Serial.print(bleEvt->evt.gap_evt.params.conn_param_update.conn_params.conn_sup_timeout, HEX);
+        Serial.println();
+#endif
+        break;
+
+      case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
+#ifdef BLE_CENTRAL_DEBUG
+        Serial.print(F("Evt Sec Params Request "));
+        Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.bond);
+        Serial.print(F(" "));
+        Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.mitm);
+        Serial.print(F(" "));
+        Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.io_caps);
+        Serial.print(F(" "));
+        Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.oob);
+        Serial.print(F(" "));
+        Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.min_key_size);
+        Serial.print(F(" "));
+        Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.max_key_size);
+        Serial.println();
+#endif
+        if (this->_bond) {
+          ble_gap_sec_params_t gapSecParams;
+
+          memset(&gapSecParams, 0x00, sizeof(ble_gap_sec_params_t));
+
+          gapSecParams.kdist_own.enc = 1;
+          gapSecParams.bond             = true;
+          gapSecParams.lesc             = false;
+          gapSecParams.mitm             = false;
+          gapSecParams.io_caps          = BLE_GAP_IO_CAPS_NONE;
+          gapSecParams.oob              = false;
+          gapSecParams.min_key_size     = 7;
+          gapSecParams.max_key_size     = 16;
+
+          ble_gap_sec_keyset_t keyset;
+          memset(&keyset, 0, sizeof(ble_gap_sec_keyset_t));
+
+          keyset.keys_peer.p_enc_key  = NULL;
+          keyset.keys_peer.p_id_key   = NULL;
+          keyset.keys_peer.p_sign_key = NULL;
+          keyset.keys_own.p_enc_key   = this->_encKey;
+          keyset.keys_own.p_id_key    = NULL;
+          keyset.keys_own.p_sign_key  = NULL;
+		  
+          sd_ble_gap_sec_params_reply(bleEvt->evt.gap_evt.conn_handle, BLE_GAP_SEC_STATUS_SUCCESS, NULL, &keyset);
+        }
+
+	  break;
+
       case BLE_EVT_TX_COMPLETE:
 #ifdef BLE_CENTRAL_DEBUG
         Serial.print(F("Evt TX complete "));
         Serial.println(bleEvt->evt.common_evt.params.tx_complete.count);
 #endif
         this->_txBufferCount += bleEvt->evt.common_evt.params.tx_complete.count;
+      break;
+
+      case BLE_GATTS_EVT_SYS_ATTR_MISSING:
+#ifdef BLE_CENTRAL_DEBUG
+        Serial.print(F("Evt Sys Attr Missing "));
+        Serial.println(bleEvt->evt.gatts_evt.params.sys_attr_missing.hint);
+#endif
+        uint8_t peripheral;
+        for(peripheral = 0; peripheral < _allowedPeripherals; peripheral++)
+          if(this->_connectionHandle[peripheral] == bleEvt->evt.gap_evt.conn_handle)
+        sd_ble_gatts_sys_attr_set(this->_connectionHandle[peripheral], NULL, 0, 0);
       break;
 
       case BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP:
@@ -731,6 +873,107 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
         }
         break;
       }
+
+      case BLE_GAP_EVT_CONN_SEC_UPDATE:
+#ifdef BLE_CENTRAL_DEBUG
+        Serial.print(F("Evt Conn Sec Update "));
+        Serial.print(bleEvt->evt.gap_evt.params.conn_sec_update.conn_sec.sec_mode.sm);
+        Serial.print(F(" "));
+        Serial.print(bleEvt->evt.gap_evt.params.conn_sec_update.conn_sec.sec_mode.lv);
+        Serial.print(F(" "));
+        Serial.print(bleEvt->evt.gap_evt.params.conn_sec_update.conn_sec.encr_key_size);
+        Serial.println();
+#endif
+        break;
+
+     case BLE_GATTS_EVT_WRITE: {
+#ifdef BLE_CENTRAL_DEBUG
+        Serial.print(F("Evt Write, handle = "));
+        Serial.println(bleEvt->evt.gatts_evt.params.write.handle, DEC);
+
+        BLEUtil::printBuffer(bleEvt->evt.gatts_evt.params.write.data, bleEvt->evt.gatts_evt.params.write.len);
+#endif
+
+        uint16_t handle = bleEvt->evt.gatts_evt.params.write.handle;
+        uint8_t k = 0;
+        for(; k < _allowedPeripherals; k++)
+          if(this->_connectionHandle[k] == bleEvt->evt.gap_evt.conn_handle)
+            break;
+		
+        for (int i = 0; i < this->_numLocalCharacteristics; i++) {
+          struct localCharacteristicInfo* localCharacteristicInfo = &this->_localCharacteristicInfo[i];
+
+          if (localCharacteristicInfo->handles.value_handle == handle) {
+              localCharacteristicInfo->characteristic->setValue(this->_node[k], bleEvt->evt.gatts_evt.params.write.data, bleEvt->evt.gatts_evt.params.write.len);
+              break;
+          } else if (localCharacteristicInfo->handles.cccd_handle == handle) {
+            uint8_t* data  = &bleEvt->evt.gatts_evt.params.write.data[0];
+            uint16_t value = data[0] | (data[1] << 8);
+
+            localCharacteristicInfo->notifySubscribed = (value & 0x0001);
+            localCharacteristicInfo->indicateSubscribed = (value & 0x0002);
+
+            bool subscribed = (localCharacteristicInfo->notifySubscribed || localCharacteristicInfo->indicateSubscribed);
+
+            if (subscribed != localCharacteristicInfo->characteristic->subscribed()) {
+              localCharacteristicInfo->characteristic->setSubscribed(this->_node[k], subscribed);
+              break;
+            }
+          }
+        }
+        break;
+      }
+
+      case BLE_GAP_EVT_SEC_INFO_REQUEST:
+#ifdef BLE_CENTRAL_DEBUG
+        Serial.print(F("Evt Sec Info Request "));
+        Serial.print(bleEvt->evt.gap_evt.params.sec_info_request.master_id.ediv);
+        Serial.print(F(" "));
+        Serial.print(bleEvt->evt.gap_evt.params.sec_info_request.enc_info);
+        Serial.print(F(" "));
+        Serial.print(bleEvt->evt.gap_evt.params.sec_info_request.id_info);
+        Serial.print(F(" "));
+        Serial.print(bleEvt->evt.gap_evt.params.sec_info_request.sign_info);
+        Serial.println();
+#endif
+        uint8_t periph;
+        for(periph = 0; periph < _allowedPeripherals; periph++)
+          if(this->_connectionHandle[periph] == bleEvt->evt.gap_evt.conn_handle)
+            break;
+
+        if (this->_encKey->master_id.ediv == bleEvt->evt.gap_evt.params.sec_info_request.master_id.ediv) {
+          sd_ble_gap_sec_info_reply(this->_connectionHandle[periph], &this->_encKey->enc_info, NULL, NULL);
+        } else {
+          sd_ble_gap_sec_info_reply(this->_connectionHandle[periph], NULL, NULL, NULL);
+        }
+      break;
+	  
+      case BLE_GAP_EVT_AUTH_STATUS:
+#ifdef BLE_CENTRAL_DEBUG
+        Serial.println(F("Evt Auth Status"));
+        Serial.println(bleEvt->evt.gap_evt.params.auth_status.auth_status);
+#endif
+        if (BLE_GAP_SEC_STATUS_SUCCESS == bleEvt->evt.gap_evt.params.auth_status.auth_status) {
+          if (this->_bond) {
+#ifdef BLE_CENTRAL_DEBUG
+            Serial.println(F("Storing bond data"));
+#endif
+            this->_bondStore.saveTempData(this->_bondData, 0, sizeof(this->_bondData));
+          }
+
+          uint8_t currentPeripheral;
+            for(currentPeripheral = 0; currentPeripheral < _allowedPeripherals; currentPeripheral++)
+              if(this->_connectionHandle[currentPeripheral] == bleEvt->evt.gap_evt.conn_handle)
+                break;
+
+          eventHandler = _eventHandlers[BLEBonded];
+            if (eventHandler) {
+              eventHandler(_node[currentPeripheral]);
+            }
+
+        }
+      break;
+
 	  
       default:
 #ifdef BLE_CENTRAL_DEBUG

@@ -56,6 +56,10 @@ public:
 	
     void setActiveScan(bool activeScan);
 
+    // connection intervals in 1.25 ms increments,
+    // must be between  0x0006 (7.5 ms) and 0x0c80 (4 s), values outside of this range will be ignored
+    void setConnectionInterval(unsigned short minimumConnectionInterval, unsigned short maximumConnectionInterval);
+	
     void addAttribute(BLELocalAttribute& attribute);
 
     void addLocalAttribute(BLELocalAttribute& localAttribute);
@@ -73,7 +77,12 @@ public:
     void disconnect();
 	
     void allowMultilink(uint8_t linksNo);
-	
+
+    void setBondStore(BLEBondStore& bondStore);
+    void enableBond(BLEBondingType type = JUST_WORKS);
+    void clearBondStoreData();
+    void saveBondData();
+
     void begin();
 	
     void poll(ble_evt_t *bleEvt = 0);
@@ -144,6 +153,13 @@ private:
     ble_gap_scan_params_t             _scanParams;
     uint8_t                           _peripheralConnected;
     uint8_t                           _allowedPeripherals;
+    unsigned short                    _minimumConnectionInterval;
+    unsigned short                    _maximumConnectionInterval;
+
+    bool                              _bond;
+    BLEBondStore                      _bondStore;
+    uint8_t                           _bondData[((sizeof(ble_gap_enc_key_t) + 3) / 4) * 4]  __attribute__ ((__aligned__(4)));
+    ble_gap_enc_key_t*                _encKey;
 	
     unsigned char                     _txBufferCount;
 	

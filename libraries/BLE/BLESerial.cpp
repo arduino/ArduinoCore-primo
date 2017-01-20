@@ -42,7 +42,7 @@ void BLESerial::poll() {
 }
 
 void BLESerial::end() {
-  this->_rxCharacteristic.setEventHandler(BLEWritten, NULL);
+//  this->_rxCharacteristic.setEventHandler(BLEWritten, NULL);
   this->_rxHead = this->_rxTail = 0;
   flush();
   BLEPeripheral::disconnect();

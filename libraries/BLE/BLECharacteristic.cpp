@@ -118,6 +118,17 @@ void BLECharacteristic::setValue(BLECentral& central, const unsigned char value[
   }
 }
 
+void BLECharacteristic::setValue(BLENode& node, const unsigned char value[], unsigned char length) {
+  this->setValue(value, length);
+
+  this->_written = true;
+
+  BleCharacteristicEventHandler eventHandler = this->_eventHandl[BLEWritten];
+  if (eventHandler) {
+    eventHandler(node, *this);
+  }
+}
+
 bool BLECharacteristic::subscribed() {
   return this->_subscribed;
 }
@@ -132,6 +143,16 @@ void BLECharacteristic::setSubscribed(BLECentral& central, bool subscribed) {
   }
 }
 
+void BLECharacteristic::setSubscribed(BLENode& node, bool subscribed) {
+  this->_subscribed = subscribed;
+
+  BleCharacteristicEventHandler eventHandler = this->_eventHandl[subscribed ? BLESubscribed : BLEUnsubscribed];
+
+  if (eventHandler) {
+    eventHandler(node, *this);
+  }
+}
+
 bool BLECharacteristic::canNotify() {
   return (this->_listener) ? this->_listener->canNotifyCharacteristic(*this) : false;
 }
@@ -143,6 +164,12 @@ bool BLECharacteristic::canIndicate() {
 void BLECharacteristic::setEventHandler(BLECharacteristicEvent event, BLECharacteristicEventHandler eventHandler) {
   if (event < sizeof(this->_eventHandlers)) {
     this->_eventHandlers[event] = eventHandler;
+  }
+}
+
+void BLECharacteristic::setEventHandler(BLECharacteristicEvent event, BleCharacteristicEventHandler eventHandler) {
+  if (event < sizeof(this->_eventHandl)) {
+    this->_eventHandl[event] = eventHandler;
   }
 }
 

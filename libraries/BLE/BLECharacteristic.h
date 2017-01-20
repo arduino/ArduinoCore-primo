@@ -14,9 +14,11 @@ enum BLECharacteristicEvent {
 };
 
 class BLECentral;
+class BLENode;
 class BLECharacteristic;
 
 typedef void (*BLECharacteristicEventHandler)(BLECentral& central, BLECharacteristic& characteristic);
+typedef void (*BleCharacteristicEventHandler)(BLENode& node, BLECharacteristic& characteristic);
 
 class BLECharacteristicValueChangeListener
 {
@@ -58,10 +60,13 @@ class BLECharacteristic : public BLELocalAttribute
     bool canIndicate();
 
     void setEventHandler(BLECharacteristicEvent event, BLECharacteristicEventHandler eventHandler);
+    void setEventHandler(BLECharacteristicEvent event, BleCharacteristicEventHandler eventHandler);
 
   protected:
     virtual void setValue(BLECentral& central, const unsigned char value[], unsigned char length);
+    void setValue(BLENode& node, const unsigned char value[], unsigned char length);
     void setSubscribed(BLECentral& central, bool written);
+    void setSubscribed(BLENode& node, bool written);
 
     void setValueChangeListener(BLECharacteristicValueChangeListener& listener);
 
@@ -77,6 +82,7 @@ class BLECharacteristic : public BLELocalAttribute
 
     BLECharacteristicValueChangeListener* _listener;
     BLECharacteristicEventHandler         _eventHandlers[3];
+    BleCharacteristicEventHandler         _eventHandl[3];	
 };
 
 #endif
