@@ -193,6 +193,14 @@ bool BLECentralRole::connected(){
   return connected;
 }
 
+void BLECentralRole::disconnect(){
+  // disconnect from all active connection
+  for(int i = 0; i < _allowedPeripherals; i++){
+    if(this->_connectionHandle[i] != BLE_CONN_HANDLE_INVALID)
+      sd_ble_gap_disconnect(this->_connectionHandle[i], BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+  }
+}
+
 void BLECentralRole::allowMultilink(uint8_t linksNo){
   if(linksNo > MAX_PERIPHERAL)
     linksNo = MAX_PERIPHERAL;

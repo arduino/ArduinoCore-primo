@@ -29,6 +29,7 @@
 #include "BLERemoteCharacteristic.h"
 #include "BLERemoteService.h"
 #include "BLEUuid.h"
+#include "ble_hci.h"
 
 #define  MAX_PERIPHERAL   7
 
