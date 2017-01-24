@@ -1,10 +1,13 @@
-/* showPasskeyBond.ino
+/* enterPasskey.ino
 
    Written by Chiara Ruggeri (chiara@arduino.org)
 
    This example shows how to enable bonding features on BLEPeripheral module.
    To know all the possible bonding types please refer to the documentation.
-  
+
+   Use the complementary example showPasskeyCentral.ino in File->Examples->BLE->Central->Bonding
+   to test this feature.
+
    This example code is in the public domain.
 */
 
@@ -32,17 +35,17 @@ void setup() {
   blePeripheral.addAttribute(dummyCharacteristic);
 
   //enable bonding and set the type
-  blePeripheral.enableBond(LESC_DISPLAY_PASSKEY);
+  blePeripheral.enableBond(CONFIRM_PASSKEY);
 
-  // assign event handlers for connected, disconnected, passkey received and bond to peripheral
+  // assign event handlers for connected, disconnected, passkey requested and bond to peripheral
   blePeripheral.setEventHandler(BLEConnected, blePeripheralConnectHandler);
   blePeripheral.setEventHandler(BLEDisconnected, blePeripheralDisconnectHandler);
-  blePeripheral.setEventHandler(BLEPasskeyReceived, showPasskey);
+  blePeripheral.setEventHandler(BLEPasskeyRequested, writePasskey);
   blePeripheral.setEventHandler(BLEBonded, bond);
 
   // begin initialization
   blePeripheral.begin();
-
+  
   Serial.println(F("BLE Bonding example"));
 }
 
@@ -51,10 +54,22 @@ void loop() {
   LowPower.standby();
 }
 
-void showPasskey(BLECentral& central) {
-  // passkey generated event handler
-  Serial.print("Please type this passkey on the other device = ");
-  Serial.println(blePeripheral.getPasskey());
+void writePasskey(BLECentral& central) {
+  // central required passkey event handler
+  char passkey[6];
+  int i=0;
+  int j=0;
+  Serial.println("Type the 6 digits code you see on the other device");
+  while(i < 6){
+    j=Serial.available();
+      for(int k=0; k<j; k++){
+        passkey[i]=Serial.read();
+        i++;
+        }
+   }
+   Serial.print("you typed: ");
+   Serial.println(passkey);
+   blePeripheral.sendPasskey(passkey);
 }
 
 void bond(BLECentral& central) {
