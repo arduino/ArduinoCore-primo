@@ -999,7 +999,7 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
         if (this->_eventListener) {
           this->_eventListener->BLEDevicePasskeyReceived(*this);
         }
-        if(this->_lesc == 2){
+        if(this->_lesc == 2 && this->_userConfirm){
           sd_ble_gap_auth_key_reply(this->_connectionHandle, BLE_GAP_AUTH_KEY_TYPE_PASSKEY, NULL);
           /* Due to DRGN-7235, dhkey_reply() must come after auth_key_reply() */
           sd_ble_gap_lesc_dhkey_reply(this->_connectionHandle, &_dhkey);

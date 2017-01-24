@@ -93,6 +93,7 @@ class BLEPeripheral : public BLEDeviceEventListener,
     void saveBondData();
 	char *getPasskey();
     void sendPasskey(char passkey[]);
+    void confirmPasskey(bool confirm);
 
     void setDeviceName(const char* deviceName);
     void setAppearance(unsigned short appearance);

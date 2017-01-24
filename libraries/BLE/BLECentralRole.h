@@ -83,6 +83,9 @@ public:
     void enableBond(BLEBondingType type = JUST_WORKS);
     void clearBondStoreData();
     void saveBondData();
+    char *getPasskey();
+    void sendPasskey(char passkey[]);
+    void confirmPasskey(bool confirm);
 
     void begin();
 	
@@ -151,6 +154,7 @@ private:
     struct localCharacteristicInfo*   _localCharacteristicInfo;
 
     uint16_t                          _connectionHandle[7];
+    uint16_t                          _actualConnHandle;
     ble_gap_scan_params_t             _scanParams;
     uint8_t                           _peripheralConnected;
     uint8_t                           _allowedPeripherals;
@@ -161,6 +165,11 @@ private:
     BLEBondStore                      _bondStore;
     uint8_t                           _bondData[((sizeof(ble_gap_enc_key_t) + 3) / 4) * 4]  __attribute__ ((__aligned__(4)));
     ble_gap_enc_key_t*                _encKey;
+    bool                              _mitm;
+    uint8_t                           _lesc;
+    uint8_t                           _io_caps;
+    uint8_t                           _passkey[6];
+    bool                              _userConfirm;
 	
     unsigned char                     _txBufferCount;
 	
@@ -179,6 +188,11 @@ private:
     struct remoteCharacteristicInfo*  _remoteCharacteristicInfo;
     bool                              _remoteRequestInProgress;
 
+    __ALIGN(4) ble_gap_lesc_p256_pk_t            _privateKey;
+    __ALIGN(4) ble_gap_lesc_p256_pk_t            _publicKey;
+    __ALIGN(4) ble_gap_lesc_p256_pk_t            _peerKey;
+    __ALIGN(4) ble_gap_lesc_dhkey_t              _dhkey;
+	
 };
 
 #endif //_BLE_CENTRAL_ROLE_H

@@ -20,7 +20,8 @@ BLEDevice::BLEDevice() :
   _mitm(false),
   _lesc(0),
   _io_caps(BLE_GAP_IO_CAPS_NONE),
-  _passkey({0,0,0,0,0,0})
+  _passkey({0,0,0,0,0,0}),
+  _userConfirm(false)
 {
 }
 
@@ -53,5 +54,9 @@ void BLEDevice::setBondStore(BLEBondStore& bondStore) {
 }
 
 void BLEDevice::sendPasskey(char passkey[]){
-  uint32_t err_code=sd_ble_gap_auth_key_reply(this->_connectionHandle, BLE_GAP_AUTH_KEY_TYPE_PASSKEY, (uint8_t *)passkey);
+  sd_ble_gap_auth_key_reply(this->_connectionHandle, BLE_GAP_AUTH_KEY_TYPE_PASSKEY, (uint8_t *)passkey);
+}
+
+void BLEDevice::confirmPasskey(bool confirm){
+  this->_userConfirm = confirm;
 }

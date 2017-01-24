@@ -59,6 +59,7 @@ class BLEDevice
     void setConnectable(bool connectable);
     void setBondStore(BLEBondStore& bondStore);
     void sendPasskey(char passkey[]);
+    void confirmPasskey(bool confirm);
 
     virtual void begin(unsigned char /*advertisementDataSize*/,
                 unsigned char * /*advertisementData*/,
@@ -106,6 +107,7 @@ class BLEDevice
     uint8_t                       _lesc;
     uint8_t                       _io_caps;
     uint8_t                       _passkey[6];
+    bool                          _userConfirm;
     BLEBondStore*                 _bondStore;
     BLEDeviceEventListener*       _eventListener;
 };

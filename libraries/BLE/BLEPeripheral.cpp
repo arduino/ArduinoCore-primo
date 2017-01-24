@@ -223,6 +223,10 @@ void BLEPeripheral::sendPasskey(char passkey[]){
   this->_device->sendPasskey(passkey);
 }
 
+void BLEPeripheral::confirmPasskey(bool confirm){
+  this->_device->confirmPasskey(confirm);
+}
+
 void BLEPeripheral::setDeviceName(const char* deviceName) {
   this->_deviceNameCharacteristic.setValue(deviceName);
 }
