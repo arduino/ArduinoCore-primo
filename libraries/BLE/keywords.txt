@@ -38,6 +38,20 @@ BLELongCharacteristic	KEYWORD1
 BLEUnsignedLongCharacteristic	KEYWORD1
 BLEFloatCharacteristic	KEYWORD1
 BLEDoubleCharacteristic	KEYWORD1
+BLEBoolCharacteristic	KEYWORD1
+
+BLERemoteCharCharacteristic	KEYWORD1
+BLERemoteUnsignedCharCharacteristic	KEYWORD1
+BLERemoteShortCharacteristic	KEYWORD1
+BLERemoteUnsignedShortCharacteristic	KEYWORD1
+BLERemoteIntCharacteristic	KEYWORD1
+BLERemoteUnsignedIntCharacteristic	KEYWORD1
+BLERemoteLongCharacteristic	KEYWORD1
+BLERemoteUnsignedLongCharacteristic	KEYWORD1
+BLERemoteFloatCharacteristic	KEYWORD1
+BLERemoteDoubleCharacteristic	KEYWORD1
+BLERemoteBoolCharacteristic	KEYWORD1
+
 
 BLEHIDPeripheral	KEYWORD1
 BLEMouse	KEYWORD1
@@ -89,6 +103,8 @@ enableBond	KEYWORD2
 saveBondData	KEYWORD2
 getPasskey	KEYWORD2
 setPasskey	KEYWORD2
+confirmPasskey	KEYWORD2
+sendPasskey	KEYWORD2
 addAttribute	KEYWORD2
 addLocalAttribute	KEYWORD2
 addRemoteAttribute	KEYWORD2
@@ -132,6 +148,8 @@ setScanTimeout	KEYWORD2
 setActiveScan	KEYWORD2
 startScan	KEYWORD2
 stopScan	KEYWORD2
+allowMultilink	KEYWORD2
+getFieldInAdvPck	KEYWORD2
 connect	KEYWORD2
 
 setAdvPck	KEYWORD2
@@ -140,6 +158,8 @@ dataLen	KEYWORD2
 isScanRsp	KEYWORD2
 rssi	KEYWORD2
 printAdvertisement	KEYWORD2
+
+printBleMessage	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
@@ -167,5 +187,6 @@ BLEPasskeyReceived	LITERAL1
 BLEPasskeyRequested	LITERAL1
 BLERemoteServicesDiscovered	LITERAL1
 BLEScanReceived	LITERAL1
+BLEMessage	LITERAL1
 
 BLEValueUpdated	LITERAL1
