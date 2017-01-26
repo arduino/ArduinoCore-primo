@@ -40,7 +40,10 @@ void setup() {
   bleCentral.setEventHandler(BLEDisconnected, bleCentralDisconnectHandler);
   bleCentral.setEventHandler(BLEPasskeyRequested, writePasskey);
   bleCentral.setEventHandler(BLEBonded, bond);
-
+  
+  // use BLEMessage event handler to retrieve information about internal BLE status
+  bleCentral.setEventHandler(BLEMessage, receiveMessage);
+  
   // begin initialization
   bleCentral.begin(); 
   
@@ -99,4 +102,8 @@ void writePasskey(BLENode& node) {
 void bond(BLENode& node) {
   // central bonded event handler
   Serial.println("Bonded");
+}
+
+void receiveMessage(int evtCode, int messageCode){
+  bleCentral.printBleMessage(evtCode, messageCode);
 }

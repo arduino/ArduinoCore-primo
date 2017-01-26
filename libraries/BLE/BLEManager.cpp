@@ -19,27 +19,22 @@
 
 #include "BLEManager.h"
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+
+#include "ble_conn_state.h"
+
+#ifdef __cplusplus
+}
+#endif
+
 BLEPeripheral *BLEManagerClass::_peripheralList[1] = {0};
 BLECentralRole *BLEManagerClass::_centralList[1] = {0};
 bool handlerSet = false;
 
 BLEManagerClass::BLEManagerClass(){}
-	
-/*BLEPeripheral &BLEManagerClass::getPeripheral(void){
-	//
-}
 
-BLECentral &BLEManagerClass::getCentral(void){
-	//
-}
-
-BLEBroadcaster &BLEManagerClass::getBroadcaster(void){
-	//
-}
-
-BLEObserver &BLEManagerClass::getObserver(void){
-	//
-}*/
 bool BLEManagerClass::registerPeripheral(BLEPeripheral *peripheral) {
     _peripheralList[0] = peripheral;
 	if(!handlerSet){
@@ -57,11 +52,20 @@ bool BLEManagerClass::registerCentral(BLECentralRole *central){
 }
 
 void BLEManagerClass::processBleEvents(ble_evt_t *bleEvent){
-    if(_peripheralList[0] != 0){
-        _peripheralList[0]->poll(bleEvent);
-    }
-	if(_centralList[0] != 0){
-		_centralList[0]->poll(bleEvent);
+    ble_conn_state_on_ble_evt(bleEvent);
+
+	uint16_t handler = bleEvent->evt.gap_evt.conn_handle;
+	uint16_t role = ble_conn_state_role(handler);
+
+	if(role == BLE_GAP_ROLE_PERIPH){
+		if(_peripheralList[0] != 0){
+			_peripheralList[0]->poll(bleEvent);
+		}
+	}
+	if((role == BLE_GAP_ROLE_CENTRAL) || (bleEvent->header.evt_id == BLE_GAP_EVT_ADV_REPORT)){
+		if(_centralList[0] != 0){
+			_centralList[0]->poll(bleEvent);
+		}
 	}
 }
 

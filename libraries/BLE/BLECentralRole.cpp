@@ -33,6 +33,8 @@
 
 
 BLECentralRole::BLECentralRole() : 
+  _messageEventHandler(NULL),
+  
   _localAttributes(NULL),
   _numLocalAttributes(0),
   _remoteAttributes(NULL),
@@ -689,6 +691,8 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
             _peripheralConnected--;
             this->_txBufferCount = 0;
 
+            if(_messageEventHandler != NULL)
+              _messageEventHandler(DISCONNECTED, bleEvt->evt.gap_evt.params.disconnected.reason);
             eventHandler = _eventHandlers[BLEDisconnected];
             if (eventHandler) {
               eventHandler(_node[currentPeripheral]);
@@ -818,7 +822,7 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
           uint16_t startHandle = bleEvt->evt.gattc_evt.params.prim_srvc_disc_rsp.services[count - 1].handle_range.end_handle + 1;
 
           sd_ble_gattc_primary_services_discover(this->_connectionHandle[pIndex], startHandle, NULL);
-        } else {
+        } else if(bleEvt->evt.gattc_evt.gatt_status == BLE_GATT_STATUS_ATTERR_INVALID_HANDLE) {
           // done discovering services
           for (int i = 0; i < this->_numRemoteServices; i++) {
             if (this->_remoteServiceInfo[i].handlesRange.start_handle != 0 && this->_remoteServiceInfo[i].handlesRange.end_handle != 0) {
@@ -828,7 +832,12 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
             }
           }
         }
-        break;
+        else {
+            if (_messageEventHandler != NULL) {
+            _messageEventHandler(SERVICE_DISC_RESP, bleEvt->evt.gattc_evt.gatt_status);
+          }
+        }
+      break;
 		
       case BLE_GATTC_EVT_CHAR_DISC_RSP:
 #ifdef BLE_CENTRAL_DEBUG
@@ -859,7 +868,7 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
           }
 
           sd_ble_gattc_characteristics_discover(this->_connectionHandle[periphIndex], &serviceHandlesRange);
-        } else {
+        } else if(bleEvt->evt.gattc_evt.gatt_status == BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND) {
           bool discoverCharacteristics = false;
 
           for (int i = this->_remoteServiceDiscoveryIndex + 1; i < this->_numRemoteServices; i++) {
@@ -877,6 +886,11 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
             if (eventHandler) {
               eventHandler(_node[periphIndex]);
             }
+          }
+        }
+        else{
+            if (_messageEventHandler != NULL) {
+            _messageEventHandler(CHARACT_DISC_RESP, bleEvt->evt.gattc_evt.gatt_status);
           }
         }
         break;
@@ -910,7 +924,7 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
               sd_ble_gap_authenticate(this->_connectionHandle[i], &gapSecParams);
               break;
             }
-        } else {
+        } else  if(bleEvt->evt.gattc_evt.gatt_status == BLE_GATT_STATUS_SUCCESS){
           uint16_t handle = bleEvt->evt.gattc_evt.params.read_rsp.handle;
 
           uint8_t j = 0;
@@ -925,6 +939,11 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
             }
           }
         }
+        else{
+            if (_messageEventHandler) {
+            _messageEventHandler(READ_RESPONSE, bleEvt->evt.gattc_evt.gatt_status);
+          }
+        }
         break;
       }
 	  
@@ -936,9 +955,31 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
 #endif
         this->_remoteRequestInProgress = false;
 
-        if (bleEvt->evt.gattc_evt.gatt_status == BLE_GATT_STATUS_ATTERR_INSUF_AUTHENTICATION /*&&
-            this->_bondStore*/) {
-				//TODO: manage bonding
+        if (bleEvt->evt.gattc_evt.gatt_status == BLE_GATT_STATUS_ATTERR_INSUF_AUTHENTICATION &&
+            this->_bond) {
+          ble_gap_sec_params_t gapSecParams;
+
+          memset(&gapSecParams, 0x00, sizeof(ble_gap_sec_params_t));
+
+          gapSecParams.kdist_own.enc = 1;
+          gapSecParams.bond             = true;
+          gapSecParams.lesc             = (bool)this->_lesc;
+          gapSecParams.mitm             = this->_mitm;
+          gapSecParams.io_caps          = this->_io_caps;
+          gapSecParams.oob              = false;
+          gapSecParams.min_key_size     = 7;
+          gapSecParams.max_key_size     = 16;
+
+          for(int i = 0; i < _allowedPeripherals; i++)
+          if(this->_connectionHandle[i] == bleEvt->evt.gap_evt.conn_handle){
+            sd_ble_gap_authenticate(this->_connectionHandle[i], &gapSecParams);
+            break;
+		  }
+        }
+        else if(bleEvt->evt.gattc_evt.gatt_status != BLE_GATT_STATUS_SUCCESS){
+            if (_messageEventHandler) {
+            _messageEventHandler(WRITE_RESPONSE, bleEvt->evt.gattc_evt.gatt_status);
+          }
         }
         break;
 
@@ -1064,7 +1105,12 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
             if (eventHandler) {
               eventHandler(_node[currentPeripheral]);
             }
+        }
 
+        else{
+          if (_messageEventHandler != NULL) {
+            _messageEventHandler(AUTH_STATUS, bleEvt->evt.gap_evt.params.auth_status.auth_status);
+          }
         }
       break;
 
@@ -1130,10 +1176,48 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
   }
 }
 
+void BLECentralRole::printBleMessage(int eventCode, int messageCode){
+  if(eventCode > sizeof(_evt_code_to_string))
+    return;
+  Serial.print(_evt_code_to_string[eventCode]);
+  switch(eventCode){
+    case 0:
+      Serial.println(_hci_messages[messageCode]);
+      break;
+    case 1:
+      Serial.println(_gap_sec_status[messageCode]);
+      break;
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+      if(messageCode == 0 || messageCode == 1)
+        Serial.println(_gatt_status[messageCode]);
+      else if(messageCode == 0x0180)
+        Serial.println(_gatt_status[20]);
+      else if(messageCode == 0x019F)
+        Serial.println(_gatt_status[21]);
+      else if(messageCode >= 0x01FD)
+        Serial.println(_gatt_status[messageCode - 487]);
+      else
+        Serial.println(_gatt_status[(messageCode & 0x00FF) + 2]);
+    break;
+    default:
+      Serial.println("Unknown event code");
+    break;
+  }
+}
+
 void BLECentralRole::setEventHandler(BLEPeripheralEvent event, BLECentralEventHandler eventHandler){
 	if (event < sizeof(this->_eventHandlers)) {
     this->_eventHandlers[event] = eventHandler;
   }
+}
+
+void BLECentralRole::setEventHandler(BLEPeripheralEvent event, BLEMessageEventHandler eventHandler){
+  // only allow BLEMessage event to have a different kind of handler function
+  if(event == BLEMessage)
+    this->_messageEventHandler = eventHandler;
 }
 
 bool BLECentralRole::updateCharacteristicValue(BLECharacteristic& characteristic) {

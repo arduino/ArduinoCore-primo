@@ -21,7 +21,7 @@ BLEPeripheral::BLEPeripheral(unsigned char req, unsigned char rdy, unsigned char
 #else
   _nRF8001(req, rdy, rst),
 #endif
-
+  _messageEventHandler(NULL),
   _bleBondStore(),
 
   _localAttributes(NULL),
@@ -282,10 +282,48 @@ bool BLEPeripheral::connected() {
   return this->_central;
 }
 
+void BLEPeripheral::printBleMessage(int eventCode, int messageCode){
+  if(eventCode > sizeof(this->_evt_code_to_string))
+    return;
+  Serial.print(_evt_code_to_string[eventCode]);
+  switch(eventCode){
+    case 0:
+      Serial.println(_hci_messages[messageCode]);
+      break;
+    case 1:
+      Serial.println(_gap_sec_status[messageCode]);
+      break;
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+      if(messageCode == 0 || messageCode == 1)
+        Serial.println(_gatt_status[messageCode]);
+      else if(messageCode == 0x0180)
+        Serial.println(_gatt_status[20]);
+      else if(messageCode == 0x019F)
+        Serial.println(_gatt_status[21]);
+      else if(messageCode >= 0x01FD)
+        Serial.println(_gatt_status[messageCode - 487]);
+      else
+        Serial.println(_gatt_status[(messageCode & 0x00FF) + 2]);
+    break;
+    default:
+      Serial.println("Unknown event code");
+    break;
+  }
+}
+
 void BLEPeripheral::setEventHandler(BLEPeripheralEvent event, BLEPeripheralEventHandler eventHandler) {
   if (event < sizeof(this->_eventHandlers)) {
     this->_eventHandlers[event] = eventHandler;
   }
+}
+
+void BLEPeripheral::setEventHandler(BLEPeripheralEvent event, BLEMessageEventHandler eventHandler){
+  // only allow BLEMessage event to have a different kind of handler function
+  if(event == BLEMessage)
+    this->_messageEventHandler = eventHandler;
 }
 
 bool BLEPeripheral::characteristicValueChanged(BLECharacteristic& characteristic) {
@@ -400,6 +438,11 @@ void BLEPeripheral::BLEDevicePasskeyRequested(BLEDevice& /*device*/){
   if (eventHandler) {
     eventHandler(this->_central);
   }
+}
+
+void BLEPeripheral::BLEMessageReceived(BLEDevice& /*device*/, int eventCode, int messageCode){
+  if(this->_messageEventHandler != NULL)
+    _messageEventHandler(eventCode, messageCode);
 }
 
 void BLEPeripheral::BLEDeviceCharacteristicValueChanged(BLEDevice& /*device*/, BLECharacteristic& characteristic, const unsigned char* value, unsigned char valueLength) {

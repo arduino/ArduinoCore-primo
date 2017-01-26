@@ -579,6 +579,7 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
         }
 
         if (this->_eventListener) {
+          this->_eventListener->BLEMessageReceived(*this, DISCONNECTED, bleEvt->evt.gap_evt.params.disconnected.reason);
           this->_eventListener->BLEDeviceDisconnected(*this);
         }
 
@@ -615,7 +616,7 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
 #ifdef NRF_51822_DEBUG
         Serial.print(F("Evt Sec Params Request "));
 #if !defined(NRF51_S130) && !defined(S110)
-        Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.timeout);
+        // Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.timeout);
         Serial.print(F(" "));
 #endif
         Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.bond);
@@ -750,6 +751,11 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
             this->_eventListener->BLEDeviceBonded(*this);
           }
         }
+        else{
+          if (this->_eventListener) {
+            this->_eventListener->BLEMessageReceived(*this, AUTH_STATUS, bleEvt->evt.gap_evt.params.auth_status.auth_status);
+          }
+        }
         break;
 
       case BLE_GAP_EVT_CONN_SEC_UPDATE:
@@ -834,8 +840,8 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
           uint16_t startHandle = bleEvt->evt.gattc_evt.params.prim_srvc_disc_rsp.services[count - 1].handle_range.end_handle + 1;
 
           sd_ble_gattc_primary_services_discover(this->_connectionHandle, startHandle, NULL);
-        } else {
-          // done discovering services
+        } else if(bleEvt->evt.gattc_evt.gatt_status == BLE_GATT_STATUS_ATTERR_INVALID_HANDLE) {
+        // done discovering services
           for (int i = 0; i < this->_numRemoteServices; i++) {
             if (this->_remoteServiceInfo[i].handlesRange.start_handle != 0 && this->_remoteServiceInfo[i].handlesRange.end_handle != 0) {
               this->_remoteServiceDiscoveryIndex = i;
@@ -845,6 +851,12 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
             }
           }
         }
+        else {
+            if (this->_eventListener) {
+            this->_eventListener->BLEMessageReceived(*this, SERVICE_DISC_RESP, bleEvt->evt.gattc_evt.gatt_status);
+          }
+        }
+
         break;
 
       case BLE_GATTC_EVT_CHAR_DISC_RSP:
@@ -871,7 +883,7 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
           }
 
           sd_ble_gattc_characteristics_discover(this->_connectionHandle, &serviceHandlesRange);
-        } else {
+        } else if(bleEvt->evt.gattc_evt.gatt_status == BLE_GATT_STATUS_ATTERR_ATTRIBUTE_NOT_FOUND) {
           bool discoverCharacteristics = false;
 
           for (int i = this->_remoteServiceDiscoveryIndex + 1; i < this->_numRemoteServices; i++) {
@@ -888,6 +900,11 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
             if (this->_eventListener) {
               this->_eventListener->BLEDeviceRemoteServicesDiscovered(*this);
             }
+          }
+        }
+        else{
+            if (this->_eventListener) {
+            this->_eventListener->BLEMessageReceived(*this, CHARACT_DISC_RESP, bleEvt->evt.gattc_evt.gatt_status);
           }
         }
         break;
@@ -923,7 +940,7 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
           gapSecParams.max_key_size     = 16;
 
           sd_ble_gap_authenticate(this->_connectionHandle, &gapSecParams);
-        } else {
+        } else if(bleEvt->evt.gattc_evt.gatt_status == BLE_GATT_STATUS_SUCCESS){
           uint16_t handle = bleEvt->evt.gattc_evt.params.read_rsp.handle;
 
           for (int i = 0; i < this->_numRemoteCharacteristics; i++) {
@@ -933,6 +950,11 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
               }
               break;
             }
+          }
+        }
+        else{
+            if (this->_eventListener) {
+            this->_eventListener->BLEMessageReceived(*this, READ_RESPONSE, bleEvt->evt.gattc_evt.gatt_status);
           }
         }
         break;
@@ -968,6 +990,11 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
           gapSecParams.max_key_size     = 16;
 
           sd_ble_gap_authenticate(this->_connectionHandle, &gapSecParams);
+        }
+        else if(bleEvt->evt.gattc_evt.gatt_status != BLE_GATT_STATUS_SUCCESS){
+            if (this->_eventListener) {
+            this->_eventListener->BLEMessageReceived(*this, WRITE_RESPONSE, bleEvt->evt.gattc_evt.gatt_status);
+          }
         }
         break;
 

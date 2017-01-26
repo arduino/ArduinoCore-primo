@@ -43,6 +43,9 @@ void setup() {
   blePeripheral.setEventHandler(BLEPasskeyRequested, writePasskey);
   blePeripheral.setEventHandler(BLEBonded, bond);
 
+  // use BLEMessage event handler to retrieve information about internal BLE status
+  blePeripheral.setEventHandler(BLEMessage, receiveMessage);
+  
   // begin initialization
   blePeripheral.begin();
   
@@ -87,4 +90,8 @@ void blePeripheralDisconnectHandler(BLECentral& central) {
   // central disconnected event handler
   Serial.print(F("Disconnected event, central: "));
   Serial.println(central.address());
+}
+
+void receiveMessage(int evtCode, int messageCode){
+  blePeripheral.printBleMessage(evtCode, messageCode);
 }

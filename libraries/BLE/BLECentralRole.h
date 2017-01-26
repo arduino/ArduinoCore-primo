@@ -90,8 +90,11 @@ public:
     void begin();
 	
     void poll(ble_evt_t *bleEvt = 0);
-	
+
+    void printBleMessage(int eventCode, int messageCode);	
+
     void setEventHandler(BLEPeripheralEvent event, BLECentralEventHandler);
+    void setEventHandler(BLEPeripheralEvent event, BLEMessageEventHandler eventHandler);
 
     bool updateCharacteristicValue(BLECharacteristic& characteristic);
     bool characteristicValueChanged(BLECharacteristic& characteristic);
@@ -144,6 +147,7 @@ private:
     BLENode                           _node[7];
     BLENode                           _tempNode;
     BLECentralEventHandler            _eventHandlers[7];
+    BLEMessageEventHandler            _messageEventHandler;
 
     BLELocalAttribute**               _localAttributes;
     unsigned char                     _numLocalAttributes;
@@ -193,6 +197,10 @@ private:
     __ALIGN(4) ble_gap_lesc_p256_pk_t            _peerKey;
     __ALIGN(4) ble_gap_lesc_dhkey_t              _dhkey;
 	
+    char*                          _hci_messages[63] = {"Success", "Unknow btle command", "Unknow connection identifier", "", "", "Authentication failure", "Pin or key missing", "Memory capacity exceeded", "Connection timeout", "", "", "", "Command disallowed", "", "", "", "", "", "Invalid btle command parameters", "Remote user terminated connection", "Remote dev termination due to low resources", "Remote dev termination due to power off", "Local host terminated connection", "", "", "", "Unsupported remote feature", "", "", "", "Invalid lmp parameters", "Unspecified error", "", "", "Lmp response timeout", "", "Lmp pdu not allowed", "", "", "", "Instant passed", "Pairing with unit key unsupported", "Different transaction collision", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Controller busy", "Connection interval unacceptable", "Directed advertiser timeout", "Connection terminated due mic failure", "Connection failed to be established" };
+    char*                          _gap_sec_status[256] = {"Success", "Timeout", "Pdu invalid", "Rfu range1 begin", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Rfu range1 end", "Passkey entry failed", "Oob not available", "Auth requested", "Confirm value", "Pairing not supported", "Enc key size", "Smp cmd unsupported", "Unspecified", "Repeated attempts", "Invalid params", "Dhkey failure", "Numeric comparison failure", "Bd Edr in prog", "X trans key disallowed", "Rfu range2 begin", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Rfu range2 end"};
+    char*                          _gatt_status[26] = {"Success", "Status unkown", "Att error: invalid error code", "Att error: invalid attribute handle", "Att error: read not permitted", "Att error: write not permitted", "Att error: used att as invalid pdu", "Att error: authenticated link required", "Att error: Used att as request not supported", "Att error: invalid offset", "Att error: used in att as Insufficient authorization", "Att error: used att as prepare queue full", "Att error: Used att as attribute not found", "Att error: attribute cannot be read or written using read/write requests", "Att error: Encryption key size used is insufficient", "Att error: invalid value size", "Att error: very unlikely error", "Att error: encrypted link required", "Att error: attribute type is not a supported grouping attrybute", "Att error: encrypted link required", "Att error: application range begin", "Att error: application range end", "Att common profile and service error: client characteristic configuration descriptor improperly configured", "Att common profile and service error: procedure already in progress", "Att common profile and service error: out of range"};
+    char*                          _evt_code_to_string[6] = {"Disconnect reason: ",  "Authentication status error: ", "In services discovery procedure: ", 	"In characteristic discovery procedure: ", "Reading not succeeded: ", "Writing not succeeded: "};
 };
 
 #endif //_BLE_CENTRAL_ROLE_H

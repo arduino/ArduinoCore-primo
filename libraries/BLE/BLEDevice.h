@@ -19,6 +19,15 @@ struct BLEEirData
   unsigned char data[BLE_EIR_DATA_MAX_VALUE_LENGTH];
 };
 
+enum BLEEventNo{
+  DISCONNECTED = 0,
+  AUTH_STATUS,
+  SERVICE_DISC_RESP,
+  CHARACT_DISC_RESP,
+  READ_RESPONSE,
+  WRITE_RESPONSE
+};
+
 class BLEDevice;
 
 class BLEDeviceEventListener
@@ -30,13 +39,13 @@ class BLEDeviceEventListener
     virtual void BLEDeviceRemoteServicesDiscovered(BLEDevice& /*device*/) { }
     virtual void BLEDevicePasskeyReceived(BLEDevice& /*device*/) {}
     virtual void BLEDevicePasskeyRequested(BLEDevice& /*device*/) {}
+    virtual void BLEMessageReceived(BLEDevice& /*device*/, int eventCode, int messageCode);
 	
     virtual void BLEDeviceCharacteristicValueChanged(BLEDevice& /*device*/, BLECharacteristic& /*characteristic*/, const unsigned char* /*value*/, unsigned char /*valueLength*/) { }
     virtual void BLEDeviceCharacteristicSubscribedChanged(BLEDevice& /*device*/, BLECharacteristic& /*characteristic*/, bool /*subscribed*/) { }
 
     virtual void BLEDeviceRemoteCharacteristicValueChanged(BLEDevice& /*device*/, BLERemoteCharacteristic& /*characteristic*/, const unsigned char* /*value*/, unsigned char /*valueLength*/) { }
-
-
+	
     virtual void BLEDeviceAddressReceived(BLEDevice& /*device*/, const unsigned char* /*address*/) { }
     virtual void BLEDeviceTemperatureReceived(BLEDevice& /*device*/, float /*temperature*/) { }
     virtual void BLEDeviceBatteryLevelReceived(BLEDevice& /*device*/, float /*batteryLevel*/) { }
