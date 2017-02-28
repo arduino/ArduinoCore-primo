@@ -1,6 +1,8 @@
 /*
- * Copyright (c) 2016, Nordic Semiconductor ASA
+ * Copyright (c) 2010 - 2017, Nordic Semiconductor ASA
+ *
  * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  *
