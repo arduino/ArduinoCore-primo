@@ -55,4 +55,6 @@ private:
     ble_gap_evt_adv_report_t    _advReport;
 };
 
+typedef BLENode BLEPeripheralPeer;
+
 #endif _BLE_NODE_H

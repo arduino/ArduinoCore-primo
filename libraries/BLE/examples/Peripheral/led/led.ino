@@ -13,7 +13,7 @@
 #define LED_PIN   13
 
 // create peripheral instance
-BLEPeripheral            blePeripheral        = BLEPeripheral();
+BLEPeripheralRole            blePeripheral        = BLEPeripheralRole();
 
 // create service
 BLEService               ledService           = BLEService("19b10000e8f2537e4f6cd104768a1214");
@@ -42,7 +42,7 @@ void setup() {
 }
 
 void loop() {
-  BLECentral central = blePeripheral.central();
+  BLECentralPeer central = blePeripheral.central();
 
   if (central) {
     // central connected to peripheral

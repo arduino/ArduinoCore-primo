@@ -9,12 +9,15 @@
 BLEAttribute	KEYWORD1
 BLEBondStore	KEYWORD1
 BLECentral	KEYWORD1
+BLECentralPeer	KEYWORD1
 BLECentralRole	KEYWORD1
 BLECharacteristic	KEYWORD1
 BLEDescriptor	KEYWORD1
 BLELocalAttribute	KEYWORD1
 BLENode	KEYWORD1
 BLEPeripheral	KEYWORD1
+BLEPeripheralPeer	KEYWORD1
+BLEPeripheralRole	KEYWORD1
 BLERemoteAttribute	KEYWORD1
 BLERemoteCharacteristic	KEYWORD1
 BLERemoteService	KEYWORD1

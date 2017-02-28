@@ -29,7 +29,7 @@
 
 // create central and peripheral instances
 BLECentralRole                 bleCentral                  = BLECentralRole();
-BLEPeripheral                  blePeripheral               = BLEPeripheral();
+BLEPeripheralRole              blePeripheral               = BLEPeripheralRole();
 
 // create remote service and remote characteristics
 BLERemoteService               remoteLedService            = BLERemoteService("19b10010e8f2537e4f6cd104768a1214");
@@ -130,49 +130,49 @@ void loop() {
 }
 
 
-void receiveAdvPck(BLENode& node){
+void receiveAdvPck(BLEPeripheralPeer& peer){
   char advertisedName[31];
   byte len;
   // search for a device that advertises "LED Switch" name
-  node.getFieldInAdvPck(BLE_GAP_AD_TYPE_SHORT_LOCAL_NAME, advertisedName, len);
+  peer.getFieldInAdvPck(BLE_GAP_AD_TYPE_SHORT_LOCAL_NAME, advertisedName, len);
   if(len == 0) // field not found
-      node.getFieldInAdvPck(BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME, advertisedName, len);
+      peer.getFieldInAdvPck(BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME, advertisedName, len);
   if(len != 0){ // the field was found
   Serial.println(advertisedName);
     if(!strcmp(advertisedName, "LED Switch"))
       // Name found. Connect to the peripheral
-      bleCentral.connect(node);
+      bleCentral.connect(peer);
    } 
 }
 
-void bleCentralConnectHandler(BLENode& node) {
-  // node connected event handler
-  Serial.print("Connected event, central: ");
-  Serial.println(node.address());
+void bleCentralConnectHandler(BLEPeripheralPeer& peer) {
+  // peer connected event handler
+  Serial.print("Connected event, peripheral: ");
+  Serial.println(peer.address());
 }
 
-void blePeripheralConnectHandler(BLECentral& central){
-  Serial.print("Connected event, peripheral: ");
-  Serial.println(central.address());
+void blePeripheralConnectHandler(BLECentralPeer& peer){
+  Serial.print("Connected event, central: ");
+  Serial.println(peer.address());
 }  
 
-void bleCentralDisconnectHandler(BLENode& node) {
-  // node disconnected event handler
-  Serial.print("Disconnected event, central: ");
-  Serial.println(node.address());
-}
-
-
-void blePeripheralDisconnectHandler(BLECentral& central) {
-  // node disconnected event handler
+void bleCentralDisconnectHandler(BLEPeripheralPeer& peer) {
+  // peer disconnected event handler
   Serial.print("Disconnected event, peripheral: ");
-  Serial.println(central.address());
+  Serial.println(peer.address());
 }
 
-void bleCentralRemoteServicesDiscoveredHandler(BLENode& node) {
-  // node remote services discovered event handler
-  Serial.print("Remote services discovered event, central: ");
-  Serial.println(node.address());
+
+void blePeripheralDisconnectHandler(BLECentralPeer& peer) {
+  // peer disconnected event handler
+  Serial.print("Disconnected event, central: ");
+  Serial.println(peer.address());
+}
+
+void bleCentralRemoteServicesDiscoveredHandler(BLEPeripheralPeer& peer) {
+  // peer remote services discovered event handler
+  Serial.print("Remote services discovered event, peripheral: ");
+  Serial.println(peer.address());
 
   // subscribe button characteristic in order to automatically receive
   // messages sent from peripheral
@@ -182,7 +182,7 @@ void bleCentralRemoteServicesDiscoveredHandler(BLENode& node) {
 }
 
 
-void bleRemoteButtonCharacteristicValueUpdatedHandle(BLENode& node, BLERemoteCharacteristic& characteristic) {
+void bleRemoteButtonCharacteristicValueUpdatedHandle(BLEPeripheralPeer& peer, BLERemoteCharacteristic& characteristic) {
   if(remoteButtonCharacteristic.value() == 0){ // button pressed
     Serial.println("LED on");
     digitalWrite(LED_PIN, HIGH);

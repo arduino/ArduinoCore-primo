@@ -32,4 +32,6 @@ class BLECentral
     unsigned char  _address[6];
 };
 
+typedef BLECentral BLECentralPeer;
+
 #endif

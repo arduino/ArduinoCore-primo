@@ -79,34 +79,36 @@ void loop() {
   }
 }
 
-void receiveAdvPck(BLENode& node){
+void receiveAdvPck(BLEPeripheralPeer& peer){
   char scannedUuid[31];
   byte len;
   // search for the NUS's uuid
-  node.getFieldInAdvPck(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE, scannedUuid, len);
+  peer.getFieldInAdvPck(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE, scannedUuid, len);
+  if(len == 0) // field not found
+    peer.getFieldInAdvPck(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_COMPLETE, scannedUuid, len);
   if(len != 0){ // the field was found
     if(!strcmp(scannedUuid, remoteService.rawUuid()))
       // the uuids match. Connect to the peripheral
-      bleCentral.connect(node);
+      bleCentral.connect(peer);
    } 
 }
 
-void bleCentralConnectHandler(BLENode& node) {
-  // node connected event handler
-  Serial.print("Connected event, node: ");
-  Serial.println(node.address());
+void bleCentralConnectHandler(BLEPeripheralPeer& peer) {
+  // peer connected event handler
+  Serial.print("Connected event, peripheral: ");
+  Serial.println(peer.address());
 }
 
-void bleCentralDisconnectHandler(BLENode& node) {
-  // node disconnected event handler
-  Serial.print("Disconnected event, node: ");
-  Serial.println(node.address());
+void bleCentralDisconnectHandler(BLEPeripheralPeer& peer) {
+  // peer disconnected event handler
+  Serial.print("Disconnected event, peripheral: ");
+  Serial.println(peer.address());
 }
 
-void bleCentralRemoteServicesDiscoveredHandler(BLENode& node) {
-  // node remote services discovered event handler
-  Serial.print("Remote services discovered event, node: ");
-  Serial.println(node.address());
+void bleCentralRemoteServicesDiscoveredHandler(BLEPeripheralPeer& peer) {
+  // peer remote services discovered event handler
+  Serial.print("Remote services discovered event, peer: ");
+  Serial.println(peer.address());
 
   // subscribe Tx characteristic in order to automatically receive
   // messages sent from peripheral
@@ -116,7 +118,7 @@ void bleCentralRemoteServicesDiscoveredHandler(BLENode& node) {
 }
 
 
-void bleRemoteTxCharacteristicValueUpdatedHandle(BLENode& node, BLERemoteCharacteristic& characteristic) {
+void bleRemoteTxCharacteristicValueUpdatedHandle(BLEPeripheralPeer& peer, BLERemoteCharacteristic& characteristic) {
   Serial.println("Remote characteristic value update handle");
   Serial.println((char *)remoteTxCharacteristic.value());
  }

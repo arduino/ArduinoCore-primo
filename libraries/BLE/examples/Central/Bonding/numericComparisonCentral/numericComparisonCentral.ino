@@ -61,34 +61,34 @@ void loop() {
   // Do nothing
 }
 
-void receiveAdvPck(BLENode& node){
+void receiveAdvPck(BLEPeripheralPeer& peer){
   char advertisedName[31];
   byte len;
   // search for a device that advertises "BONDExample" name
-  node.getFieldInAdvPck(BLE_GAP_AD_TYPE_SHORT_LOCAL_NAME, advertisedName, len);
+  peer.getFieldInAdvPck(BLE_GAP_AD_TYPE_SHORT_LOCAL_NAME, advertisedName, len);
   if(len == 0) // field not found
-      node.getFieldInAdvPck(BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME, advertisedName, len);
+      peer.getFieldInAdvPck(BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME, advertisedName, len);
   if(len != 0){ // the field was found
   Serial.println(advertisedName);
     if(!strcmp(advertisedName, "BONDExample"))
       // Name found. Connect to the peripheral
-      bleCentral.connect(node);
+      bleCentral.connect(peer);
    } 
 }
 
-void bleCentralConnectHandler(BLENode& node) {
-  // node connected event handler
-  Serial.print("Connected event, central: ");
-  Serial.println(node.address());
+void bleCentralConnectHandler(BLEPeripheralPeer& peer) {
+  // peer connected event handler
+  Serial.print("Connected event, peripheral: ");
+  Serial.println(peer.address());
 }
 
-void bleCentralDisconnectHandler(BLENode& node) {
-  // node disconnected event handler
-  Serial.print("Disconnected event, central: ");
-  Serial.println(node.address());
+void bleCentralDisconnectHandler(BLEPeripheralPeer& peer) {
+  // peer disconnected event handler
+  Serial.print("Disconnected event, peripheral: ");
+  Serial.println(peer.address());
 }
 
-void showPasskey(BLENode& node) {
+void showPasskey(BLEPeripheralPeer& peer) {
   // passkey generated event handler
   Serial.print("Press the button to confirm the received passkey: ");
   Serial.println(bleCentral.getPasskey());
@@ -102,7 +102,7 @@ void showPasskey(BLENode& node) {
   bleCentral.confirmPasskey(true);
 }
 
-void bond(BLENode& node) {
+void bond(BLEPeripheralPeer& peer) {
   // central bonded event handler
   Serial.println("Bonded");
 }

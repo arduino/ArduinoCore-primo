@@ -16,7 +16,7 @@
 #include "LowPower.h"
 
 // create central instance
-BLECentralRole bleCentral = BLECentralRole();;
+BLECentralRole bleCentral = BLECentralRole();
 
 void setup() {
   Serial.begin(9600);
@@ -41,7 +41,7 @@ void loop() {
   LowPower.standby();
 }
 
-void receiveAdvPck(BLENode& node){
+void receiveAdvPck(BLEPeripheralPeer& peer){
   // print the advertising packet received
-  node.printAdvertisement();
+  peer.printAdvertisement();
 }
