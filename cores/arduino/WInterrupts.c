@@ -79,7 +79,7 @@ void GPIOTE_IRQHandler(void){
  *        Replaces any previous function that was attached to the interrupt.
  */
 
-void attachInterrupt( uint32_t ulPin, voidFuncPtr callback, uint32_t ulMode )
+int attachInterrupt( uint32_t ulPin, voidFuncPtr callback, uint32_t ulMode )
 {
   static int enabled = 0 ;
   uint32_t ulConfig ;
@@ -94,7 +94,7 @@ void attachInterrupt( uint32_t ulPin, voidFuncPtr callback, uint32_t ulMode )
 	  
   //return if there aren't free channels available
   if(j==NUMBER_OF_GPIO_TE)
-	return;
+	return -1;
 
   //Assign callback to related interrupt and set the channel as busy
   callbacksInt[j]._ulPin = ulPin ;
@@ -136,7 +136,7 @@ void attachInterrupt( uint32_t ulPin, voidFuncPtr callback, uint32_t ulMode )
   NVIC_ClearPendingIRQ(GPIOTE_IRQn);
   NVIC_EnableIRQ(GPIOTE_IRQn);
   nrf_gpiote_int_enable(int_msk[j]);
- 
+ return int_msk[j];
 }
 
 /**
