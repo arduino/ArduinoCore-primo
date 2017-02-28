@@ -89,7 +89,21 @@ void SPIClass::beginTransaction(SPISettings settings)
     _SPIInstance->PSELMOSI = _uc_pinMosi;
     _SPIInstance->PSELMISO = _uc_pinMiso;
 	
-	_SPIInstance->FREQUENCY = (settings.interface_clock << SPI_FREQUENCY_FREQUENCY_Pos);
+	if(settings.interface_clock < 182000)
+		setClockDivider(SPI_CLOCK_DIV128);
+	else if(settings.interface_clock < 375000)
+		setClockDivider(SPI_CLOCK_DIV64);
+	else if(settings.interface_clock < 750000)
+		setClockDivider(SPI_CLOCK_DIV32);
+	else if(settings.interface_clock < 1500000)
+		setClockDivider(SPI_CLOCK_DIV16);
+	else if(settings.interface_clock < 3000000)
+		setClockDivider(SPI_CLOCK_DIV8);
+	else if(settings.interface_clock < 6000000)
+		setClockDivider(SPI_CLOCK_DIV4);
+	else
+		setClockDivider(SPI_CLOCK_DIV2);
+
 	setDataMode(settings.data_mode);
 	setBitOrder((BitOrder)settings.bit_order);
 	_order=(BitOrder)settings.bit_order;
