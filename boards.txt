@@ -1,16 +1,25 @@
-######################################################
-#ARDUINO PRIMO
+# Copyright (c) 2016-2017 Arduino Srl.  All right reserved.
+#
+
+menu.upload=Upload
+
+#####################################
+########### ARDUINO PRIMO ###########
 
 primo.name=Arduino Primo
 primo.vid.0=0x0d28
 primo.pid.0=0x0204
-primo.upload.tool=openocd
+
+primo.menu.upload.serial=via Serial
+primo.menu.upload.bluetooth=via Bluetooth
+primo.menu.upload.bluetooth.upload.tool=otable
+
+primo.upload.tool=mutool
 primo.upload.protocol=sam-ba
 primo.upload.maximum_size=409600
 primo.upload.use_1200bps_touch=false
 primo.upload.speed=115200
 primo.upload.wait_for_upload_port=false
-
 
 primo.build.mcu=cortex-m4
 primo.build.f_cpu=64000000L
@@ -18,10 +27,16 @@ primo.build.usb_product="Arduino Primo"
 primo.build.board=Primo
 primo.build.arch=NRF52
 primo.build.core=arduino
-primo.build.extra_flags=-mthumb
+primo.build.extra_flags=-mthumb -DESP_CH_SPI
 primo.build.ldscript=linker_scripts/gcc/flash.ld
 primo.build.openocdscript=openocd_scripts/arduino_primo.cfg
 primo.build.variant=arduino_primo
 primo.build.components=components
 primo.build.vid=0x0d28
 primo.build.pid=0x0204
+
+#new defined attributes
+#primo.bootloader.file=
+primo.firmware.softdevice.file=primo/softdevice/s132_nrf52_2.0.0_softdevice.hex
+
+#####################################
