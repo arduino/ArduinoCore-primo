@@ -103,29 +103,29 @@ void loop() {
     delay(1000);
 }
 
-void receiveAdvPck(BLENode& node){
+void receiveAdvPck(BLEPeripheralPeer& peer){
   char advertisedName[31];
   byte len;
   // search for a device that advertises "CTS-Client" name
-  node.getFieldInAdvPck(BLE_GAP_AD_TYPE_SHORT_LOCAL_NAME, advertisedName, len);
+  peer.getFieldInAdvPck(BLE_GAP_AD_TYPE_SHORT_LOCAL_NAME, advertisedName, len);
   if(len == 0) // field not found
-      node.getFieldInAdvPck(BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME, advertisedName, len);
+      peer.getFieldInAdvPck(BLE_GAP_AD_TYPE_COMPLETE_LOCAL_NAME, advertisedName, len);
   if(len != 0){ // the field was found
   Serial.println(advertisedName);
     if(!strcmp(advertisedName, "CTS-Client"))
       // Name found. Connect to the peripheral
-      bleCentral.connect(node);
+      bleCentral.connect(peer);
    } 
 }
 
-void bleCentralConnectHandler(BLENode& node) {
-  // node connected event handler
-  Serial.print("Connected event, central: ");
-  Serial.println(node.address());
+void bleCentralConnectHandler(BLEPeripheralPeer& peer) {
+  // peer connected event handler
+  Serial.print("Connected event, peripheral: ");
+  Serial.println(peer.address());
 }
 
-void bleCentralDisconnectHandler(BLENode& node) {
-  // node disconnected event handler
-  Serial.print("Disconnected event, central: ");
-  Serial.println(node.address());
+void bleCentralDisconnectHandler(BLEPeripheralPeer& peer) {
+  // peer disconnected event handler
+  Serial.print("Disconnected event, peripheral: ");
+  Serial.println(peer.address());
 }

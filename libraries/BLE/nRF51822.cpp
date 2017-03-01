@@ -596,6 +596,7 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
         this->_remoteRequestInProgress = false;
 
         this->startAdvertising();
+		
         break;
 
       case BLE_GAP_EVT_CONN_PARAM_UPDATE:

@@ -65,7 +65,6 @@ enum BLEBondingType {
 typedef void (*BLEPeripheralEventHandler)(BLECentral& central);
 typedef void (*BLEMessageEventHandler)(int eventNo, int messageCode);
 
-
 class BLEPeripheral : public BLEDeviceEventListener,
                         public BLECharacteristicValueChangeListener,
                         public BLERemoteCharacteristicValueChangeListener
@@ -191,5 +190,7 @@ class BLEPeripheral : public BLEDeviceEventListener,
     char*                          _gatt_status[26] = {"Success", "Status unkown", "Att error: invalid error code", "Att error: invalid attribute handle", "Att error: read not permitted", "Att error: write not permitted", "Att error: used att as invalid pdu", "Att error: authenticated link required", "Att error: Used att as request not supported", "Att error: invalid offset", "Att error: used in att as Insufficient authorization", "Att error: used att as prepare queue full", "Att error: Used att as attribute not found", "Att error: attribute cannot be read or written using read/write requests", "Att error: Encryption key size used is insufficient", "Att error: invalid value size", "Att error: very unlikely error", "Att error: encrypted link required", "Att error: attribute type is not a supported grouping attrybute", "Att error: encrypted link required", "Att error: application range begin", "Att error: application range end", "Att common profile and service error: client characteristic configuration descriptor improperly configured", "Att common profile and service error: procedure already in progress", "Att common profile and service error: out of range"};
     char*                          _evt_code_to_string[6] = {"Disconnect reason: ",  "Authentication status error: ", "In services discovery procedure: ", 	"In characteristic discovery procedure: ", "Reading not succeeded: ", "Writing not succeeded: "};
 };
+
+typedef BLEPeripheral BLEPeripheralRole;
 
 #endif

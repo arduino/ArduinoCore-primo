@@ -679,6 +679,7 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
 			}
 			
             _peripheralConnected++;
+
             if(_peripheralConnected < _allowedPeripherals)
               this->startScan();
         break;
