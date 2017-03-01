@@ -1,4 +1,4 @@
-/* Copyright (c) 2016, Nordic Semiconductor ASA
+/* Copyright (c) 2010 - 2017, Nordic Semiconductor ASA
  * License Agreement for the Nordic Semiconductor ASA S132 Bluetooth SoftDevice softwar package ("SoftDevice").
  * All rights reserved.
  *
