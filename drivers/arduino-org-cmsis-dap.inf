@@ -1,0 +1,69 @@
+[Version]
+Signature="$Windows NT$"
+Class=Ports
+ClassGuid={4D36E978-E325-11CE-BFC1-08002BE10318}
+CatalogFile=arduino-org-cmsis-dap.cat
+Provider=%CMSISDAP%
+DriverVer=11/22/2011,5.2.0.0
+
+[Manufacturer]
+%CMSISDAP%=DeviceList, NTamd64, NTia64
+
+[DeviceList]
+%DESCRIPTION%=CMSISDAPUSB, USB\VID_0D28&PID_0204
+%COMPOSITE0% =CMSISDAPUSB, USB\VID_0D28&PID_0204&MI_00
+
+[DeviceList]
+%DESCRIPTION%=CMSISDAPUSB, USB\VID_0D28&PID_0204
+%COMPOSITE0% =CMSISDAPUSB, USB\VID_0D28&PID_0204&MI_00
+
+[DeviceList.ntamd64]
+%DESCRIPTION%=CMSISDAPUSB, USB\VID_0D28&PID_0204
+%COMPOSITE0% =CMSISDAPUSB, USB\VID_0D28&PID_0204&MI_00
+
+[DeviceList.ntia64]
+%DESCRIPTION%=CMSISDAPUSB, USB\VID_0D28&PID_0204
+%COMPOSITE0% =CMSISDAPUSB, USB\VID_0D28&PID_0204&MI_00
+
+;------------------------------------------------------------------------------
+;  Installation
+;------------------------------------------------------------------------------
+
+[SourceDisksFiles]
+
+[SourceDisksNames]
+
+[DestinationDirs]
+FakeModemCopyFileSection=12
+DefaultDestDir=12
+
+[CMSISDAPUSB]
+include=mdmcpq.inf
+CopyFiles=FakeModemCopyFileSection
+AddReg=CMSISDAPUSB.AddReg
+
+[CMSISDAPUSB.AddReg]
+HKR,,DevLoader,,*ntkern
+HKR,,NTMPDriver,,usbser.sys
+HKR,,EnumPropPages32,,"MsPorts.dll,SerialPortPropPageProvider"
+
+[CMSISDAPUSB.Services]
+AddService=usbser, 0x00000002, DriverService
+
+[DriverService]
+DisplayName=%DRIVER.SVC%
+ServiceType=1
+StartType=3
+ErrorControl=1
+ServiceBinary=%12%\usbser.sys
+
+;------------------------------------------------------------------------------
+;  String Definitions
+;------------------------------------------------------------------------------
+
+[Strings]
+CMSISDAP	= "Arduino Srl"
+DRIVER.SVC	= "CMSIS-DAP Driver"
+DESCRIPTION	= "CMSIS-DAP CDC"
+COMPOSITE0	= "CMSIS-DAP CDC"
+
