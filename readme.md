@@ -3,13 +3,6 @@
 This repository contains the source code and the configuration files of the Arduino Core for Nordic's nRF52 processor (used on
 the Arduino Primo and Arduino Primo Core boards).
 
-## Installation on Arduino IDE
-
-This core is available as package in the Arduino IDE cores manager. Just open the "Board Manager" and install the package
-called:
-
-"Arduino nRF52 Boards"
-
 ## Support
 
 There is a dedicated section of the Arduino Forum for general discussion and project assistance:
