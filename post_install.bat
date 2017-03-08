@@ -8,6 +8,6 @@ if "%PROCESSOR_ARCHITECTURE%" == "AMD64" (
   drivers\x64\mbed_64.exe
 ) ELSE (
   drivers\dpinst-x86.exe %ARGS%
-  drivers\x64\mbed_32.exe
+  drivers\x86\mbed_32.exe
 )
 exit /b 0
