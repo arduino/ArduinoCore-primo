@@ -86,6 +86,9 @@ recipe.objcopy.eep.pattern="{compiler.path}{compiler.elf2bin.cmd}" {compiler.elf
 ## Create hex
 recipe.objcopy.hex.pattern="{compiler.path}{compiler.elf2hex.cmd}" {compiler.elf2hex.flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.hex"
 
+## Create merged hex file with softdevice and bootloader
+recipe.objcopy.mergehex.pattern="{tools.mergehex.path}/{tools.mergehex.cmd}" --merge "{runtime.platform.path}/firmwares/{firmware.softdevice.file}" "{build.path}/{build.project_name}.hex" --output "{build.path}/{build.project_name}-merged.hex" {tools.mergehex.upload.params.quiet}
+
 ## Save hex
 recipe.output.tmp_file={build.project_name}.hex
 recipe.output.save_file={build.project_name}.{build.variant}.hex
@@ -98,54 +101,34 @@ recipe.size.regex=\.text\s+([0-9]+).*
 # OpenOCD
 # -------------------
 
-# tools.openocd.path={runtime.tools.openocd-0.10.0-arduino1-static.path}
-# tools.openocd.cmd=bin/openocd
-# tools.openocd.cmd.windows=bin/openocd.exe
-#
-# tools.openocd.upload.params.verbose=
-# tools.openocd.upload.params.quiet=
-# #tools.openocd.upload.pattern="{path}/{cmd}" -s "{path}/share/openocd/scripts/" -f ../../../../../arduino/nrf52/variants/{build.variant}/{build.openocdscript} -c "program {{{build.path}/{build.project_name}.hex}} verify reset exit"
+tools.openocd.path={runtime.tools.openocd-0.10.0-arduino1-static.path}
+tools.openocd.cmd=bin/openocd
+tools.openocd.cmd.windows=bin/openocd.exe
 
-# tools.openocd.erase.params.verbose=
-# tools.openocd.erase.params.quiet=
-# tools.openocd.erase.pattern=
+tools.openocd.upload.params.verbose=
+tools.openocd.upload.params.quiet=
+tools.openocd.upload.pattern="{path}/{cmd}" -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "program {{{build.path}/{build.project_name}-merged.hex}} verify reset exit"
+
+tools.openocd.erase.params.verbose=
+tools.openocd.erase.params.quiet=
+tools.openocd.erase.pattern=
 
 #
-# nRF5x Command Line Tools
+# Merge Hex - nRF5x Command Line Tools
 # -------------------
 
-# tools.mergehex.path={runtime.tools.nrf5x-cl-tools-9.3.1.path}
-# tools.mergehex.cmd=mergehex/mergehex
-# tools.mergehex.cmd.windows=bin/mergehex.exe
-# tools.mergehex.upload.params.verbose=
-# tools.mergehex.upload.params.quiet=
+tools.mergehex.path={runtime.tools.nrf5x-cl-tools-9.3.1.path}
+tools.mergehex.cmd=mergehex/mergehex
+tools.mergehex.cmd.windows=bin/mergehex.exe
+tools.mergehex.upload.params.verbose=
+tools.mergehex.upload.params.quiet=--quiet
 
 #
-# Merge & Upload Tool (Serial)
-# -------------------
-
-tools.mutool.path={runtime.tools.mutool-0.0.1.path}
-tools.mutool.cmd=mutool
-tools.mutool.cmd.windows=mutool.cmd
-tools.mutool.upload.params.verbose=
-tools.mutool.upload.params.quiet=
-
-tools.mutool.openocd.path={runtime.tools.openocd-0.10.0-arduino1-static.path}
-tools.mutool.openocd.cmd=bin/openocd
-tools.mutool.openocd.cmd.windows=bin/openocd.exe
-
-tools.mutool.mergehex.path={runtime.tools.nrf5x-cl-tools-9.3.1.path}
-tools.mutool.mergehex.cmd=mergehex/mergehex
-tools.mutool.mergehex.cmd.windows=bin/mergehex.exe
-
-tools.mutool.upload.pattern="{path}/{cmd}" -u "{openocd.path}/{openocd.cmd}" -s "{openocd.path}/share/openocd/scripts/" -t "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -m "{mergehex.path}/{mergehex.cmd}" -f "{runtime.platform.path}/firmwares/{firmware.softdevice.file}" "{build.path}/{build.project_name}.hex"
-
-#
-# Merge & Upload Tool (Ble OTA)
+# Upload Tool (Ble OTA)
 # -------------------
 #tools.otable.path=
-#tools.otable.cmd=mutool
-#tools.otable.cmd.windows=mutool
+#tools.otable.cmd=
+#tools.otable.cmd.windows=
 #tools.otable.upload.params.verbose=
 #tools.otable.upload.params.quiet=
 #tools.otable.upload.pattern=

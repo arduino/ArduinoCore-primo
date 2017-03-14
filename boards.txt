@@ -12,9 +12,9 @@ primo.pid.0=0x0204
 
 primo.menu.upload.serial=via Serial
 primo.menu.upload.bluetooth=via Bluetooth
-primo.menu.upload.bluetooth.upload.tool=otable
+#primo.menu.upload.bluetooth.upload.tool=otable
 
-primo.upload.tool=mutool
+primo.upload.tool=openocd
 primo.upload.protocol=sam-ba
 primo.upload.maximum_size=409600
 primo.upload.use_1200bps_touch=false
