@@ -49,10 +49,10 @@
  * | 18         | A4               |  P030  |                 |
  * | 19         | A5               |  P031  |                 |
  * +------------+------------------+--------+-----------------+
- * | 20         | GND              |        |                 |
- * | 21         | AREF             |  P002  |                 |
- * | 22         | SDA              |  P026  |                 |
- * | 23         | SCL              |  P027  |                 |
+ * | 20         | SDA              |  P026  |                 |
+ * | 21         | SCL              |  P027  |                 |
+ * | 22         | GND              |        |                 |
+ * | 23         | AREF             |  P002  |                 |
  * +------------+------------------+--------+-----------------+
  * |            |SPI (Legacy ICSP) |        |                 |
  * +------------+------------------+--------+-----------------+
@@ -138,16 +138,16 @@ const PinDescription g_APinDescription[]=
   { PORT0,  30, PIO_ANALOG, (PIN_ATTR_ANALOG|PIN_ATTR_PWM), ADC_A4, NOT_ON_PWM, NOT_ON_TIMER },
   { PORT0,  31, PIO_ANALOG, (PIN_ATTR_ANALOG|PIN_ATTR_PWM), ADC_A5, NOT_ON_PWM, NOT_ON_TIMER },
 
-  // 20 (GND)
-  { NOT_A_PORT, 0, PIO_NOT_A_PIN, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER},
-
-  // 21 (AREF)
-  { PORT0,  2, PIO_ANALOG, PIN_ATTR_ANALOG, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER },
-
-  // 22..23 I2C pins (SDA/SCL)
+  // 20..21 I2C pins (SDA/SCL)
   // ----------------------
   { PORT0,  26, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // SDA
   { PORT0,  27, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // SCL
+
+  // 22 (GND)
+  { NOT_A_PORT, 0, PIO_NOT_A_PIN, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER},
+
+  // 23 (AREF)
+  { PORT0,  2, PIO_ANALOG, PIN_ATTR_ANALOG, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER },
 
   
   // 24..29 - SPI pins (ICSP:MISO,SCK,MOSI)
