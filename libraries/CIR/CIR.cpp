@@ -4,7 +4,7 @@ CIR::CIR(void) {
 
 }
 
-void CIR::enableReciver(void) {
+void CIR::enableReceiver(void) {
 	  delay(100);
 	  Wire.begin();
 	  Wire.beginTransmission(0x48);
@@ -12,7 +12,7 @@ void CIR::enableReciver(void) {
 	  Wire.endTransmission();
 }
 
-void CIR::disableReciver(void) {
+void CIR::disableReceiver(void) {
 	  delay(15);
 	  Wire.begin();
 	  Wire.beginTransmission(0x48);
@@ -20,7 +20,7 @@ void CIR::disableReciver(void) {
 	  Wire.endTransmission();
 }
 
-bool CIR::getReciverStatus(void) {
+bool CIR::getReceiverStatus(void) {
 	 delay(150);
 	 Wire.begin();
 	 Wire.beginTransmission(0x48);
