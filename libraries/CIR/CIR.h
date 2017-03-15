@@ -11,9 +11,9 @@
 class CIR {
 public:
 	CIR(void);
-	void enableReciver(void);
-	void disableReciver(void);
-	bool getReciverStatus(void);
+	void enableReceiver(void);
+	void disableReceiver(void);
+	bool getReceiverStatus(void);
 	uint32_t getDecode(void);
 
 	void enableTransmitter(void);
