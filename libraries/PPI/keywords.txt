@@ -1,0 +1,39 @@
+#######################################
+# Syntax Coloring Map PPI
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+PPI	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+setShortcut	KEYWORD2
+setInputPin	KEYWORD2
+setOutputPin	KEYWORD2
+setTimerInterval	KEYWORD2
+setCompReference	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+TIMER	LITERAL1
+PIN_HIGH	LITERAL1
+PIN_LOW	LITERAL1
+PIN_CHANGE	LITERAL1
+COMP_DOWN	LITERAL1
+COMP_UP	LITERAL1
+COMP_CROSS	LITERAL1
+NFC_FIELD_DETECTED	LITERAL1
+POWER_WARNING	LITERAL1
+
+TIMER_START	LITERAL1
+TIMER_STOP	LITERAL1
+PIN_SET	LITERAL1
+PIN_CLEAR	LITERAL1
+PIN_TOGGLE	LITERAL1
+NFC_START_SENSE	LITERAL1
+NFC_STOP_SENSE	LITERAL1

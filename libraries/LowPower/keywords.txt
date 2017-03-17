@@ -1,0 +1,32 @@
+#######################################
+# Syntax Coloring Map LowPower
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+LowPower	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+powerOFF	KEYWORD2
+wakeUpByGPIO	KEYWORD2
+wakeUpByNFC	KEYWORD2
+wakeUpByComp	KEYWORD2
+whoIs	KEYWORD2
+standby	KEYWORD2
+standbyMsec	KEYWORD2
+wakeUpNow	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+CONST_LATENCY	LITERAL1
+LOW_POWER	LITERAL1
+
+OTHER	LITERAL1
+GPIOReset	LITERAL1
+NFCReset	LITERAL1
+CompReset	LITERAL1
