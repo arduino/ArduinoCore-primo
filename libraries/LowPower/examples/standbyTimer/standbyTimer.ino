@@ -24,18 +24,18 @@
 
 void setup() {
   Serial.begin(9600);
-  pinMode(13, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
 }
 
 
 void loop() {
-  digitalWrite(13, HIGH);
+  digitalWrite(LED_BUILTIN, HIGH);
   delay(200);
-  digitalWrite(13, LOW);
+  digitalWrite(LED_BUILTIN, LOW);
   delay(200);
-  digitalWrite(13, HIGH);
+  digitalWrite(LED_BUILTIN, HIGH);
   delay(100);
-  digitalWrite(13, LOW);
+  digitalWrite(LED_BUILTIN, LOW);
   delay(100);
   Serial.println("Ready to go to bed...");
 
@@ -44,13 +44,13 @@ void loop() {
   //  LowPower.standby(5, myFunction, CONST_LATENCY);  //constant latency mode
 
   Serial.println("Good morning to all!");
-  digitalWrite(13, HIGH);
+  digitalWrite(LED_BUILTIN, HIGH);
   delay(1000);
-  digitalWrite(13, LOW);
+  digitalWrite(LED_BUILTIN, LOW);
   delay(1000);
-  digitalWrite(13, HIGH);
+  digitalWrite(LED_BUILTIN, HIGH);
   delay(500);
-  digitalWrite(13, LOW);
+  digitalWrite(LED_BUILTIN, LOW);
   delay(500);	
 
 } 

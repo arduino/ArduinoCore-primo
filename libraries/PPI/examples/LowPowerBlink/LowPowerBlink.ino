@@ -23,7 +23,7 @@ void setup() {
   //set an interval for the timer (in milliseconds)
   PPI.setTimerInterval(1000);
   //select the output pin
-  PPI.setOutputPin(13);
+  PPI.setOutputPin(LED_BUILTIN);
   //bind TIMER event to PIN_TOGGLE action
   PPI.setShortcut(TIMER, PIN_TOGGLE);
   

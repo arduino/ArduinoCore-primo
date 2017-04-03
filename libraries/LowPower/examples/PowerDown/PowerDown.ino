@@ -24,10 +24,10 @@
 void setup() {
   Serial.begin(9600);
 
-  pinMode(13, OUTPUT);
-  digitalWrite(13, HIGH);
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
   delay(500);
-  digitalWrite(13, LOW);
+  digitalWrite(LED_BUILTIN, LOW);
   delay(500);
 
   //look for what peripheral woke up the board

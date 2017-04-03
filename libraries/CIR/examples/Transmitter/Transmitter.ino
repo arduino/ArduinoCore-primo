@@ -35,16 +35,16 @@ CIR Primo_CIR;
 
 void setup() {
   // initialize the LED pin as an output:
-  pinMode(13, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
   // turn LED off:
-  digitalWrite(13, LOW);
+  digitalWrite(LED_BUILTIN, LOW);
   // enable IR ready to transmitter:
   Primo_CIR.enableTransmitter();
   // initialize the pushbutton pin as an input:
   pinMode(USER1_BUTTON, INPUT);
   pinMode(USER2_BUTTON, INPUT);
   // turn LED on:
-  digitalWrite(13, HIGH);
+  digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void loop() {
@@ -52,21 +52,21 @@ void loop() {
   if (!digitalRead(USER1_BUTTON))
   {
     // turn LED on:
-    digitalWrite(13, HIGH);
+    digitalWrite(LED_BUILTIN, HIGH);
 
     // sned hex code:
     Primo_CIR.sendEncode(HEX_1);
     // turn LED off:
-    digitalWrite(13, LOW);
+    digitalWrite(LED_BUILTIN, LOW);
   }
   // check if the USER2 BUTTON is pressed:
   else if (!digitalRead(USER2_BUTTON))
   {
     // turn LED on:
-    digitalWrite(13, HIGH);
+    digitalWrite(LED_BUILTIN, HIGH);
     // sned hex code:
     Primo_CIR.sendEncode(HEX_2);
     // turn LED off:
-    digitalWrite(13, LOW);
+    digitalWrite(LED_BUILTIN, LOW);
   }
 }

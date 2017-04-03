@@ -23,7 +23,7 @@
 #include <BLECentralRole.h>
 
 // LED and button pin
-#define LED_PIN     13
+#define LED_PIN     LED_BUILTIN
 #define BUTTON_PIN  USER1_BUTTON
 
 // create central instance

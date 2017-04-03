@@ -16,7 +16,7 @@ RTCInt rtc;
 void setup() 
 {
   Serial.begin(9600);       //serial communication initializing
-  pinMode(13,OUTPUT);
+  pinMode(LED_BUILTIN,OUTPUT);
   rtc.begin(TIME_H24);      //RTC initializing with 24 hour representation mode
   rtc.setTime(17,0,5,0);    //setting time (hour minute and second)
   rtc.setDate(13,8,15);     //setting date
@@ -29,9 +29,9 @@ void setup()
 
 void loop()
 {
-  digitalWrite(13,HIGH);   //main program code
+  digitalWrite(LED_BUILTIN,HIGH);   //main program code
   delay(100);
-  digitalWrite(13,LOW);
+  digitalWrite(LED_BUILTIN,LOW);
   delay(900);
   
 }
@@ -43,10 +43,10 @@ void alarm_int(void)
   Serial.println("Alarm match!");
     for(int i=0; i < 10; i++)
     {
-      digitalWrite(13,HIGH);
+      digitalWrite(LED_BUILTIN,HIGH);
       //delay(200);
       for(int j=0; j < 1000000; j++) asm("NOP");  //in interrupt routine you cannot use delay function then an alternative is NOP instruction cicled many time as you need
-      digitalWrite(13,LOW);
+      digitalWrite(LED_BUILTIN,LOW);
       //delay(800);
       for(int j=0; j < 2000000; j++) asm("NOP");
     }

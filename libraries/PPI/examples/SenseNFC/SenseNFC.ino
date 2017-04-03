@@ -32,8 +32,8 @@ PPI.setShortcut(COMP_DOWN, NFC_STOP_SENSE);
 PPI.setInputPin(4);
 PPI.setShortcut(PIN_HIGH, NFC_START_SENSE);
 
-//Toggle pin 13 each time an NFC field is detected
-PPI.setOutputPin(13);
+//Toggle LED pin each time an NFC field is detected
+PPI.setOutputPin(LED_BUILTIN);
 PPI.setShortcut(NFC_FIELD_DETECTED, PIN_TOGGLE);
 
 //Put mcu in standby mode to save power. 
