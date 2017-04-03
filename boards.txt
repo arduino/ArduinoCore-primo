@@ -7,8 +7,8 @@ menu.upload=Upload
 ########### ARDUINO PRIMO ###########
 
 primo.name=Arduino Primo
-primo.vid.0=0x0d28
-primo.pid.0=0x0204
+primo.vid.0=0x2a03
+primo.pid.0=0x805a
 
 primo.menu.upload.serial=via Serial
 primo.menu.upload.bluetooth=via Bluetooth
@@ -32,8 +32,8 @@ primo.build.ldscript=linker_scripts/gcc/flash.ld
 primo.build.openocdscript=openocd_scripts/arduino_primo.cfg
 primo.build.variant=arduino_primo
 primo.build.components=components
-primo.build.vid=0x0d28
-primo.build.pid=0x0204
+primo.build.vid=0x2a03
+primo.build.pid=0x805a
 
 #new defined attributes
 #primo.bootloader.file=
