@@ -25,7 +25,7 @@ void setup() {
 
   Serial.begin(9600);
 
-  pinMode(13, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
   pinMode(USER1_BUTTON, INPUT);
   //attach an interrupt on button USER1 to wake up the board when a low level is detected
   attachInterrupt(USER1_BUTTON, myFunction, LOW); 
@@ -34,13 +34,13 @@ void setup() {
 
 
 void loop() {
-  digitalWrite(13, HIGH);
+  digitalWrite(LED_BUILTIN, HIGH);
   delay(200);
-  digitalWrite(13, LOW);
+  digitalWrite(LED_BUILTIN, LOW);
   delay(200);
-  digitalWrite(13, HIGH);
+  digitalWrite(LED_BUILTIN, HIGH);
   delay(100);
-  digitalWrite(13, LOW);
+  digitalWrite(LED_BUILTIN, LOW);
   delay(100);
   Serial.println("Ready to go to bed...");
 
@@ -48,13 +48,13 @@ void loop() {
   LowPower.standby();
 	
   Serial.println("Good morning to all!");
-  digitalWrite(13, HIGH);
+  digitalWrite(LED_BUILTIN, HIGH);
   delay(1000);
-  digitalWrite(13, LOW);
+  digitalWrite(LED_BUILTIN, LOW);
   delay(1000);
-  digitalWrite(13, HIGH);
+  digitalWrite(LED_BUILTIN, HIGH);
   delay(500);
-  digitalWrite(13, LOW);
+  digitalWrite(LED_BUILTIN, LOW);
   delay(500);	
 }	
 

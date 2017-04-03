@@ -10,7 +10,7 @@
 #include <BLEPeripheral.h>
 
 // LED pin
-#define LED_PIN   13
+#define LED_PIN   LED_BUILTIN
 
 // create peripheral instance
 BLEPeripheralRole            blePeripheral        = BLEPeripheralRole();

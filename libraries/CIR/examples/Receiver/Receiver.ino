@@ -33,13 +33,13 @@ void setup() {
   // start serial port at 115200 bps:
   Serial.begin(115200);
   // initialize the LED pin as an output:
-  pinMode(13, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
   // turn LED off:
-  digitalWrite(13, LOW);
+  digitalWrite(LED_BUILTIN, LOW);
   // enable IR ready to receiver:
   Primo_CIR.enableReceiver();
   // turn LED on:
-  digitalWrite(13, HIGH);
+  digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void loop() {
@@ -51,12 +51,12 @@ void loop() {
 
 void PrintCirReceiverResult() {
   // turn LED on:
-  digitalWrite(13, HIGH);
+  digitalWrite(LED_BUILTIN, HIGH);
   Serial.print("Data Code:");
   // convert to hex code and print:
   Serial.println(Primo_CIR.getDecode(),HEX);
   // new line:
   Serial.print('\n');
   // turn LED off:
-  digitalWrite(13, LOW);
+  digitalWrite(LED_BUILTIN, LOW);
 }

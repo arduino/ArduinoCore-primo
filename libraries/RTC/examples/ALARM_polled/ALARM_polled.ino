@@ -15,7 +15,7 @@ RTCInt rtc;
 void setup() 
 {
   Serial.begin(9600);       //serial communication initializing
-  pinMode(13,OUTPUT);
+  pinMode(LED_BUILTIN,OUTPUT);
   rtc.begin(TIME_H24);      //RTC initializing with 24 hour representation mode
   rtc.setTime(17,0,5,0);    //setting time (hour minute and second)
   rtc.setDate(13,8,15);     //setting date
@@ -29,9 +29,9 @@ void setup()
 void loop()
 {
 
-   digitalWrite(13,HIGH);
+   digitalWrite(LED_BUILTIN,HIGH);
    delay(100);
-   digitalWrite(13,LOW);
+   digitalWrite(LED_BUILTIN,LOW);
    delay(400);
    
   if(rtc.alarmMatch())        //when match occurs led on pin 13 blinks ten times
@@ -39,9 +39,9 @@ void loop()
     Serial.println("Alarm match!");
     for(int i=0; i < 10; i++)
     {
-      digitalWrite(13,HIGH);
+      digitalWrite(LED_BUILTIN,HIGH);
       delay(200);
-      digitalWrite(13,LOW);
+      digitalWrite(LED_BUILTIN,LOW);
       delay(800);
     }
     rtc.alarmClearFlag(); //clearing alarm flag

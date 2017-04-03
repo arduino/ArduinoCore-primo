@@ -34,11 +34,11 @@
  * |            | Digital High     |        |                 |
  * +------------+------------------+--------+-----------------+
  * | 8          | ~8               |  P019  |                 | 
- * | 9          | ~9               |  P020  |                 |
+ * | 9          | ~9               |  P020  | LED             |
  * | 10         | ~10              |  P022  |                 |
  * | 11         | ~11              |  P023  |                 |
  * | 12         | ~12              |  P024  |                 |
- * | 13         | ~13              |  P025  | LED             |
+ * | 13         | ~13              |  P025  |                 |
  * +------------+------------------+--------+-----------------+
  * |            | Analog Connector |        |                 |
  * +------------+------------------+--------+-----------------+
@@ -113,7 +113,7 @@ const PinDescription g_APinDescription[]=
   { PORT0, 11, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // RX
   { PORT0, 12, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER}, // TX
 
-  // 2..12
+  // 2..8
   { PORT0,  13, PIO_DIGITAL, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM), No_ADC_Channel, PWM0, NOT_ON_TIMER},
   { PORT0,  14, PIO_DIGITAL, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM), No_ADC_Channel, PWM1, NOT_ON_TIMER},
   { PORT0,  15, PIO_DIGITAL, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM), No_ADC_Channel, PWM2, NOT_ON_TIMER},
@@ -121,12 +121,14 @@ const PinDescription g_APinDescription[]=
   { PORT0,  17, PIO_DIGITAL, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM), No_ADC_Channel, PWM4, NOT_ON_TIMER},
   { PORT0,  18, PIO_DIGITAL, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM), No_ADC_Channel, PWM5, NOT_ON_TIMER},
   { PORT0,  19, PIO_DIGITAL, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM), No_ADC_Channel, PWM6, NOT_ON_TIMER},
+
+  // 9 (LED)
   { PORT0,  20, PIO_DIGITAL, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM), No_ADC_Channel, PWM7, NOT_ON_TIMER},
+
+  // 10..13
   { PORT0,  22, PIO_DIGITAL, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM), No_ADC_Channel, PWM8, NOT_ON_TIMER},
   { PORT0,  23, PIO_DIGITAL, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM), No_ADC_Channel, PWM9, NOT_ON_TIMER},
   { PORT0,  24, PIO_DIGITAL, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM), No_ADC_Channel, PWM10, NOT_ON_TIMER},
-
-  // 13 (LED)
   { PORT0,  25, PIO_DIGITAL, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM), No_ADC_Channel, PWM11, NOT_ON_TIMER},
 
   // 14..19 - Analog pins

@@ -35,7 +35,7 @@ uint8_t event_index;
 uint8_t task_index;
 								  
 uint32_t milliSec=1000;
-uint32_t outputPin=13;
+uint32_t outputPin=LED_BUILTIN;
 nrf_lpcomp_ref_t reference=REF_VDD_1_2;
 uint32_t inputPin=A0;
 

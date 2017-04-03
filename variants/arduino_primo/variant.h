@@ -71,9 +71,9 @@ extern "C"{
 #define digitalPinHasPWM(P)        ( g_APinDescription[P].ulPWMChannel != NOT_ON_PWM )
 #define digitalPinToInterrupt(P)   ( P )
 
-#define PIN_LED_13           (13u)
-#define PIN_LED              PIN_LED_13
-#define LED_BUILTIN          PIN_LED_13
+#define PIN_LED_9            (9u)
+#define PIN_LED              PIN_LED_9
+#define LED_BUILTIN          PIN_LED_9
 #define BUZZER				 (35u)
 #define USER1_BUTTON		 (34u)
 

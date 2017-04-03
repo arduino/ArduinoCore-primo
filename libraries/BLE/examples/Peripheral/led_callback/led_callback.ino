@@ -16,7 +16,7 @@
 #include <NFC.h>
 
 // LED pin
-#define LED_PIN   13
+#define LED_PIN   LED_BUILTIN
 
 // create peripheral instance
 BLEPeripheral           blePeripheral        = BLEPeripheral();
