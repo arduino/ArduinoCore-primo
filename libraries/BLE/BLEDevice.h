@@ -119,6 +119,8 @@ class BLEDevice
     bool                          _userConfirm;
     BLEBondStore*                 _bondStore;
     BLEDeviceEventListener*       _eventListener;
+    uint8_t                       _status;
+
 };
 
 #endif

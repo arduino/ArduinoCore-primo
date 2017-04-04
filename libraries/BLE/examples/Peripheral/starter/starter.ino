@@ -3,6 +3,8 @@
    Modified by Chiara Ruggeri <chiara@arduino.org>
 
    This example shows how to use the BLEPeripheral library.
+   The example also uses BLE_LED to show the status of the board. It will blink every 200 ms when the board is advertising.
+   It will be on when the board is connected to a central. It will be off when the board is disconnected.
 */
 
 #include <BLEPeripheral.h>
@@ -25,6 +27,9 @@ BLEDescriptor descriptor = BLEDescriptor("2901", "value");
 
 void setup() {
   Serial.begin(115200);
+
+  //initialize BLE led
+  pinMode(BLE_LED, OUTPUT);
 
   blePeripheral.setLocalName("local-name"); // optional
   blePeripheral.setAdvertisedServiceUuid(service.uuid()); // optional
@@ -64,4 +69,14 @@ void loop() {
     Serial.print(F("Disconnected from central: "));
     Serial.println(central.address());
   }
+  
+  // retrieve the peripheral status in order to blink only when advertising
+  if(blePeripheral.status() == ADVERTISING){
+    digitalWrite(BLE_LED, LOW);
+    delay(200);
+    digitalWrite(BLE_LED, HIGH);
+    delay(200);
+  }
+  else // if we are not advertising, we are connected
+	digitalWrite(BLE_LED, HIGH);
 }

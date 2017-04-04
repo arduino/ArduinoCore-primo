@@ -14,6 +14,9 @@
  * Please note that TX and RX characteristics use Notify and WriteWithoutResponse, so there's no guarantee
  * that the data will make it to the other end. However, under normal circumstances and reasonable signal
  * strengths everything works well.
+ *
+ * In this example BLE_LED shows the status of the board. It will blink every 200 ms when the board is advertising.
+ * It will be on when the board is connected to a central. It will be off when the board is disconnected.
  */
 
 
@@ -28,6 +31,9 @@ void setup() {
   // custom services and characteristics can be added as well
   bleSerial.setLocalName("UART");
 
+  //initialize BLE led
+  pinMode(BLE_LED, OUTPUT);
+
   Serial.begin(9600);
   bleSerial.begin();
 }
@@ -38,6 +44,16 @@ void loop() {
   forward();
   // loopback();
   // spam();
+  
+  // handle the BLE led. Blink when advertising
+  if(bleSerial.status() == ADVERTISING){
+    digitalWrite(BLE_LED, LOW);
+    delay(200);
+    digitalWrite(BLE_LED, HIGH);
+    delay(200);
+  }
+  else // if we are not advertising, we are connected
+  digitalWrite(BLE_LED, HIGH);
 }
 
 
