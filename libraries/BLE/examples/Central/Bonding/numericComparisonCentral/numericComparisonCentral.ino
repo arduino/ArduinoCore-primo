@@ -10,7 +10,10 @@
    to bond them.
    Use the complementary example numericComparison.ino in File->Examples->BLE->Peripheral->Bonding
    to test this feature.
-  
+
+   In this example BLE_LED shows the status of the board. It will blink every 200 ms when the board is scanning.
+   It will be on when the board is connected to a peripheral. It will be off when the board is disconnected.
+   
    This example code is in the public domain.
 */
 
@@ -30,6 +33,9 @@ BLERemoteCharacteristic          dummyRemoteCharacteristic           = BLERemote
 
 void setup() {
   Serial.begin(9600);
+
+  //initialize BLE led
+  pinMode(BLE_LED, OUTPUT);
   
   // initialize button
   pinMode(CONFIRM_BUTTON, INPUT);
@@ -58,7 +64,18 @@ void setup() {
 }
 
 void loop() {
-  // Do nothing
+  // Handle BLE led
+  blinkOnScan();
+}
+
+void blinkOnScan(){
+  // retrieve the central status in order to blink only when scanning
+  if(bleCentral.status() == SCANNING){
+    digitalWrite(BLE_LED, LOW);
+    delay(200);
+    digitalWrite(BLE_LED, HIGH);
+    delay(200);
+  }
 }
 
 void receiveAdvPck(BLEPeripheralPeer& peer){
@@ -80,12 +97,16 @@ void bleCentralConnectHandler(BLEPeripheralPeer& peer) {
   // peer connected event handler
   Serial.print("Connected event, peripheral: ");
   Serial.println(peer.address());
+  // turn BLE_LED on
+  digitalWrite(BLE_LED, HIGH);
 }
 
 void bleCentralDisconnectHandler(BLEPeripheralPeer& peer) {
   // peer disconnected event handler
   Serial.print("Disconnected event, peripheral: ");
   Serial.println(peer.address());
+  // turn BLE_LED off
+  digitalWrite(BLE_LED, LOW);
 }
 
 void showPasskey(BLEPeripheralPeer& peer) {

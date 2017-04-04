@@ -487,6 +487,7 @@ void nRF51822::begin(unsigned char advertisementDataSize,
   }
 
   this->startAdvertising();
+  this->_status = 2;
 
 #ifdef __RFduino__
   RFduinoBLE_enabled = 1;
@@ -522,7 +523,7 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
         Serial.print(F("Evt Connected "));
         Serial.println(address);
 #endif
-
+        this->_status = 0;
         this->_connectionHandle = bleEvt->evt.gap_evt.conn_handle;
 
 #if defined(NRF5) && !defined(S110)
@@ -564,6 +565,7 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
 #endif
         this->_connectionHandle = BLE_CONN_HANDLE_INVALID;
         this->_txBufferCount = 0;
+        this->_status = 1;
 
         for (int i = 0; i < this->_numLocalCharacteristics; i++) {
           struct localCharacteristicInfo* localCharacteristicInfo = &this->_localCharacteristicInfo[i];
@@ -596,6 +598,7 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
         this->_remoteRequestInProgress = false;
 
         this->startAdvertising();
+        this->_status = 2;
 		
         break;
 

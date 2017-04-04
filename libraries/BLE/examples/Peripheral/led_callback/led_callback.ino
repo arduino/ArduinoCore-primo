@@ -59,7 +59,8 @@ void setup() {
 }
 
 void loop() {
-  // put the board in low power mode
+  // since we want to realize a low power application we don't handle the
+  // BLE_LED in order to save power but put the board in low power mode instead
   LowPower.standby();
 }
 

@@ -19,6 +19,9 @@
   about CTS service please refer to the Bluetooth specifications:
   https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.service.current_time.xml
 
+  In this example BLE_LED shows the status of the board. It will blink every 200 ms when the board is scanning.
+  It will be on when the board is connected to a peripheral. It will be off when the board is disconnected.
+  
   This example code is in the public domain.
   
 */
@@ -41,8 +44,10 @@ RTCInt rtc;  //create an RTCInt type object
 
 void setup() {
   Serial.begin(9600);
-  delay(2000);
-  Serial.println("start");
+
+  //initialize BLE led
+  pinMode(BLE_LED, OUTPUT);
+
   rtc.begin(TIME_H24); //init RTC in 24 hour mode
   
   //time settings
@@ -96,11 +101,17 @@ void loop() {
     
     // update characteristic value
     ctsCharacteristic.setValue((unsigned char *)time, 9);
-    
-    }
-    
+
     // update the value every second
     delay(1000);
+    
+  }    
+  else{ // if we are not connected we are scanning hence blink BLE led
+    digitalWrite(BLE_LED, LOW);
+    delay(200);
+    digitalWrite(BLE_LED, HIGH);
+    delay(200);
+  }
 }
 
 void receiveAdvPck(BLEPeripheralPeer& peer){
@@ -122,10 +133,14 @@ void bleCentralConnectHandler(BLEPeripheralPeer& peer) {
   // peer connected event handler
   Serial.print("Connected event, peripheral: ");
   Serial.println(peer.address());
+  // turn BLE_LED on
+  digitalWrite(BLE_LED, HIGH);
 }
 
 void bleCentralDisconnectHandler(BLEPeripheralPeer& peer) {
   // peer disconnected event handler
   Serial.print("Disconnected event, peripheral: ");
   Serial.println(peer.address());
+  // turn BLE_LED off
+  digitalWrite(BLE_LED, LOW);
 }

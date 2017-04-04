@@ -62,6 +62,13 @@ enum BLEBondingType {
   LESC_CONFIRM_PASSKEY = 6
 };
 
+enum BLEStatus {
+	CONNECT = 0,
+	DISCONNECT,
+	ADVERTISING,
+	SCANNING
+};
+
 typedef void (*BLEPeripheralEventHandler)(BLECentral& central);
 typedef void (*BLEMessageEventHandler)(int eventNo, int messageCode);
 
@@ -108,6 +115,8 @@ class BLEPeripheral : public BLEDeviceEventListener,
 
     BLECentral central();
     bool connected();
+	
+    BLEStatus status();
 
     void printBleMessage(int eventCode, int messageCode);
 	

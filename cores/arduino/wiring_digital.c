@@ -232,7 +232,6 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
 
   if ( (ulPin == 34) && (ulMode == STM32_IT) )
   {
-	  delay(15);
 	  TwoWire_begin();
 	  TwoWire_beginTransmission(0x48);
 	  TwoWire_write(GPIO_USER1_IT);
@@ -278,7 +277,6 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 	switch ( ulPin )
 	{
 		case 38:
-			delay(15);
 			if(ulVal == HIGH)
 			{
 				TwoWire_begin();
@@ -296,7 +294,6 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 		break ;
 
 		case 39:
-			delay(15);
 			if(ulVal == HIGH)
 			{
 				 TwoWire_begin();
@@ -314,7 +311,6 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 		break ;
 
 		case 40:
-			delay(15);
 			if(ulVal == HIGH)
 			{
 				 TwoWire_begin();
@@ -332,7 +328,6 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 		break ;
 
 		case 41:
-			delay(15);
 			if(ulVal == HIGH)
 			{
 				 TwoWire_begin();
@@ -350,7 +345,6 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 		break ;
 
 		case 42:
-			delay(15);
 			if(ulVal == HIGH)
 			{
 				 TwoWire_begin();
@@ -396,12 +390,10 @@ int digitalRead( uint32_t ulPin )
    switch ( ulPin )
 	{
    	   case 44:
-   		   	 delay(15);
 			 TwoWire_begin();
 			 TwoWire_beginTransmission(0x48);
 			 TwoWire_write(USER2_BUTTON_IN);
 			 TwoWire_endTransmission();
-			 delay(15);
 			 TwoWire_requestFrom(0x48, 2, true);
 			 char c = TwoWire_read();
 			 if (c == 0xC3)
