@@ -114,10 +114,9 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
   nrf_twim_event_clear(_TWIInstance, NRF_TWIM_EVENT_SUSPENDED);
   nrf_twim_event_clear(_TWIInstance, NRF_TWIM_EVENT_LASTRX);
   nrf_twim_event_clear(_TWIInstance, NRF_TWIM_EVENT_ERROR);
-    
+
+  nrf_twim_task_trigger(_TWIInstance, NRF_TWIM_TASK_RESUME);
   nrf_twim_task_trigger(_TWIInstance, NRF_TWIM_TASK_STARTRX);
-  if(suspended)
-	nrf_twim_task_trigger(_TWIInstance, NRF_TWIM_TASK_RESUME);
   if(stopBit){
 	//wait transmission's end and check for errors
     while(!nrf_twim_event_check(_TWIInstance, NRF_TWIM_EVENT_STOPPED)){
@@ -133,9 +132,11 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
 	//wait last byte, then suspend twi instead of stop it
 	//so no stop bit will be trasmitted
 	while(!nrf_twim_event_check(_TWIInstance, NRF_TWIM_EVENT_LASTRX)){
-	  if(nrf_twim_event_check(_TWIInstance, NRF_TWIM_EVENT_ERROR))
+	  if(nrf_twim_event_check(_TWIInstance, NRF_TWIM_EVENT_ERROR)){
+		nrf_twim_task_trigger(_TWIInstance, NRF_TWIM_TASK_STOP);
 		//if an error occurs exit from this while or it will loop forever
-		break;   
+		break;
+	  }		
 	}
 	nrf_twim_task_trigger(_TWIInstance, NRF_TWIM_TASK_SUSPEND);
     while(!nrf_twim_event_check(_TWIInstance, NRF_TWIM_EVENT_SUSPENDED));
@@ -195,6 +196,7 @@ uint8_t TwoWire::endTransmission(bool stopBit)
   nrf_twim_event_clear(_TWIInstance, NRF_TWIM_EVENT_SUSPENDED);
   nrf_twim_event_clear(_TWIInstance, NRF_TWIM_EVENT_LASTTX);
   
+  nrf_twim_task_trigger(_TWIInstance, NRF_TWIM_TASK_RESUME);  
   nrf_twim_task_trigger(_TWIInstance, NRF_TWIM_TASK_STARTTX);
   if(stopBit){
 	//wait transmission's end and check for errors
@@ -214,11 +216,13 @@ uint8_t TwoWire::endTransmission(bool stopBit)
   }
   else{
 	  while(!nrf_twim_event_check(_TWIInstance, NRF_TWIM_EVENT_SUSPENDED)){
-	    if(nrf_twim_event_check(_TWIInstance, NRF_TWIM_EVENT_ERROR))
+	    if(nrf_twim_event_check(_TWIInstance, NRF_TWIM_EVENT_ERROR)){
+		  nrf_twim_task_trigger(_TWIInstance, NRF_TWIM_TASK_STOP);
 		  if(nrf_twim_errorsrc_get_and_clear(_TWIInstance)==NRF_TWIM_ERROR_ADDRESS_NACK)
 			  return 2;
 		  else
 			  return 3;
+		}
 	  }
 	suspended=1;
   }
