@@ -1,7 +1,7 @@
 # Copyright (c) 2016-2017 Arduino Srl.  All right reserved.
 #
 
-menu.upload=Upload
+#menu.upload=Upload
 
 #####################################
 ########### ARDUINO PRIMO ###########
@@ -10,8 +10,8 @@ primo.name=Arduino Primo
 primo.vid.0=0x2a03
 primo.pid.0=0x805a
 
-primo.menu.upload.serial=via Serial
-primo.menu.upload.bluetooth=via Bluetooth
+#primo.menu.upload.serial=via Serial
+#primo.menu.upload.bluetooth=via Bluetooth
 #primo.menu.upload.bluetooth.upload.tool=otable
 
 primo.upload.tool=openocd
