@@ -78,6 +78,8 @@ public:
     void disconnect();
 	
     void allowMultilink(uint8_t linksNo);
+	
+    BLEStatus status();
 
     void setBondStore(BLEBondStore& bondStore);
     void enableBond(BLEBondingType type = JUST_WORKS);
@@ -137,6 +139,8 @@ private:
       ble_gatt_char_props_t properties;
       uint16_t valueHandle;
     };
+
+    BLEStatus                         _status;
 
     short                             _scanInterval = 0x0004;
     short                             _scanWindow   = 0x0004;

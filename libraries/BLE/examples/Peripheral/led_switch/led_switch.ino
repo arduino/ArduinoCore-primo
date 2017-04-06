@@ -8,7 +8,10 @@
    You can use nRFConnect app to read/write the characteristic
    https://www.nordicsemi.com/eng/Products/Nordic-mobile-Apps/nRF-Connect-for-mobile-previously-called-nRF-Master-Control-Panel
    or use another board with led_switch_client example in File->Examples->BLE->Central menu.
- */
+
+   In this example BLE_LED shows the status of the board. It will blink every 200 ms when the board is advertising.
+   It will be on when the board is connected to a central. It will be off when the board is disconnected.
+   */
 
 #include <BLEPeripheral.h>
 
@@ -28,6 +31,9 @@ BLECharCharacteristic    buttonCharacteristic = BLECharCharacteristic("19b10012e
 
 void setup() {
   Serial.begin(115200);
+
+  //initialize BLE led
+  pinMode(BLE_LED, OUTPUT);
 
   // set LED pin to output mode, button pin to input mode
   pinMode(LED_PIN, OUTPUT);
@@ -74,4 +80,14 @@ void loop() {
       digitalWrite(LED_PIN, LOW);
     }
   }
+
+  // retrieve the peripheral status in order to blink only when advertising
+  if(blePeripheral.status() == ADVERTISING){
+    digitalWrite(BLE_LED, LOW);
+    delay(200);
+    digitalWrite(BLE_LED, HIGH);
+    delay(200);
+  }
+  else // if we are not advertising, we are connected
+	digitalWrite(BLE_LED, HIGH);
 }

@@ -19,6 +19,9 @@ BLERemoteCharacteristic          remoteDeviceNameCharacteristic           = BLER
 void setup() {
   Serial.begin(9600);
 
+  //initialize BLE led
+  pinMode(BLE_LED, OUTPUT);
+
   blePeripheral.setLocalName("remote-attributes");
 
   // set device name and appearance
@@ -44,18 +47,34 @@ void setup() {
 
 void loop() {
   blePeripheral.poll();
+  // blink if the board is advertising
+  blinkOnAdv();
+}
+
+void blinkOnAdv(){
+  // retrieve the peripheral status in order to blink only when advertising
+  if(blePeripheral.status() == ADVERTISING){
+    digitalWrite(BLE_LED, LOW);
+    delay(200);
+    digitalWrite(BLE_LED, HIGH);
+    delay(200);
+  }
 }
 
 void blePeripheralConnectHandler(BLECentral& central) {
   // central connected event handler
   Serial.print(F("Connected event, central: "));
   Serial.println(central.address());
+  // turn BLE_LED on
+  digitalWrite(BLE_LED, HIGH);
 }
 
 void blePeripheralDisconnectHandler(BLECentral& central) {
   // central disconnected event handler
   Serial.print(F("Disconnected event, central: "));
   Serial.println(central.address());
+  // turn BLE_LED off
+  digitalWrite(BLE_LED, LOW);
 }
 
 void blePeripheralRemoteServicesDiscoveredHandler(BLECentral& central) {

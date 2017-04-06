@@ -35,6 +35,8 @@
 BLECentralRole::BLECentralRole() : 
   _messageEventHandler(NULL),
   
+  _status(DISCONNECT),
+  
   _localAttributes(NULL),
   _numLocalAttributes(0),
   _remoteAttributes(NULL),
@@ -222,6 +224,10 @@ void BLECentralRole::allowMultilink(uint8_t linksNo){
   if(linksNo > MAX_PERIPHERAL)
     linksNo = MAX_PERIPHERAL;
   _allowedPeripherals = linksNo;
+}
+
+BLEStatus BLECentralRole::status(){
+  return _status;
 }
 
 void BLECentralRole::setBondStore(BLEBondStore& bondStore){
@@ -604,7 +610,7 @@ void BLECentralRole::begin(){
   }
   
   this->startScan();
-
+  this->_status = SCANNING;
 }
 
 void BLECentralRole::poll(ble_evt_t *bleEvt){
@@ -627,6 +633,7 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
             }
         break;
         case BLE_GAP_EVT_CONNECTED:
+            _status = CONNECT;
             uint8_t index;
             //save the handler in the first free location
             for(index = 0; index < _allowedPeripherals; index++)
@@ -685,6 +692,7 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
         break;
         case BLE_GAP_EVT_DISCONNECTED:
             uint8_t currentPeripheral;
+			this->_status = DISCONNECT;
             for(currentPeripheral = 0; currentPeripheral < _allowedPeripherals; currentPeripheral++)
               if(this->_connectionHandle[currentPeripheral] == bleEvt->evt.gap_evt.conn_handle)
                 break;
@@ -712,6 +720,7 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
 
         this->_remoteRequestInProgress = false;
         this->startScan();
+        this->_status = SCANNING;
         break;
 
       case BLE_GAP_EVT_CONN_PARAM_UPDATE:

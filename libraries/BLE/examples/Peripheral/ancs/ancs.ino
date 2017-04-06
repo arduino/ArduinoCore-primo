@@ -5,6 +5,8 @@
    This example implements an Apple Notification Center Service client
    For detailed information about the Apple Notification Center Service, see Apple's iOS Developer Library
    https://developer.apple.com/library/content/documentation/CoreBluetooth/Reference/AppleNotificationCenterServiceSpecification/Introduction/Introduction.html
+   In this example BLE_LED shows the status of the board. It will blink every 200 ms when the board is advertising.
+   It will be on when the board is connected to a central. It will be off when the board is disconnected.
 */
 
 #include <BLEPeripheral.h>
@@ -26,6 +28,8 @@ BLERemoteCharacteristic          ancsNotificationSourceCharacteristic     = BLER
 void setup() {
   Serial.begin(9600);
 
+  pinMode(BLE_LED, OUTPUT);
+  
   // clears bond data on every boot
   bleBondStore.clearData();
 
@@ -61,18 +65,35 @@ void setup() {
 
 void loop() {
   blePeripheral.poll();
+  // BLE_LED will be blinking when the board is advertising,
+  // on when the board is connected and off when it's disconnected.
+  blinkOnAdv();
+}
+
+void blinkOnAdv(){
+  // retrieve the peripheral status in order to blink only when advertising
+  if(blePeripheral.status() == ADVERTISING){
+    digitalWrite(BLE_LED, LOW);
+    delay(200);
+    digitalWrite(BLE_LED, HIGH);
+    delay(200);
+  }
 }
 
 void blePeripheralConnectHandler(BLECentral& central) {
   // central connected event handler
   Serial.print(F("Connected event, central: "));
   Serial.println(central.address());
+  // turn BLE_LED on
+  digitalWrite(BLE_LED, HIGH);
 }
 
 void blePeripheralDisconnectHandler(BLECentral& central) {
   // central disconnected event handler
   Serial.print(F("Disconnected event, central: "));
   Serial.println(central.address());
+  // turn BLE_LED off
+  digitalWrite(BLE_LED, LOW);
 }
 
 void blePeripheralBondedHandler(BLECentral& central) {

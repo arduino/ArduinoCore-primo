@@ -54,8 +54,10 @@ void setup() {
 }
 
 void loop() {
-  // if a device is connected send data read from the Serial port
-  if(bleCentral.connected()){
+ // if a device is connected send data read from the Serial port
+ if(bleCentral.connected()){
+  // turn BLE led on
+  digitalWrite(BLE_LED, HIGH);
   int len = 0;
   // send the message when it reaches the maximum value (20 char)
   // or when a carriage return (\n) is pressed
@@ -77,6 +79,15 @@ void loop() {
    // send the message
    bleCentral.writeRemoteCharacteristic(remoteRxCharacteristic, message, len);
   }
+  else // if we are not connected we are scan. Move the BLE led accordingly
+	blinkOnScan();
+}
+
+void blinkOnScan(){
+  digitalWrite(BLE_LED, LOW);
+  delay(200);
+  digitalWrite(BLE_LED, HIGH);
+  delay(200);
 }
 
 void receiveAdvPck(BLEPeripheralPeer& peer){
@@ -119,6 +130,9 @@ void bleCentralRemoteServicesDiscoveredHandler(BLEPeripheralPeer& peer) {
 
 
 void bleRemoteTxCharacteristicValueUpdatedHandle(BLEPeripheralPeer& peer, BLERemoteCharacteristic& characteristic) {
-  Serial.println("Remote characteristic value update handle");
-  Serial.println((char *)remoteTxCharacteristic.value());
+  // print the incoming message
+  char * message = (char *)remoteTxCharacteristic.value();
+  for(int i=0; i<remoteTxCharacteristic.valueLength(); i++)
+    Serial.print(message[i]);
+  Serial.println();
  }

@@ -5,6 +5,9 @@
    This example shows how to read/write a characteristic to turn a LED on or off
    You can use nRFConnect app to read/write the characteristic
    https://www.nordicsemi.com/eng/Products/Nordic-mobile-Apps/nRF-Connect-for-mobile-previously-called-nRF-Master-Control-Panel
+
+   In this example BLE_LED shows the status of the board. It will blink every 200 ms when the board is advertising.
+   It will be on when the board is connected to a central. It will be off when the board is disconnected.
  */
  
 #include <BLEPeripheral.h>
@@ -23,6 +26,9 @@ BLECharCharacteristic    switchCharacteristic = BLECharCharacteristic("19b10001e
 
 void setup() {
   Serial.begin(9600);
+
+  //initialize BLE led
+  pinMode(BLE_LED, OUTPUT);
 
   // set LED pin to output mode
   pinMode(LED_PIN, OUTPUT);
@@ -49,6 +55,9 @@ void loop() {
     Serial.print(F("Connected to central: "));
     Serial.println(central.address());
 
+	// turn on BLE_LED when connected
+	digitalWrite(BLE_LED, HIGH);
+
     while (central.connected()) {
       // central still connected to peripheral
       if (switchCharacteristic.written()) {
@@ -67,4 +76,10 @@ void loop() {
     Serial.print(F("Disconnected from central: "));
     Serial.println(central.address());
   }
+  
+  // here we are not connected. This means we are advertising
+  digitalWrite(BLE_LED, HIGH);
+  delay(200);
+  digitalWrite(BLE_LED, LOW);
+  delay(200);
 }
