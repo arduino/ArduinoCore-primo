@@ -7,7 +7,10 @@
   
    Use the complementary example enterPasskeyCentral.ino in File->Examples->BLE->Central->Bonding
    to test this feature.  
-  
+
+   In this example BLE_LED shows the status of the board. It will blink every 200 ms when the board is advertising.
+   It will be on when the board is connected to a central. It will be off when the board is disconnected.
+   
    This example code is in the public domain.
 */
 
@@ -25,6 +28,9 @@ BLECharCharacteristic   dummyCharacteristic = BLECharCharacteristic("19b10001e8f
 
 void setup() {
   Serial.begin(9600);
+
+  //initialize BLE led
+  pinMode(BLE_LED, OUTPUT);
 
   // set advertised local name and service UUID
   blePeripheral.setLocalName("BONDExample");
@@ -53,8 +59,18 @@ void setup() {
 }
 
 void loop() {
-  // put the board in low power mode
-  LowPower.standby();
+  // blink if the board is advertising
+  blinkOnAdv();
+}
+
+void blinkOnAdv(){
+  // retrieve the peripheral status in order to blink only when advertising
+  if(blePeripheral.status() == ADVERTISING){
+    digitalWrite(BLE_LED, LOW);
+    delay(200);
+    digitalWrite(BLE_LED, HIGH);
+    delay(200);
+  }
 }
 
 void showPasskey(BLECentral& central) {
@@ -72,12 +88,16 @@ void blePeripheralConnectHandler(BLECentral& central) {
   // central connected event handler
   Serial.print(F("Connected event, central: "));
   Serial.println(central.address());
+  // turn BLE_LED on
+  digitalWrite(BLE_LED, HIGH);
 }
 
 void blePeripheralDisconnectHandler(BLECentral& central) {
   // central disconnected event handler
   Serial.print(F("Disconnected event, central: "));
   Serial.println(central.address());
+  // turn BLE_LED off
+  digitalWrite(BLE_LED, LOW);
 }
 
 void receiveMessage(int evtCode, int messageCode){

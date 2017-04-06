@@ -282,6 +282,10 @@ bool BLEPeripheral::connected() {
   return this->_central;
 }
 
+BLEStatus BLEPeripheral::status(){
+  return (BLEStatus)this->_device->_status;
+}
+
 void BLEPeripheral::printBleMessage(int eventCode, int messageCode){
   if(eventCode > sizeof(this->_evt_code_to_string))
     return;

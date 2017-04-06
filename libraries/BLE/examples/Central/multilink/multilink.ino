@@ -37,6 +37,10 @@ bool buttonState;
 
 void setup() {
   Serial.begin(9600);
+  
+  //initialize BLE led
+  pinMode(BLE_LED, OUTPUT);
+
   pinMode(LED_PIN, OUTPUT);
   pinMode(BUTTON_PIN, INPUT);
   
@@ -73,6 +77,11 @@ void setup() {
 void loop() {
   if(bleCentral.connected()){
 
+	// We are connected to at least one peripheral. turn BLE led on.
+	// Please note that until the maximum number of allowed peripheral is reached
+	// the board will be scan at the same time.
+	digitalWrite(BLE_LED, HIGH);
+
     bool buttonValue = digitalRead(BUTTON_PIN);
     bool buttonChanged = (buttonState != buttonValue);
   
@@ -85,6 +94,12 @@ void loop() {
         message = 0;
       bleCentral.writeRemoteCharacteristic(remoteSwitchCharacteristic, &message, sizeof(message));
     }
+  }
+  else{ // we are not connected to any peripheral. Signal the scan again
+    digitalWrite(BLE_LED, LOW);
+    delay(200);
+    digitalWrite(BLE_LED, HIGH);
+    delay(200);
   }
 }
 

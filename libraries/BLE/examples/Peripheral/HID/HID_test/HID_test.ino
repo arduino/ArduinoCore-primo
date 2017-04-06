@@ -5,6 +5,8 @@
    This example shows the use of the HID BLE library.
    Connect the board to the phone through the phone's bluetooth settings,
    open a serial terminal and type any characters.
+   In this example BLE_LED shows the status of the board. It will blink every 200 ms when the board is advertising.
+   It will be on when the board is connected to a central. It will be off when the board is disconnected.
 */
 
 #include <BLEHIDPeripheral.h>
@@ -21,6 +23,9 @@ BLESystemControl bleSystemControl;
 
 void setup() {
   Serial.begin(9600);
+
+  //initialize BLE led
+  pinMode(BLE_LED, OUTPUT);
 
   // clears bond data on every boot
   bleHID.clearBondStoreData();
@@ -50,6 +55,9 @@ void loop() {
     Serial.print(F("Connected to central: "));
     Serial.println(central.address());
 
+	// turn on BLE_LED when connected
+	digitalWrite(BLE_LED, HIGH);
+
     while (bleHID.connected()) {
       if (Serial.available() > 0) {
         Serial.read();
@@ -67,4 +75,10 @@ void loop() {
     Serial.print(F("Disconnected from central: "));
     Serial.println(central.address());
   }
+
+  // here we are not connected. This means we are advertising
+  digitalWrite(BLE_LED, HIGH);
+  delay(200);
+  digitalWrite(BLE_LED, LOW);
+  delay(200);
 }

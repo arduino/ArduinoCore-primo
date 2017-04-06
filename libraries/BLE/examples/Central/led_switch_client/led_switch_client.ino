@@ -15,6 +15,9 @@
   This means that a pressure of USER1 button on one board
   will cause the led's state change on the other board and
   vice versa.
+
+  In this example BLE_LED shows the status of the board. It will blink every 200 ms when the board is scanning.
+  It will be on when the board is connected to a peripheral. It will be off when the board is disconnected.
   
   This example code is in the public domain.
   
@@ -71,7 +74,10 @@ void setup() {
 
 void loop() {
   if(bleCentral.connected()){
-
+	
+	//turn on BLE led
+	digitalWrite(BLE_LED, HIGH);
+	
     bool buttonValue = digitalRead(BUTTON_PIN);
     bool buttonChanged = (buttonState != buttonValue);
   
@@ -84,6 +90,12 @@ void loop() {
         message = 0;
       bleCentral.writeRemoteCharacteristic(remoteSwitchCharacteristic, &message, sizeof(message));
     }
+  }
+    else{ // if we are not connected we are scanning hence blink BLE led
+    digitalWrite(BLE_LED, LOW);
+    delay(200);
+    digitalWrite(BLE_LED, HIGH);
+    delay(200);
   }
 }
 

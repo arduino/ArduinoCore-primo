@@ -8,6 +8,8 @@
    columns: 7, 6, 5
    Connect the board to the phone through the phone's bluetooth settings,
    open a text field in the phone and try to press a key in the keypad.
+   In this example BLE_LED shows the status of the board. It will blink every 200 ms when the board is advertising.
+   It will be on when the board is connected to a central. It will be off when the board is disconnected.
 */
 
 #include <BLEHIDPeripheral.h>
@@ -35,6 +37,9 @@ BLEKeyboard bleKeyboard;
 void setup() {
   Serial.begin(9600);
 
+  //initialize BLE led
+  pinMode(BLE_LED, OUTPUT);
+  
   Serial.println(F("BLE HID Peripheral - clearing bond data"));
     
   // clear bond store data
@@ -58,6 +63,9 @@ void loop() {
     Serial.print(F("Connected to central: "));
     Serial.println(central.address());
 
+	// turn on BLE_LED when connected
+	digitalWrite(BLE_LED, HIGH);
+
     while (central.connected()) {
       char c = keypad.getKey();
   
@@ -71,4 +79,10 @@ void loop() {
     Serial.print(F("Disconnected from central: "));
     Serial.println(central.address());
   }
+
+  // here we are not connected. This means we are advertising
+  digitalWrite(BLE_LED, HIGH);
+  delay(200);
+  digitalWrite(BLE_LED, LOW);
+  delay(200);
 }
