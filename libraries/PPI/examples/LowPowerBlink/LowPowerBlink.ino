@@ -16,7 +16,8 @@
 */
 
 #include <PPI.h>
-#include <LowPower.h>
+// download ArduinoLowPower library from library manager to enter in low power mode
+#include "ArduinoLowPower.h"
 
 void setup() {
   //bind a timer event to the toggle of the pin
@@ -27,11 +28,9 @@ void setup() {
   //bind TIMER event to PIN_TOGGLE action
   PPI.setShortcut(TIMER, PIN_TOGGLE);
   
-  //put the board in standby mode to save power
-  //use constant latency to have a constant response from PPI action
-  LowPower.standby(0, NULL, CONST_LATENCY); 
+  //put the board in low power mode to save power
+  LowPower.sleep();
 }
 
 
 void loop() {}
-
