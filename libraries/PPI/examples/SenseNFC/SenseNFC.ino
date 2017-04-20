@@ -16,7 +16,8 @@
 */
 
 #include <PPI.h>
-#include <LowPower.h>
+// download ArduinoLowPower library from library manager to enter in low power mode
+#include "ArduinoLowPower.h"
 
 void setup() {
 
@@ -36,8 +37,8 @@ PPI.setShortcut(PIN_HIGH, NFC_START_SENSE);
 PPI.setOutputPin(LED_BUILTIN);
 PPI.setShortcut(NFC_FIELD_DETECTED, PIN_TOGGLE);
 
-//Put mcu in standby mode to save power. 
-LowPower.standby(0, NULL);
+//Put mcu in sleep mode to save power. 
+LowPower.sleep();
 
 }
 

@@ -15,7 +15,6 @@
 */
 
 #include <BLEPeripheral.h>
-#include <LowPower.h>
 
 // create peripheral instance
 BLEPeripheral           blePeripheral        = BLEPeripheral();

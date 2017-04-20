@@ -13,7 +13,8 @@
 */
 
 #include "BLECentralRole.h"
-#include "LowPower.h"
+// download ArduinoLowPower library from library manager to enter in low power mode
+#include "ArduinoLowPower.h"
 
 // create central instance
 BLECentralRole bleCentral = BLECentralRole();
@@ -39,7 +40,7 @@ void setup() {
 void loop() {
   // since we want to realize a low power application we don't handle the
   // BLE_LED in order to save power but put the board in low power mode instead.
-  LowPower.standby();
+  LowPower.sleep();
 }
 
 void receiveAdvPck(BLEPeripheralPeer& peer){
