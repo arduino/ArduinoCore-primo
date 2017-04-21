@@ -84,15 +84,15 @@ void CIR::enableTransmitter(void) {
 	  Wire.beginTransmission(0x48);
 	  Wire.write(0xA3);
 	  Wire.endTransmission();
+	  delay(1500);
 }
 
 void CIR::disableTransmitter(void) {
-	  delay(15);
+	  delay(100);
 	  Wire.begin();
 	  Wire.beginTransmission(0x48);
 	  Wire.write(0xA4);
 	  Wire.endTransmission();
-
 }
 
 void CIR::sendEncode(uint32_t data) {
