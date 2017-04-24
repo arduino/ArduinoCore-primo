@@ -7,7 +7,7 @@
   CIR library.
   The IR transmitter allows you to send hex code by infrared LED
   of the Primo board, the hex code is based on the NEC protocol
-  that transmiited consits of the following, using buttons to send
+  that transmitted consists of the following, using buttons to send
   hex code when a button is pressed.
 
   NEC Protocol:
