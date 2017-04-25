@@ -43,7 +43,7 @@ void setup() {
 }
 
 void loop() {
-  // check if IR receiver decodes signals and accord with NEC Protocl:
+  // check if IR receiver decodes signals and accord with NEC Protocol:
   if (Primo_CIR.getReceiverStatus())
   // print hex code:
   PrintCirReceiverResult();
