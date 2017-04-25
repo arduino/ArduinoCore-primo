@@ -54,7 +54,7 @@ void loop() {
     // turn LED on:
     digitalWrite(LED_BUILTIN, HIGH);
 
-    // sned hex code:
+    // send hex code:
     Primo_CIR.sendEncode(HEX_1);
     // turn LED off:
     digitalWrite(LED_BUILTIN, LOW);
