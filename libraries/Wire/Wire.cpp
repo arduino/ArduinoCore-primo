@@ -35,8 +35,16 @@ TwoWire::TwoWire(uint8_t pinSDA, uint8_t pinSCL)
 void TwoWire::begin(void) {
   //Master Mode
   _TWIInstance=NRF_TWIM1;
-  pinMode(_uc_pinSDA, INPUT);
-  pinMode(_uc_pinSCL, INPUT);
+  NRF_GPIO->PIN_CNF[g_APinDescription[_uc_pinSDA].ulPin] = ((GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)   \
+                                                            | (GPIO_PIN_CNF_DRIVE_S0D1 << GPIO_PIN_CNF_DRIVE_Pos)     \
+                                                            | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)   \
+                                                            | (GPIO_PIN_CNF_INPUT_Connect  << GPIO_PIN_CNF_INPUT_Pos) \
+                                                            | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos));
+  NRF_GPIO->PIN_CNF[g_APinDescription[_uc_pinSCL].ulPin] = ((GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)   \
+                                                            | (GPIO_PIN_CNF_DRIVE_S0D1 << GPIO_PIN_CNF_DRIVE_Pos)     \
+                                                            | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)   \
+                                                            | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)  \
+                                                            | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos));
    
   //set pins, frequency and enable peripheral
   nrf_twim_pins_set(_TWIInstance, g_APinDescription[_uc_pinSCL].ulPin, g_APinDescription[_uc_pinSDA].ulPin);
@@ -49,9 +57,17 @@ void TwoWire::begin(void) {
 void TwoWire::begin(uint8_t address) {
   //Slave mode
   _TWISlave=NRF_TWIS1;
-  pinMode(_uc_pinSDA, INPUT);
-  pinMode(_uc_pinSCL, INPUT);
-  
+  NRF_GPIO->PIN_CNF[g_APinDescription[_uc_pinSDA].ulPin] = ((GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)     \
+                                                            | (GPIO_PIN_CNF_DRIVE_S0D1 << GPIO_PIN_CNF_DRIVE_Pos)       \
+                                                            | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)     \
+                                                            | (GPIO_PIN_CNF_INPUT_Disconnect << GPIO_PIN_CNF_INPUT_Pos) \
+                                                            | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos));
+  NRF_GPIO->PIN_CNF[g_APinDescription[_uc_pinSCL].ulPin] = ((GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)     \
+                                                            | (GPIO_PIN_CNF_DRIVE_S0D1 << GPIO_PIN_CNF_DRIVE_Pos)       \
+                                                            | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)     \
+                                                            | (GPIO_PIN_CNF_INPUT_Disconnect << GPIO_PIN_CNF_INPUT_Pos) \
+                                                            | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos));
+
   //set pins, address and enable peripheral
   nrf_twis_pins_set(_TWISlave, g_APinDescription[_uc_pinSCL].ulPin, g_APinDescription[_uc_pinSDA].ulPin);
   nrf_twis_address_set(_TWISlave, 0, address);
