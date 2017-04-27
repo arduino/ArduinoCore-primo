@@ -39,6 +39,7 @@ Version Modified By Date     Comments
 
 
 unsigned long int count_duration=0;
+volatile bool no_stop = false;
 uint8_t pin_sound=0;
 
 
@@ -52,11 +53,16 @@ void tone(uint8_t pin, unsigned int frequency, unsigned long duration)
 	float per=float(1)/frequency;
 	time_per=per/0.000008;
 	unsigned int duty=time_per/2;
-	float mil=float(duration)/1000;
-	if(per>mil)
-		count_duration=1;
+	if(duration > 0){
+		no_stop = false;
+		float mil=float(duration)/1000;
+		if(per>mil)
+			count_duration=1;
+		else
+			count_duration= mil/per;
+	}
 	else
-		count_duration= mil/per;
+		no_stop = true;
 	
 	// Configure PWM
 	static uint16_t seq_values[]={0};
@@ -129,29 +135,41 @@ extern "C"{
 
 void PWM0_IRQHandler(void){
 	nrf_pwm_event_clear(NRF_PWM0, NRF_PWM_EVENT_PWMPERIODEND);
-	count_duration--;
-	if(count_duration == 0)
-		noTone(pin_sound);
+	if(!no_stop){
+		count_duration--;
+		if(count_duration == 0)
+			noTone(pin_sound);
+		else
+			nrf_pwm_task_trigger(NRF_PWM0, NRF_PWM_TASK_SEQSTART0);
+	}
 	else
-		nrf_pwm_task_trigger(NRF_PWM0, NRF_PWM_TASK_SEQSTART0);	
+		nrf_pwm_task_trigger(NRF_PWM0, NRF_PWM_TASK_SEQSTART0);
 }
 
 void PWM1_IRQHandler(void){
 	nrf_pwm_event_clear(NRF_PWM1, NRF_PWM_EVENT_PWMPERIODEND);
-	count_duration--;
-	if(count_duration == 0)
-		noTone(pin_sound);
+	if(!no_stop){
+		count_duration--;
+		if(count_duration == 0)
+			noTone(pin_sound);
+		else
+			nrf_pwm_task_trigger(NRF_PWM1, NRF_PWM_TASK_SEQSTART0);	
+	}
 	else
-		nrf_pwm_task_trigger(NRF_PWM1, NRF_PWM_TASK_SEQSTART0);	
+		nrf_pwm_task_trigger(NRF_PWM1, NRF_PWM_TASK_SEQSTART0);
 }
 
 void PWM2_IRQHandler(void){
 	nrf_pwm_event_clear(NRF_PWM2, NRF_PWM_EVENT_PWMPERIODEND);
-	count_duration--;
-	if(count_duration == 0)
-		noTone(pin_sound);
+	if(!no_stop){
+		count_duration--;
+		if(count_duration == 0)
+			noTone(pin_sound);
+		else
+			nrf_pwm_task_trigger(NRF_PWM2, NRF_PWM_TASK_SEQSTART0);	
+	}
 	else
-		nrf_pwm_task_trigger(NRF_PWM2, NRF_PWM_TASK_SEQSTART0);	
+		nrf_pwm_task_trigger(NRF_PWM2, NRF_PWM_TASK_SEQSTART0);
 }
 
 #ifdef __cplusplus
