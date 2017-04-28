@@ -240,6 +240,16 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
 	  return ;
   }
 
+  if ( (ulPin == 43) && (ulMode == INPUT) )
+  {
+	  delay(15);
+	  TwoWire_begin();
+	  TwoWire_beginTransmission(0x48);
+	  TwoWire_write(BAT_VOLT_IN);
+	  TwoWire_endTransmission();
+	  return ;
+  }
+
   if ( g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
   {
     return ;
