@@ -98,7 +98,7 @@ static const uint8_t GPIO_ESP_PW_H  	= 0b11101000;
 static const uint8_t GPIO_ESP_PW_L  	= 0b11101001;
 static const uint8_t GPIO_ESP_EN_H  	= 0b11101010;
 static const uint8_t GPIO_ESP_EN_L  	= 0b11101011;
-static const uint8_t BAT_VOL_IN			= 0b11101100;
+static const uint8_t BAT_VOLT_IN    = 0b11101100;
 static const uint8_t USER2_BUTTON_IN  	= 0b11101110;
 static const uint8_t GPIO_USER1_IT  	= 0b11111000;
 
