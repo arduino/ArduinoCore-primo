@@ -242,7 +242,7 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
 
   if ( (ulPin == 43) && (ulMode == INPUT) )
   {
-	  delay(15);
+	  nrf_delay_ms(15);
 	  TwoWire_begin();
 	  TwoWire_beginTransmission(0x48);
 	  TwoWire_write(BAT_VOLT_IN);

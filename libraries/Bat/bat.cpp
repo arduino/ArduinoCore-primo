@@ -34,7 +34,7 @@ double bat::analogRead(void) {
 	double voltage;
 	uint32_t code=0;
 
-	delay(150);
+	nrf_delay_ms(150);
 
 	int i;
 	for (i=0;i<4;i++) {
@@ -45,7 +45,7 @@ double bat::analogRead(void) {
 	Wire.beginTransmission(0x48);
 	Wire.write(0xED);
 	Wire.endTransmission();
-	delay(15);
+	nrf_delay_ms(15);
 	Wire.requestFrom(0x48,4, true);
 	recBuffer[0] = Wire.read();
 
