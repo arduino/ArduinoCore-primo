@@ -1,0 +1,25 @@
+#######################################
+# Syntax Coloring Map for cir
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+cir KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+enableReceiver KEYWORD2
+disableReceiver  KEYWORD2
+getReceiverStatus  KEYWORD2
+digitalRead  KEYWORD2
+enableTransmitter  KEYWORD2
+disableTransmitter  KEYWORD2
+digitalWrite  KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
