@@ -5,7 +5,7 @@
 
   This example for the Arduino Primo board shows how to use
   cir library.
-  cir data is received by 38kHz IR receiver of the Primo board,
+  CIR data is received by 38kHz IR receiver of the Primo board,
   It is based on the NEC protocol to decode signals from IR
   receiver to get hex code, you can see the hex code using serial
   montior when the Primo board receive CIR data.
