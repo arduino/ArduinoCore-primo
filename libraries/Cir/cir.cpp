@@ -31,7 +31,7 @@ cir::cir(void) {
 }
 
 void cir::enableReceiver(void) {
-	  delay(100);
+	  nrf_delay_ms(100);
 	  Wire.begin();
 	  Wire.beginTransmission(0x48);
 	  Wire.write(0xA0);
@@ -39,7 +39,7 @@ void cir::enableReceiver(void) {
 }
 
 void cir::disableReceiver(void) {
-	  delay(15);
+	  nrf_delay_ms(15);
 	  Wire.begin();
 	  Wire.beginTransmission(0x48);
 	  Wire.write(0xA1);
@@ -47,12 +47,12 @@ void cir::disableReceiver(void) {
 }
 
 bool cir::getReceiverStatus(void) {
-	 delay(150);
+	 nrf_delay_ms(150);
 	 Wire.begin();
 	 Wire.beginTransmission(0x48);
 	 Wire.write(0xA2);
 	 Wire.endTransmission();
-	 delay(15);
+	 nrf_delay_ms(15);
 	 Wire.requestFrom(0x48,4, true);
 	 recBuffer[0] = Wire.read();
 
@@ -79,16 +79,16 @@ uint32_t cir::digitalRead(void) {
 }
 
 void cir::enableTransmitter(void) {
-	  delay(100);
+	  nrf_delay_ms(100);
 	  Wire.begin();
 	  Wire.beginTransmission(0x48);
 	  Wire.write(0xA3);
 	  Wire.endTransmission();
-	  delay(1500);
+	  nrf_delay_ms(1500);
 }
 
 void cir::disableTransmitter(void) {
-	  delay(100);
+	  nrf_delay_ms(100);
 	  Wire.begin();
 	  Wire.beginTransmission(0x48);
 	  Wire.write(0xA4);
@@ -104,7 +104,7 @@ void cir::digitalWrite(uint32_t data) {
 	  transdata[2] = (data >> 8);
 	  transdata[3] = data;
 
-	  delay(200);
+	  nrf_delay_ms(200);
 	  Wire.begin();
 	  Wire.beginTransmission(0x48);
 	  Wire.write(0xA5);

@@ -31,6 +31,10 @@
 #include <stdint.h>
 #include "Arduino.h"
 
+extern "C" {
+  #include "nrf_delay.h"
+}
+
 #define REC_BUF_LENGTH 4
 
 class bat {
