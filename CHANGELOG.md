@@ -1,9 +1,15 @@
-## 1.0.1 - 2017-04-27
+## 1.0.1
 ###### Core:
   - Fixed Tone issue if no duration was indicate
 
-###### Miscellany:
+###### Libraries:
+  - Added BAT library
+  - Modified CIR library
+  
+###### Misc:
   - Added CHANGELOG.md
+  - Updated drivers for Windows
+  - Updated STM32 firmware
 
 ## 1.0.0 - 2017-04-21
 First release
