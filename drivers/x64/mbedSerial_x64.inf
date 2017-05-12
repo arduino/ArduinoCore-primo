@@ -19,9 +19,7 @@ DriverVer=08/24/2009,2.0.2.0  ; mm/dd/yyyy[,w.x.y.z]
 %S_Mfg%=_Devices, ntamd64
 
 [_Devices.ntamd64]
-%S_DeviceDesc1%=Install,USB\VID_0D28&PID_0203&MI_01
-%S_DeviceDesc1%=Install,USB\VID_0D28&PID_0204&MI_01
-
+%S_DeviceDesc1%=Install,USB\VID_2A03&PID_805A&MI_01
 ;
 ; General installation section
 ;
@@ -117,7 +115,7 @@ SERVICEROOT    = "System\CurrentControlSet\Services"
 ;
 S_Provider="mbed"
 S_Mfg="mbed"
-S_DeviceDesc1="mbed Serial Port"
+S_DeviceDesc1="Arduino Primo CDC"
 S_DiskName="mbed Serial Port installer"
 S_DriverName="mbedSerial_x64"
 
