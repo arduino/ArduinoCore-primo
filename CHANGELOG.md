@@ -5,6 +5,7 @@
 ###### Libraries:
   - Added BAT library
   - Modified CIR library
+  - Fixed pins initialization in Wire library
   
 ###### Misc:
   - Added CHANGELOG.md
