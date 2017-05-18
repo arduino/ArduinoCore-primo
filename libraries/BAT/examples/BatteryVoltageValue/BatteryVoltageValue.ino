@@ -5,20 +5,22 @@
   bat library.
 
   This example allows you to get Battery Voltage Value of Primo
-  board, disabling STM32 enter to standby mode to avoid Primo board 
-  enter to standby mode when Primo board is powered only by battery.
+  board. Please download ArduinoLowPower library from library manager,
+  disabling STM32 enter to standby mode to avoid Primo board enter to
+  standby mode when Primo board is powered only by battery.
   Primo board is able to send voltage value over serial port or BLE serial, 
   Create UART service compatible with Nordic's *nRF Toolbox* and Adafruit's 
   *Bluefruit LE* iOS/Android apps. You can also use another board with 
   serial_client example in File->Examples->BLE->Central menu to set up
   a BLE serial connection between two different boards.
+
   This example code is in the public domain.
 */
 
 #include <BLEPeripheral.h>
 #include <BLESerial.h>
 #include <Wire.h>
-#include <stm32pwr.h>
+#include <ArduinoLowPower.h>
 #include <bat.h>
 
 
@@ -36,7 +38,7 @@ void setup() {
   // start BLE serial
   bleSerial.begin();  
   // disable STM32 enter to standby mode
-  stm32pwr.disableStandbyMode() ;
+  LowPower.disableStm32Standby();
   // initialize the LED pin as an output
   pinMode(LED_BUILTIN, OUTPUT);
 }
