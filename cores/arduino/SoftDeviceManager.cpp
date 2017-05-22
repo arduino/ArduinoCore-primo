@@ -18,9 +18,20 @@
 
 #include "SoftDeviceManager.h"
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+
+#include "pstorage_platform.h"
+
+#ifdef __cplusplus
+}
+#endif
+
 volatile static uint8_t _flashOperationPending;
 
 void socEvtHandler(uint32_t evt_id){
+	pstorage_sys_event_handler(evt_id);
 	switch(evt_id){
 		case NRF_EVT_FLASH_OPERATION_SUCCESS :
 			_flashOperationPending = 0;

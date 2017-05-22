@@ -17,27 +17,38 @@
   
 */
 
-#ifndef __BLE_MANAGER_H
-#define __BLE_MANAGER_H
+#ifndef _DFU_SERVICE_H
+#define _DFU_SERVICE_H
 
-#include "BLEPeripheral.h"
-#include "BLECentralRole.h"
 
-class BLECentralRole;
+/*
+ * \brief Choose if remove or not the DFU service from the sketches (enabled by default).
+ *
+ * \param remove
+ */
+extern void removeDfuService(bool remove);
 
-class BLEManagerClass  {
-public:
-	BLEManagerClass();
 
-    static bool registerPeripheral(BLEPeripheral *peripheral);
-	static bool registerCentral(BLECentralRole *central);
-	
-    static void processBleEvents(ble_evt_t *bleEvent);
+/*
+ * \brief Indicate whether DFU service is enabled or not.
+ *
+ */
+extern bool dfuIsEnabled();
 
-    static BLEPeripheral    *_peripheralList[1];
-	static BLECentralRole   *_centralList[1];	
-};
 
-extern BLEManagerClass BLEManager;
+/*
+ * \brief Add DFU service to the sketch.
+ *
+ */
+extern void add_dfu_service();
 
-#endif
+
+/*
+ * \brief Receive and forward all BLE events.
+ *
+ * \param p_ble_evt
+ */
+extern void ble_evt_dispatch(ble_evt_t * p_ble_evt);
+
+
+#endif /*_DFU_SERVICE_H*/

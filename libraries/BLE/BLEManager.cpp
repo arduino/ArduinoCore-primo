@@ -31,43 +31,41 @@ extern "C"{
 
 BLEPeripheral *BLEManagerClass::_peripheralList[1] = {0};
 BLECentralRole *BLEManagerClass::_centralList[1] = {0};
-bool handlerSet = false;
 
 BLEManagerClass::BLEManagerClass(){}
 
 bool BLEManagerClass::registerPeripheral(BLEPeripheral *peripheral) {
     _peripheralList[0] = peripheral;
-	if(!handlerSet){
-		softdevice_ble_evt_handler_set(BLEManager.processBleEvents);
-		handlerSet = true;
-	}
 }
 
 bool BLEManagerClass::registerCentral(BLECentralRole *central){
 	_centralList[0] = central;
-	if(!handlerSet){
-		softdevice_ble_evt_handler_set(BLEManager.processBleEvents);
-		handlerSet = true;
-	}
 }
 
-void BLEManagerClass::processBleEvents(ble_evt_t *bleEvent){
+void processBleEvents(ble_evt_t *bleEvent){
     ble_conn_state_on_ble_evt(bleEvent);
 
 	uint16_t handler = bleEvent->evt.gap_evt.conn_handle;
 	uint16_t role = ble_conn_state_role(handler);
 
 	if(role == BLE_GAP_ROLE_PERIPH){
-		if(_peripheralList[0] != 0){
-			_peripheralList[0]->poll(bleEvent);
+		if(BLEManagerClass::_peripheralList[0] != 0){
+			BLEManagerClass::_peripheralList[0]->poll(bleEvent);
 		}
 	}
 	if((role == BLE_GAP_ROLE_CENTRAL) || (bleEvent->header.evt_id == BLE_GAP_EVT_ADV_REPORT)){
-		if(_centralList[0] != 0){
-			_centralList[0]->poll(bleEvent);
+		if(BLEManagerClass::_centralList[0] != 0){
+			BLEManagerClass::_centralList[0]->poll(bleEvent);
 		}
 	}
 }
 
+bool isPeripheralRunning(){
+	return (BLEManagerClass::_peripheralList[0] != 0) ? true : false;
+}
+
+bool isCentralRunning(){
+	return (BLEManagerClass::_centralList[0] != 0) ? true : false;
+}
 
 BLEManagerClass BLEManager;	
