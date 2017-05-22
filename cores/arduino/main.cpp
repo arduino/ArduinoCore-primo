@@ -20,21 +20,38 @@
 #define ARDUINO_MAIN
 #include "Arduino.h"
 
+
 /*
  * \brief Main entry point of Arduino application
  */
 int main(void)
 {
 	init();
-		
+
 	delay(0);
+
 	SDManager.begin();
-		
+
+    // Register with the SoftDevice handler module for BLE events.
+    softdevice_ble_evt_handler_set(ble_evt_dispatch);
+
 	setup();
-	
+
+	if(dfuIsEnabled())
+		add_dfu_service();	
+
 	for(;;){ 
 		loop();
 		if (serialEventRun) serialEventRun();
 	}
 	return 0;
+}
+
+extern "C" void dbgMsg(const char* msg)
+{
+    Serial.print(msg);
+}
+extern "C" void dbgMsgn(uint32_t msg)
+{
+    Serial.print(msg, HEX);
 }

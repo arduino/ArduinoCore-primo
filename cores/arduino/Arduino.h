@@ -71,7 +71,7 @@ void loop( void ) ;
   #include "HardwareSerial.h"
   #include "delay.h"
   #include "Uart.h"
-   #include "SoftDeviceManager.h"
+  #include "SoftDeviceManager.h"
 #endif // __cplusplus
 
 
@@ -83,7 +83,7 @@ void loop( void ) ;
 #include "wiring_analog.h"
 #include "wiring_shift.h"
 #include "WInterrupts.h"
-
+#include "DFUService.h"
 
 #define min(a,b) ((a)<(b)?(a):(b))
 #define max(a,b) ((a)>(b)?(a):(b))
