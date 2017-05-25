@@ -616,87 +616,87 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
 #endif
         break;
 
-     case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
-#ifdef NRF_51822_DEBUG
-       Serial.print(F("Evt Sec Params Request "));
-#if !defined(NRF51_S130) && !defined(S110)
+     // case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
+// #ifdef NRF_51822_DEBUG
+       // Serial.print(F("Evt Sec Params Request "));
+// #if !defined(NRF51_S130) && !defined(S110)
        // Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.timeout);
-       Serial.print(F(" "));
-#endif
-       Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.bond);
-       Serial.print(F(" "));
-       Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.mitm);
-       Serial.print(F(" "));
-       Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.io_caps);
-       Serial.print(F(" "));
-       Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.oob);
-       Serial.print(F(" "));
-       Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.min_key_size);
-       Serial.print(F(" "));
-       Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.max_key_size);
-       Serial.println();
-#endif
-       if (this->_bondStore && !this->_bondStore->hasData()) {
+       // Serial.print(F(" "));
+// #endif
+       // Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.bond);
+       // Serial.print(F(" "));
+       // Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.mitm);
+       // Serial.print(F(" "));
+       // Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.io_caps);
+       // Serial.print(F(" "));
+       // Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.oob);
+       // Serial.print(F(" "));
+       // Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.min_key_size);
+       // Serial.print(F(" "));
+       // Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.max_key_size);
+       // Serial.println();
+// #endif
+       // if (this->_bondStore && !this->_bondStore->hasData()) {
          // only allow bonding if bond store exists and there is no data
 
-         ble_gap_sec_params_t gapSecParams;
+         // ble_gap_sec_params_t gapSecParams;
 
-         memset(&gapSecParams, 0x00, sizeof(ble_gap_sec_params_t));
+         // memset(&gapSecParams, 0x00, sizeof(ble_gap_sec_params_t));
 
-#if defined(NRF5) && !defined(S110)
-         gapSecParams.kdist_own.enc = 1;
-#elif defined(NRF51_S130)
-         gapSecParams.kdist_periph.enc = 1;
-#elif !defined(NRF5)
-         gapSecParams.timeout          = 30; // must be 30s
-#endif
-         gapSecParams.bond             = true;
-         gapSecParams.lesc             = (bool)this->_lesc;
-         gapSecParams.mitm             = this->_mitm;
-         gapSecParams.io_caps          = this->_io_caps;
-         gapSecParams.oob              = false;
-         gapSecParams.min_key_size     = 7;
-         gapSecParams.max_key_size     = 16;
+// #if defined(NRF5) && !defined(S110)
+         // gapSecParams.kdist_own.enc = 1;
+// #elif defined(NRF51_S130)
+         // gapSecParams.kdist_periph.enc = 1;
+// #elif !defined(NRF5)
+         // gapSecParams.timeout          = 30; // must be 30s
+// #endif
+         // gapSecParams.bond             = true;
+         // gapSecParams.lesc             = (bool)this->_lesc;
+         // gapSecParams.mitm             = this->_mitm;
+         // gapSecParams.io_caps          = this->_io_caps;
+         // gapSecParams.oob              = false;
+         // gapSecParams.min_key_size     = 7;
+         // gapSecParams.max_key_size     = 16;
 
-#if defined(NRF5) && !defined(S110)
-         ble_gap_sec_keyset_t keyset;
-         memset(&keyset, 0, sizeof(ble_gap_sec_keyset_t));
-         if(this->_lesc > 0){
-           ecc_init();
-           ecc_p256_keypair_gen(this->_privateKey.pk, this->_publicKey.pk);
-           keyset.keys_own.p_pk=&this->_publicKey;
-           keyset.keys_peer.p_pk=&this->_peerKey;
-         }
-         keyset.keys_peer.p_enc_key  = NULL;
-         keyset.keys_peer.p_id_key   = NULL;
-         keyset.keys_peer.p_sign_key = NULL;
-         keyset.keys_own.p_enc_key   = this->_encKey;
-         keyset.keys_own.p_id_key    = NULL;
-         keyset.keys_own.p_sign_key  = NULL;
+// #if defined(NRF5) && !defined(S110)
+         // ble_gap_sec_keyset_t keyset;
+         // memset(&keyset, 0, sizeof(ble_gap_sec_keyset_t));
+         // if(this->_lesc > 0){
+           // ecc_init();
+           // ecc_p256_keypair_gen(this->_privateKey.pk, this->_publicKey.pk);
+           // keyset.keys_own.p_pk=&this->_publicKey;
+           // keyset.keys_peer.p_pk=&this->_peerKey;
+         // }
+         // keyset.keys_peer.p_enc_key  = NULL;
+         // keyset.keys_peer.p_id_key   = NULL;
+         // keyset.keys_peer.p_sign_key = NULL;
+         // keyset.keys_own.p_enc_key   = this->_encKey;
+         // keyset.keys_own.p_id_key    = NULL;
+         // keyset.keys_own.p_sign_key  = NULL;
 		  
-         sd_ble_gap_sec_params_reply(this->_connectionHandle, BLE_GAP_SEC_STATUS_SUCCESS, &gapSecParams, &keyset);
-#elif defined(NRF51_S130) || defined(S110)
-         ble_gap_sec_keyset_t keyset;
+         // sd_ble_gap_sec_params_reply(this->_connectionHandle, BLE_GAP_SEC_STATUS_SUCCESS, &gapSecParams, &keyset);
+// #elif defined(NRF51_S130) || defined(S110)
+         // ble_gap_sec_keyset_t keyset;
 
-         keyset.keys_central.p_enc_key  = NULL;
-         keyset.keys_central.p_id_key   = NULL;
-         keyset.keys_central.p_sign_key = NULL;
-         keyset.keys_periph.p_enc_key   = this->_encKey;
-         keyset.keys_periph.p_id_key    = NULL;
-         keyset.keys_periph.p_sign_key  = NULL;
+         // keyset.keys_central.p_enc_key  = NULL;
+         // keyset.keys_central.p_id_key   = NULL;
+         // keyset.keys_central.p_sign_key = NULL;
+         // keyset.keys_periph.p_enc_key   = this->_encKey;
+         // keyset.keys_periph.p_id_key    = NULL;
+         // keyset.keys_periph.p_sign_key  = NULL;
 
-         sd_ble_gap_sec_params_reply(this->_connectionHandle, BLE_GAP_SEC_STATUS_SUCCESS, &gapSecParams, &keyset);
-#else
-         sd_ble_gap_sec_params_reply(this->_connectionHandle, BLE_GAP_SEC_STATUS_SUCCESS, &gapSecParams);
-#endif
-       } else {
-#if defined(NRF5) || defined(NRF51_S130)
-         sd_ble_gap_sec_params_reply(this->_connectionHandle, BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP, NULL, NULL);
-#else
-         sd_ble_gap_sec_params_reply(this->_connectionHandle, BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP, NULL);
-#endif
-       }
-       break;
+         // sd_ble_gap_sec_params_reply(this->_connectionHandle, BLE_GAP_SEC_STATUS_SUCCESS, &gapSecParams, &keyset);
+// #else
+         // sd_ble_gap_sec_params_reply(this->_connectionHandle, BLE_GAP_SEC_STATUS_SUCCESS, &gapSecParams);
+// #endif
+       // } else {
+// #if defined(NRF5) || defined(NRF51_S130)
+         // sd_ble_gap_sec_params_reply(this->_connectionHandle, BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP, NULL, NULL);
+// #else
+         // sd_ble_gap_sec_params_reply(this->_connectionHandle, BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP, NULL);
+// #endif
+       // }
+       // break;
 
 //      case BLE_GAP_EVT_SEC_INFO_REQUEST:
 //#ifdef NRF_51822_DEBUG
