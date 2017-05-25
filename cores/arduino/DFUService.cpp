@@ -25,6 +25,7 @@ extern "C"{
 #include "ble_advertising.h"
 #include "pstorage.h"
 #include "nrf_delay.h"
+#include "ble_conn_state.h"
 
 #ifdef __cplusplus
 }
@@ -35,6 +36,10 @@ static uint16_t                          m_conn_handle = BLE_CONN_HANDLE_INVALID
 static dm_application_instance_t         m_app_handle;
 
 bool dfuService = true;
+uint8_t bond = 1;
+uint8_t mitm = 0;
+uint8_t lesc = 0;
+uint8_t io_caps = BLE_GAP_IO_CAPS_NONE;
 
 extern void processBleEvents(ble_evt_t * p_ble_evt) __attribute__((weak));
 extern bool isPeripheralRunning()                   __attribute__((weak));
@@ -95,10 +100,16 @@ static void reset_prepare(void)
 
 void ble_evt_dispatch(ble_evt_t * p_ble_evt)
 {
+	uint16_t handler = p_ble_evt->evt.gap_evt.conn_handle;
+	uint16_t role = ble_conn_state_role(handler);
+
 	if(dfuService){
-		dm_ble_evt_handler(p_ble_evt);
-		ble_dfu_on_ble_evt(&m_dfus, p_ble_evt);
-		on_ble_evt(p_ble_evt);
+		//DFU service works with peripheral role, don't forward events central related
+		if(role != BLE_GAP_ROLE_CENTRAL){
+			dm_ble_evt_handler(p_ble_evt);
+			ble_dfu_on_ble_evt(&m_dfus, p_ble_evt);
+			on_ble_evt(p_ble_evt);
+		}
 	}
 	// forward events to Arduino BLE library if used
 	if(processBleEvents)
@@ -157,6 +168,13 @@ static uint32_t device_manager_evt_handler(dm_handle_t const * p_handle,
     return NRF_SUCCESS;
 }
 
+void setSecParams(uint8_t Bond, uint8_t Mitm, uint8_t Lesc, uint8_t IO_caps){
+	bond = Bond;
+	mitm = Mitm;
+	lesc = Lesc;
+	io_caps = IO_caps;
+}
+
 void add_dfu_service(){
     ble_gap_conn_params_t   gap_conn_params;
     ble_gap_conn_sec_mode_t sec_mode;
@@ -172,17 +190,14 @@ void add_dfu_service(){
 	
     memset(&register_param.sec_param, 0, sizeof(ble_gap_sec_params_t));
 
-    register_param.sec_param.bond         = 1; //SEC_PARAM_BOND
-    register_param.sec_param.mitm         = 0; //SEC_PARAM_MITM
-	// register_param.sec_param.mitm         = true;
-    register_param.sec_param.lesc         = 0; //SEC_PARAM_LESC
-// register_param.sec_param.lesc         = true;
-    register_param.sec_param.keypress     = 0; //SEC_PARAM_KEYPRESS
-    register_param.sec_param.io_caps      = BLE_GAP_IO_CAPS_NONE;//BLE_GAP_IO_CAPS_DISPLAY_ONLY;//BLE_GAP_IO_CAPS_KEYBOARD_ONLY;
-	// register_param.sec_param.io_caps      =BLE_GAP_IO_CAPS_DISPLAY_YESNO;
-    register_param.sec_param.oob          = 0; //SEC_PARAM_OOB
-    register_param.sec_param.min_key_size = 7; //SEC_PARAM_MIN_KEY_SIZE
-    register_param.sec_param.max_key_size = 16; //SEC_PARAM_MAX_KEY_SIZE
+    register_param.sec_param.bond         = bond;
+    register_param.sec_param.mitm         = mitm;
+    register_param.sec_param.lesc         = lesc;
+    register_param.sec_param.keypress     = 0;
+    register_param.sec_param.io_caps      = io_caps;
+    register_param.sec_param.oob          = 0;
+    register_param.sec_param.min_key_size = 7;
+    register_param.sec_param.max_key_size = 16;
     register_param.evt_handler            = device_manager_evt_handler;
     register_param.service_type           = DM_PROTOCOL_CNTXT_GATT_SRVR_ID;
 
@@ -275,4 +290,8 @@ void add_dfu_service(){
 
 bool dfuIsEnabled(){
 	return dfuService;
+}
+
+void eraseBond(){
+	dm_device_delete_all(&m_app_handle);
 }

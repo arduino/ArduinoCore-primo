@@ -29,7 +29,7 @@
 #endif
 
 
-// #define BLE_CENTRAL_DEBUG
+#define BLE_CENTRAL_DEBUG
 
 
 BLECentralRole::BLECentralRole() : 
@@ -1103,7 +1103,8 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
 #ifdef BLE_CENTRAL_DEBUG
             Serial.println(F("Storing bond data"));
 #endif
-            this->_bondStore.saveTempData(this->_bondData, 0, sizeof(this->_bondData));
+            this->_bondStore.putData(this->_bondData, 0, sizeof(this->_bondData));
+      //      this->_bondStore.saveTempData(this->_bondData, 0, sizeof(this->_bondData));
           }
 
           uint8_t currentPeripheral;

@@ -42,7 +42,14 @@ extern bool dfuIsEnabled();
  */
 extern void add_dfu_service();
 
+/*
+ * \brief Set parameters used in bonding procedure from external libraries.
+ *
+ * \param Bond, Mimt, Lest, IO_caps
+ */ 
+extern void setSecParams(uint8_t Bond, uint8_t Mitm, uint8_t Lesc, uint8_t IO_caps);
 
+extern void eraseBond();
 /*
  * \brief Receive and forward all BLE events.
  *

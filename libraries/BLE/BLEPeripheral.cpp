@@ -172,31 +172,37 @@ void BLEPeripheral::enableBond(BLEBondingType type){
       this->_device->_mitm = true;
       this->_device->_io_caps = BLE_GAP_IO_CAPS_DISPLAY_ONLY;
       this->_device->_lesc = 0;
+      setSecParams(1, 1, 0, BLE_GAP_IO_CAPS_DISPLAY_ONLY);
     break;
     case CONFIRM_PASSKEY:
       this->_device->_mitm = true;
       this->_device->_io_caps = BLE_GAP_IO_CAPS_KEYBOARD_ONLY;
       this->_device->_lesc = 0;
+      setSecParams(1, 1, 0, BLE_GAP_IO_CAPS_KEYBOARD_ONLY);
     break;
     case LESC:
       this->_device->_mitm = false;
       this->_device->_io_caps = BLE_GAP_IO_CAPS_NONE;
       this->_device->_lesc = 1;
+      setSecParams(1, 1, 1, BLE_GAP_IO_CAPS_NONE);
     break;
     case LESC_NUM_COMPARISON:
       this->_device->_mitm = true;
       this->_device->_io_caps = BLE_GAP_IO_CAPS_DISPLAY_YESNO;
       this->_device->_lesc = 2;
+      setSecParams(1, 1, 1, BLE_GAP_IO_CAPS_DISPLAY_YESNO);
     break;
     case LESC_DISPLAY_PASSKEY:
       this->_device->_mitm = true;
       this->_device->_io_caps = BLE_GAP_IO_CAPS_DISPLAY_ONLY;
       this->_device->_lesc = 3;
+      setSecParams(1, 1, 1, BLE_GAP_IO_CAPS_DISPLAY_ONLY);
     break;
     case LESC_CONFIRM_PASSKEY:
       this->_device->_mitm = true;
       this->_device->_io_caps = BLE_GAP_IO_CAPS_KEYBOARD_ONLY;
       this->_device->_lesc = 3;
+      setSecParams(1, 1, 1, BLE_GAP_IO_CAPS_KEYBOARD_ONLY);
     break;
     default:
 
@@ -206,7 +212,8 @@ void BLEPeripheral::enableBond(BLEBondingType type){
 }
 
 void BLEPeripheral::clearBondStoreData() {
-  this->_bleBondStore.clearData(); 
+  //this->_bleBondStore.clearData();
+  eraseBond();
 }
 
 void BLEPeripheral::saveBondData(){

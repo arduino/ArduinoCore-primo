@@ -8,7 +8,7 @@
 class BLEBondStore
 {
   public:
-    BLEBondStore(int offset = 0);
+    BLEBondStore(int offset = NRF_UICR->NRFFW[0]);
 
     bool hasData();
     void clearData();

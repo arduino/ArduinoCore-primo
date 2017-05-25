@@ -757,14 +757,14 @@ static __INLINE ret_code_t device_instance_free(uint32_t device_index)
 
     //Get the block handle.
     err_code = pstorage_block_identifier_get(&m_storage_handle, device_index, &block_handle);
-
+dbgMsg("block identification = "); dbgMsgn(err_code); dbgMsg("\r\n");
     if (err_code == NRF_SUCCESS)
     {
         DM_TRC("[DM]:[DI 0x%02X]: Freeing Instance.\r\n", device_index);
 
         //Request clearing of the block.
         err_code = pstorage_clear(&block_handle, ALL_CONTEXT_SIZE);
-
+dbgMsg("storage clear = "); dbgMsgn(err_code); dbgMsg("\r\n");
         if (err_code == NRF_SUCCESS)
         {
             peer_instance_init(device_index);
@@ -1941,19 +1941,23 @@ ret_code_t dm_device_add(dm_handle_t               * p_handle,
 
 
 ret_code_t dm_device_delete(dm_handle_t const * p_handle)
-{
+{dbgMsg("INSIDE FUNCTION");
     VERIFY_MODULE_INITIALIZED();
+	dbgMsg("Module initialized passed");
     NULL_PARAM_CHECK(p_handle);
-    VERIFY_APP_REGISTERED(p_handle->appl_id);
-    VERIFY_DEVICE_INSTANCE(p_handle->device_id);
+	dbgMsg("null param check passed");
+//    VERIFY_APP_REGISTERED(p_handle->appl_id);
+	dbgMsg("app registered passed");
+//    VERIFY_DEVICE_INSTANCE(p_handle->device_id);
+	dbgMsg("device instance passed");
 
     DM_MUTEX_LOCK();
 
-    DM_TRC("[DM]: >> dm_device_delete\r\n");
+    dbgMsg("[DM]: >> dm_device_delete\r\n");
 
     uint32_t err_code = device_instance_free(p_handle->device_id);
 
-    DM_TRC("[DM]: << dm_device_delete\r\n");
+    dbgMsg("[DM]: << dm_device_delete\r\n");
 
     DM_MUTEX_UNLOCK();
 
@@ -2628,9 +2632,7 @@ void dm_ble_evt_handler(ble_evt_t * p_ble_evt)
             {
                 if ((m_connection_table[index].state & STATE_LINK_ENCRYPTED) == STATE_LINK_ENCRYPTED)
                 {
-				NRF_GPIO->DIRSET = (1UL << 3); //A0
-					NRF_GPIO->OUTSET = (1UL << 3); //A0
-                              //Write bond information persistently.
+                    //Write bond information persistently.
                     device_context_store(&handle, STORE_ALL_CONTEXT);
                 }
             }
