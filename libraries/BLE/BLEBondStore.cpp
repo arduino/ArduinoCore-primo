@@ -28,10 +28,12 @@ BLEBondStore::BLEBondStore(int offset) :
     _tempOffset(0),
     _tempLength(0)
 {
-	//by default offset is the bootloader address
-	//if it's null use the end of the flash
-	//otherwise save the data between the end of the sketch zone and the bootloader
-	offset = (offset != 0xFFFFFFFF) ? (offset / NRF_FICR->CODEPAGESIZE) : NRF_FICR->CODESIZE;
+	//offset takes into account the bootloader address in order to save data
+	//between end of the application and begin of bootloader.
+	// Get the bootloader starting address (in number of pages)
+	offset = offset / NRF_FICR->CODEPAGESIZE;
+	// Offset must be: end_of_flash - bootloader_address
+	offset = NRF_FICR->CODESIZE - offset;
 	//save bond data at the second page before the end of the saving zone since the last page is reserved to DFU bond data (if used)
 	_flashPageStartAddress = (uint32_t *)(NRF_FICR->CODEPAGESIZE * (NRF_FICR->CODESIZE - 2 - (uint32_t)offset));
 }
@@ -51,8 +53,8 @@ void BLEBondStore::clearData() {
   eeprom_write_byte((unsigned char *)this->_offset, 0x00);
 #elif defined(NRF51) || defined(NRF52)
   int32_t pageNo = (uint32_t)_flashPageStartAddress / NRF_FICR->CODEPAGESIZE;
-
-  while(sd_flash_page_erase(pageNo) == NRF_ERROR_BUSY);
+uint32_t err_code;
+  while(err_code = sd_flash_page_erase(pageNo) == NRF_ERROR_BUSY);
 #elif defined(__RFduino__)
 
   // turn on flash erase enable

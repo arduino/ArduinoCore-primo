@@ -50,6 +50,7 @@ extern void add_dfu_service();
 extern void setSecParams(uint8_t Bond, uint8_t Mitm, uint8_t Lesc, uint8_t IO_caps);
 
 extern void eraseBond();
+extern void initDM();
 /*
  * \brief Receive and forward all BLE events.
  *

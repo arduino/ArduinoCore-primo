@@ -236,7 +236,7 @@ void BLECentralRole::setBondStore(BLEBondStore& bondStore){
 
 void BLECentralRole::enableBond(BLEBondingType type){
   this->_bond = true;
-  this->clearBondStoreData();
+//  this->clearBondStoreData();
   switch(type){
     case DISPLAY_PASSKEY:
       this->_mitm = true;
@@ -668,21 +668,27 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
 			  sd_ble_gattc_primary_services_discover(this->_connectionHandle[index], 1, NULL);
             }
             if(this->_bond){
-              ble_gap_sec_params_t gapSecParams;
+              if (this->_bondStore.hasData()){ // device already bonded
+			  Serial.println("ALREADY BONDED");
+                sd_ble_gap_encrypt(this->_connectionHandle[index], &this->_encKey->master_id, &this->_encKey->enc_info);
+              }
+              else{ // first bond. Require authentication
+                ble_gap_sec_params_t gapSecParams;
 
-              memset(&gapSecParams, 0x00, sizeof(ble_gap_sec_params_t));
+                memset(&gapSecParams, 0x00, sizeof(ble_gap_sec_params_t));
 
-              gapSecParams.kdist_own.enc = 1;
+                gapSecParams.kdist_own.enc = 1;
 
-              gapSecParams.bond             = true;
-              gapSecParams.lesc             = (bool)this->_lesc;
-              gapSecParams.mitm             = this->_mitm;
-              gapSecParams.io_caps          = this->_io_caps;
-              gapSecParams.oob              = false;
-              gapSecParams.min_key_size     = 7;
-              gapSecParams.max_key_size     = 16;
+                gapSecParams.bond             = true;
+                gapSecParams.lesc             = (bool)this->_lesc;
+                gapSecParams.mitm             = this->_mitm;
+                gapSecParams.io_caps          = this->_io_caps;
+                gapSecParams.oob              = false;
+                gapSecParams.min_key_size     = 7;
+                gapSecParams.max_key_size     = 16;
 
-              sd_ble_gap_authenticate(this->_connectionHandle[index], &gapSecParams);
+                sd_ble_gap_authenticate(this->_connectionHandle[index], &gapSecParams);
+              }
 			}
 			
             _peripheralConnected++;
