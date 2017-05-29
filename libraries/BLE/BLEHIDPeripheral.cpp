@@ -22,6 +22,9 @@ BLEHIDPeripheral::BLEHIDPeripheral(unsigned char req, unsigned char rdy, unsigne
   _numHids(0)
 {
   _instance = this;
+  
+  //initialize device manager
+  initDM();
 }
 
 BLEHIDPeripheral::~BLEHIDPeripheral() {

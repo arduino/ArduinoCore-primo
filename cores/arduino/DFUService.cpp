@@ -80,7 +80,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
             break;
     }
 }
-#include "Arduino.h"
+
 static void reset_prepare(void)
 {
     if (m_conn_handle != BLE_CONN_HANDLE_INVALID)
@@ -175,12 +175,7 @@ void setSecParams(uint8_t Bond, uint8_t Mitm, uint8_t Lesc, uint8_t IO_caps){
 	io_caps = IO_caps;
 }
 
-void add_dfu_service(){
-    ble_gap_conn_params_t   gap_conn_params;
-    ble_gap_conn_sec_mode_t sec_mode;
-		
-//*** device manager init - start
-  
+void initDM(){		
     dm_init_param_t        init_param = {.clear_persistent_data = false};
     dm_application_param_t register_param;
 
@@ -202,10 +197,18 @@ void add_dfu_service(){
     register_param.service_type           = DM_PROTOCOL_CNTXT_GATT_SRVR_ID;
 
     dm_register(&m_app_handle, &register_param);
- 
-//*** device manager init - end
+
+}
+
+void add_dfu_service(){
+
+	// Initialize device manager
+	initDM();
 	// If isPeripheralRunning is defined user is using Arduino BLE library
 	if(!isPeripheralRunning || !isPeripheralRunning()){
+	    ble_gap_conn_params_t   gap_conn_params;
+		ble_gap_conn_sec_mode_t sec_mode;
+
 		// Advertising and connection parameters have to be set only if
 		// user is not using Arduino BLE library or peripheral role is not running
 		// to avoid overriding user's settings
@@ -234,27 +237,6 @@ void add_dfu_service(){
 		len=len+2;
 		sd_ble_gap_adv_data_set(adv_data, len, NULL, 0);		
 
-		  // ble_advdata_t advdata;
-		// static ble_uuid_t m_adv_uuids[] = {
-									   // {BLE_UUID_DEVICE_INFORMATION_SERVICE, BLE_UUID_TYPE_BLE}}; /**< Universally unique service identifiers. */
-
-		// Build advertising data struct to pass into @ref ble_advertising_init.
-		// memset(&advdata, 0, sizeof(advdata));
-
-		// advdata.name_type               = BLE_ADVDATA_FULL_NAME;
-		// advdata.include_appearance      = true;
-		// advdata.flags                   = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
-		// advdata.uuids_complete.uuid_cnt = sizeof(m_adv_uuids) / sizeof(m_adv_uuids[0]);
-		// advdata.uuids_complete.p_uuids  = m_adv_uuids;
-
-		// ble_adv_modes_config_t options = {0};
-		// options.ble_adv_fast_enabled  = true; //BLE_ADV_FAST_ENABLED;
-		// options.ble_adv_fast_interval = 40; //APP_ADV_INTERVAL;
-		// options.ble_adv_fast_timeout  = BLE_GAP_ADV_TIMEOUT_GENERAL_UNLIMITED;
-		// if(isCentralRunning && isCentralRunning())	//don't pass options in ble_advertising_init if central is running
-			// ble_advertising_init(&advdata, NULL, NULL, NULL, NULL);
-		// else
-			// ble_advertising_init(&advdata, NULL, &options, NULL, NULL);
 	}
 	
 	/** @snippet [DFU BLE Service initialization] */

@@ -165,8 +165,6 @@ void BLEPeripheral::setBondStore(BLEBondStore& bondStore) {
 }
 
 void BLEPeripheral::enableBond(BLEBondingType type){
-  this->setBondStore(this->_bleBondStore);
-  this->clearBondStoreData();
   switch(type){
     case DISPLAY_PASSKEY:
       this->_device->_mitm = true;
@@ -212,7 +210,9 @@ void BLEPeripheral::enableBond(BLEBondingType type){
 }
 
 void BLEPeripheral::clearBondStoreData() {
-  //this->_bleBondStore.clearData();
+  // device manager can be uninitialized if this function is
+  // called before loop function
+  initDM();
   eraseBond();
 }
 
