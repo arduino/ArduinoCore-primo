@@ -87,11 +87,16 @@ void analogReference( uint8_t ulMode )
 uint32_t analogRead( uint32_t ulPin ){
 	static int16_t valueRead[1];  
 
+#ifdef ARDUINO_NRF52_PRIMO
 	if((ulPin >= 0) && (ulPin <= 5))
 		ulPin = ulPin + 14;
-	//no analogRead for digital pin
+	// no analogRead for digital pin
 	else if(ulPin<=13)
 		return 0;
+#elif defined ARDUINO_NRF52_PRIMO_CORE
+	if(ulPin > 7)
+		return 0;
+#endif
 	
 	//enable ADC
     NRF_SAADC->ENABLE = SAADC_ENABLE_ENABLE_Enabled << SAADC_ENABLE_ENABLE_Pos;       

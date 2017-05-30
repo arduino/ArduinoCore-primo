@@ -38,4 +38,34 @@ primo.build.pid=0x805a
 #primo.bootloader.file=
 primo.firmware.softdevice.file=primo/softdevice/s132_nrf52_2.0.0_softdevice.hex
 
+
 #####################################
+########### ARDUINO PRIMO ###########
+
+primo_core.name=Arduino Primo Core
+
+#primo_core.menu.upload.serial=via Serial
+#primo_core.menu.upload.bluetooth=via Bluetooth
+#primo_core.menu.upload.bluetooth.upload.tool=otable
+
+primo_core.upload.tool=openocd
+primo_core.upload.protocol=sam-ba
+primo_core.upload.maximum_size=409600
+primo_core.upload.use_1200bps_touch=false
+primo_core.upload.speed=115200
+primo_core.upload.wait_for_upload_port=false
+
+primo_core.build.mcu=cortex-m4
+primo_core.build.f_cpu=64000000L
+primo_core.build.usb_product="Arduino Primo Core"
+primo_core.build.board=NRF52_PRIMO_CORE
+primo_core.build.core=arduino
+primo_core.build.extra_flags=-mthumb
+primo_core.build.ldscript=linker_scripts/gcc/flash.ld
+primo_core.build.openocdscript=openocd_scripts/arduino_primo.cfg
+primo_core.build.variant=arduino_primo_core
+primo_core.build.components=components
+
+#new defined attributes
+#primo_core.bootloader.file=
+primo_core.firmware.softdevice.file=primo/softdevice/s132_nrf52_2.0.0_softdevice.hex
