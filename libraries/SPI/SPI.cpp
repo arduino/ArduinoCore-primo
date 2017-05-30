@@ -27,6 +27,19 @@ SPIClass::SPIClass(NRF_SPI_Type *SPIInstance, uint8_t uc_pinMISO, uint8_t uc_pin
     _uc_pinMosi = g_APinDescription[uc_pinMOSI].ulPin;
 }
 
+#ifdef ARDUINO_NRF52_PRIMO_CORE
+
+SPIClass::SPIClass(int uc_pinMISO, int uc_pinMOSI, int uc_pinSCK){
+	_SPIInstance = NRF_SPI2;
+		
+    _uc_pinMiso = g_APinDescription[uc_pinMISO].ulPin;
+    _uc_pinSCK = g_APinDescription[uc_pinSCK].ulPin;
+    _uc_pinMosi = g_APinDescription[uc_pinMOSI].ulPin;
+}
+
+#endif //ARDUINO_NRF52_PRIMO_CORE
+
+
 void SPIClass::begin()
 {
     pinMode(_uc_pinSCK, OUTPUT);
@@ -334,4 +347,6 @@ void SPIClass::detachInterrupt(void)
 	// Should be disableInterrupt()
 }
 
+#ifdef ARDUINO_NRF52_PRIMO
 SPIClass SPI(NRF_SPI2, PIN_SPI_MISO, PIN_SPI_SCK, PIN_SPI_MOSI);
+#endif //ARDUINO_NRF52_PRIMO

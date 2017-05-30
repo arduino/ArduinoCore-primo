@@ -47,7 +47,7 @@ uint8_t read_char[] = {0,0};
 bool transmissionBegun;
 uint8_t suspended=0;
 
-
+#ifdef ARDUINO_NRF52_PRIMO
 void TwoWire_begin(void) {
    //Master Mode
    _TWIInstance=NRF_TWIM1;
@@ -225,10 +225,13 @@ int TwoWire_read(void)
 	}
 }
 
+#endif //ARDUINO_NRF52_PRIMO
 ///////////////////////////////////////////////////////////////////////
 
 void pinMode( uint32_t ulPin, uint32_t ulMode )
 {
+
+#ifdef ARDUINO_NRF52_PRIMO
 
   if ( (ulPin == 34) && (ulMode == STM32_IT) )
   {
@@ -249,6 +252,8 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
 	  TwoWire_endTransmission();
 	  return ;
   }
+  
+#endif //ARDUINO_NRF52_PRIMO
 
   if ( g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
   {
@@ -285,6 +290,15 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
 
 void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 {
+
+// in Primo Core leds have an inverted logic. Reverse ulVal in order to restore the normal logic
+#ifdef ARDUINO_NRF52_PRIMO_CORE
+	if(ulPin == 10 || ulPin == 11 || ulPin == 12 || ulPin == 13)
+		ulVal = !ulVal;
+#endif //ARDUINO_NRF52_PRIMO_CORE
+
+#ifdef ARDUINO_NRF52_PRIMO
+
 	switch ( ulPin )
 	{
 		case 38:
@@ -382,6 +396,8 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
     	break ;
 	}
 
+#endif //ARDUINO_NRF52_PRIMO
+
   if ( ulPin >= 38 && ulPin <= 42)
   {
 	  return ;
@@ -403,6 +419,9 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 
 int digitalRead( uint32_t ulPin )
 {
+
+#ifdef ARDUINO_NRF52_PRIMO
+
    switch ( ulPin )
 	{
    	   case 44:
@@ -427,6 +446,8 @@ int digitalRead( uint32_t ulPin )
    		// do nothing
    	   break ;
 	}
+
+#endif //ARDUINO_NRF52_PRIMO
 
   /* Handle the case the pin isn't usable as PIO */
   if ( g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )

@@ -20,6 +20,8 @@ typedef enum _EAnalogChannel
 	ADC_A3=SAADC_CH_PSELP_PSELP_AnalogInput5,
 	ADC_A4=SAADC_CH_PSELP_PSELP_AnalogInput6,
 	ADC_A5=SAADC_CH_PSELP_PSELP_AnalogInput7,
+	ADC_A6=SAADC_CH_PSELP_PSELP_AnalogInput0,
+	ADC_A7=SAADC_CH_PSELP_PSELP_AnalogInput3
 } EAnalogChannel ;
 
 typedef enum _ETCChannel

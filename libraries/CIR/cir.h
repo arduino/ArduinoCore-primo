@@ -27,6 +27,10 @@
 #ifndef __CIR_H__
 #define __CIR_H__
 
+#ifdef ARDUINO_NRF52_PRIMO_CORE
+#error "CIR library is not compatible with Arduino Primo Core"
+#endif //ARDUINO_NRF52_PRIMO_CORE
+
 #include <Wire.h>
 #include <stdint.h>
 #include "Arduino.h"

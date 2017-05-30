@@ -83,6 +83,10 @@ class SPIClass {
   public:
     SPIClass(NRF_SPI_Type *SPIInstance,  uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI);
 
+#ifdef ARDUINO_NRF52_PRIMO_CORE
+	SPIClass(int uc_pinMISO, int uc_pinMOSI, int uc_pinSCK);
+#endif
+
 	byte transfer(uint8_t data); 
 	void transfer(void *data, size_t count);
 	byte read(void);
@@ -117,6 +121,8 @@ class SPIClass {
 	uint8_t inTransactionFlag;
 };
 
+#ifdef ARDUINO_NRF52_PRIMO
 extern SPIClass SPI;
+#endif //ARDUINO_NRF52_PRIMO
 
-#endif
+#endif //_SPI_H_INCLUDED
