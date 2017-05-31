@@ -30,16 +30,6 @@
 // inslude the SPI library:
 #include <SPI.h>
 
-#ifdef ARDUINO_NRF52_PRIMO_CORE
-  // Arduino Primo Core doesn't have fixed SPI pins. You can choose whatever pins you prefer. 
-  #define MISO 4
-  #define MOSI 5
-  #define SCK  6
-
-  SPIClass SPI(MISO, MOSI, SCK);
-#endif //ARDUINO_NRF52_PRIMO_CORE
-
-
 // set pin 7 as the slave select for the digital pot:
 const int slaveSelectPin = 7;
 

@@ -76,6 +76,22 @@ extern "C"{
 
 #define LED_BUILTIN          USER_LED
 #define BLE_LED              BLUE_LED
+
+/*
+ * SPI Interfaces
+ */
+#define SPI_INTERFACES_COUNT 1
+
+// pins' definition can be overwritten using SPI library
+#define PIN_SPI_MOSI         (4u)
+#define PIN_SPI_MISO         (5u)
+#define PIN_SPI_SCK          (6u)
+
+static const uint8_t SS	  = 7;
+static const uint8_t MOSI = PIN_SPI_MOSI;
+static const uint8_t MISO = PIN_SPI_MISO;
+static const uint8_t SCK  = PIN_SPI_SCK;
+
 /*
  * Wire Interfaces
  */
