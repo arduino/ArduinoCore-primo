@@ -25,15 +25,6 @@
 // the sensor communicates using SPI, so include the library:
 #include <SPI.h>
 
-#ifdef ARDUINO_NRF52_PRIMO_CORE
-  // Arduino Primo Core doesn't have fixed SPI pins. You can choose whatever pins you prefer. 
-  #define MISO 3
-  #define MOSI 4
-  #define SCK  5
-
-  SPIClass SPI(MISO, MOSI, SCK);
-#endif //ARDUINO_NRF52_PRIMO_CORE
-
 //Sensor's memory register addresses:
 const int PRESSURE = 0x1F;      //3 most significant bits of pressure
 const int PRESSURE_LSB = 0x20;  //16 least significant bits of pressure

@@ -65,6 +65,18 @@ class SPISettings {
 			data_mode = dataMode;
 		}
 		
+		#ifdef ARDUINO_NRF52_PRIMO_CORE
+		SPISettings(uint32_t clock, uint8_t bitOrder, uint8_t dataMode, int uc_pinMISO, int uc_pinMOSI, int uc_pinSCK)
+		{
+			interface_clock = clock;
+			bit_order = bitOrder;
+			data_mode = dataMode;
+			_uc_pinMiso = uc_pinMISO;
+			_uc_pinSCK = uc_pinSCK;
+			_uc_pinMosi = uc_pinMOSI;
+		}
+		#endif //ARDUINO_NRF52_PRIMO_CORE
+
 		SPISettings(void)
 		{
 			interface_clock = 4000000;
@@ -75,6 +87,11 @@ class SPISettings {
 		uint32_t interface_clock;
 		uint8_t bit_order;
 		uint8_t data_mode;
+		#ifdef ARDUINO_NRF52_PRIMO_CORE
+			uint8_t _uc_pinMiso = 0;
+			uint8_t _uc_pinMosi = 0;
+			uint8_t _uc_pinSCK = 0;
+		#endif //ARDUINO_NRF52_PRIMO_CORE
 	
 	friend class SPIClass;	
 };
@@ -82,10 +99,6 @@ class SPISettings {
 class SPIClass {
   public:
     SPIClass(NRF_SPI_Type *SPIInstance,  uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI);
-
-#ifdef ARDUINO_NRF52_PRIMO_CORE
-	SPIClass(int uc_pinMISO, int uc_pinMOSI, int uc_pinSCK);
-#endif
 
 	byte transfer(uint8_t data); 
 	void transfer(void *data, size_t count);
@@ -105,6 +118,11 @@ class SPIClass {
 	void beginSlave();
 	void end(void);	
 
+#ifdef ARDUINO_NRF52_PRIMO_CORE
+	void begin(int uc_pinMISO, int uc_pinMOSI, int uc_pinSCK);
+	void beginSlave(int uc_pinMISO, int uc_pinMOSI, int uc_pinSCK);
+#endif	
+	
 	void setBitOrder(BitOrder order);
 	void setDataMode(uint8_t uc_mode);
 	void setClockDivider(uint16_t uc_div); 
@@ -121,8 +139,6 @@ class SPIClass {
 	uint8_t inTransactionFlag;
 };
 
-#ifdef ARDUINO_NRF52_PRIMO
 extern SPIClass SPI;
-#endif //ARDUINO_NRF52_PRIMO
 
 #endif //_SPI_H_INCLUDED

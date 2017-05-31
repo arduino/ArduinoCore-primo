@@ -22,22 +22,10 @@ SPIClass::SPIClass(NRF_SPI_Type *SPIInstance, uint8_t uc_pinMISO, uint8_t uc_pin
 {
    _SPIInstance = SPIInstance;
 
-    _uc_pinMiso = g_APinDescription[uc_pinMISO].ulPin;
-    _uc_pinSCK = g_APinDescription[uc_pinSCK].ulPin;
-    _uc_pinMosi = g_APinDescription[uc_pinMOSI].ulPin;
+    _uc_pinMiso = uc_pinMISO;
+    _uc_pinSCK = uc_pinSCK;
+    _uc_pinMosi = uc_pinMOSI;
 }
-
-#ifdef ARDUINO_NRF52_PRIMO_CORE
-
-SPIClass::SPIClass(int uc_pinMISO, int uc_pinMOSI, int uc_pinSCK){
-	_SPIInstance = NRF_SPI2;
-		
-    _uc_pinMiso = g_APinDescription[uc_pinMISO].ulPin;
-    _uc_pinSCK = g_APinDescription[uc_pinSCK].ulPin;
-    _uc_pinMosi = g_APinDescription[uc_pinMOSI].ulPin;
-}
-
-#endif //ARDUINO_NRF52_PRIMO_CORE
 
 
 void SPIClass::begin()
@@ -46,9 +34,9 @@ void SPIClass::begin()
     pinMode(_uc_pinMosi, OUTPUT);
     pinMode(_uc_pinMiso, INPUT);
 
-    _SPIInstance->PSELSCK = _uc_pinSCK;
-    _SPIInstance->PSELMOSI = _uc_pinMosi;
-    _SPIInstance->PSELMISO = _uc_pinMiso;
+    _SPIInstance->PSELSCK = g_APinDescription[_uc_pinSCK].ulPin;
+    _SPIInstance->PSELMOSI = g_APinDescription[_uc_pinMosi].ulPin;
+    _SPIInstance->PSELMISO = g_APinDescription[_uc_pinMiso].ulPin;
 
 	// Default speed set to 4Mhz, SPI mode set to MODE 0 and Bit order set to MSB first.
 	_SPIInstance->FREQUENCY = (SPI_FREQUENCY_FREQUENCY_M4 << SPI_FREQUENCY_FREQUENCY_Pos);
@@ -67,9 +55,10 @@ void SPIClass::beginSlave()
     pinMode(_uc_pinMiso, INPUT);
 
 
-    _SPIInstance->PSELSCK = _uc_pinSCK;
-    _SPIInstance->PSELMOSI = _uc_pinMosi;
-    _SPIInstance->PSELMISO = _uc_pinMiso;
+    _SPIInstance->PSELSCK = g_APinDescription[_uc_pinSCK].ulPin;
+    _SPIInstance->PSELMOSI = g_APinDescription[_uc_pinMosi].ulPin;
+    _SPIInstance->PSELMISO = g_APinDescription[_uc_pinMiso].ulPin;
+
 	
 	setDataMode(SPI_MODE0);
 	setBitOrder(MSBFIRST);
@@ -84,6 +73,56 @@ void SPIClass::end()
 	_SPIInstance->ENABLE &= ~(SPI_ENABLE_ENABLE_Enabled << SPI_ENABLE_ENABLE_Pos);
 }
 
+#ifdef ARDUINO_NRF52_PRIMO_CORE
+
+void SPIClass::begin(int uc_pinMISO, int uc_pinMOSI, int uc_pinSCK)
+{
+    _uc_pinMiso = uc_pinMISO;
+    _uc_pinSCK = uc_pinSCK;
+    _uc_pinMosi = uc_pinMOSI;
+
+    pinMode(_uc_pinSCK, OUTPUT);
+    pinMode(_uc_pinMosi, OUTPUT);
+    pinMode(_uc_pinMiso, INPUT);
+
+	_SPIInstance->PSELSCK = g_APinDescription[_uc_pinSCK].ulPin;
+    _SPIInstance->PSELMOSI = g_APinDescription[_uc_pinMosi].ulPin;
+    _SPIInstance->PSELMISO = g_APinDescription[_uc_pinMiso].ulPin;
+
+	// Default speed set to 4Mhz, SPI mode set to MODE 0 and Bit order set to MSB first.
+	_SPIInstance->FREQUENCY = (SPI_FREQUENCY_FREQUENCY_M4 << SPI_FREQUENCY_FREQUENCY_Pos);
+	setDataMode(SPI_MODE0);
+	setBitOrder(MSBFIRST);
+	_order=MSBFIRST;
+
+	_SPIInstance->ENABLE = (SPI_ENABLE_ENABLE_Enabled << SPI_ENABLE_ENABLE_Pos);
+}
+
+
+void SPIClass::beginSlave(int uc_pinMISO, int uc_pinMOSI, int uc_pinSCK)
+{
+    _uc_pinMiso = uc_pinMISO;
+    _uc_pinSCK = uc_pinSCK;
+    _uc_pinMosi = uc_pinMOSI;
+
+	pinMode(_uc_pinSCK, INPUT);
+    pinMode(_uc_pinMosi, OUTPUT);
+    pinMode(_uc_pinMiso, INPUT);
+
+
+    _SPIInstance->PSELSCK = g_APinDescription[_uc_pinSCK].ulPin;
+    _SPIInstance->PSELMOSI = g_APinDescription[_uc_pinMosi].ulPin;
+    _SPIInstance->PSELMISO = g_APinDescription[_uc_pinMiso].ulPin;
+
+	
+	setDataMode(SPI_MODE0);
+	setBitOrder(MSBFIRST);
+	_order=MSBFIRST;
+
+	_SPIInstance->ENABLE = (SPI_ENABLE_ENABLE_Enabled << SPI_ENABLE_ENABLE_Pos);
+}
+#endif //ARDUINO_NRF52_PRIMO_CORE
+
 void SPIClass::beginTransaction(SPISettings settings)
 {
 	uint8_t bitOrder;
@@ -93,14 +132,27 @@ void SPIClass::beginTransaction(SPISettings settings)
 	noInterrupts();
 	
 	end();
-	
+
 	pinMode(_uc_pinSCK, OUTPUT);
     pinMode(_uc_pinMosi, OUTPUT);
     pinMode(_uc_pinMiso, INPUT);
 
-	_SPIInstance->PSELSCK = _uc_pinSCK;
-    _SPIInstance->PSELMOSI = _uc_pinMosi;
-    _SPIInstance->PSELMISO = _uc_pinMiso;
+	_SPIInstance->PSELSCK = g_APinDescription[_uc_pinSCK].ulPin;
+    _SPIInstance->PSELMOSI = g_APinDescription[_uc_pinMosi].ulPin;
+    _SPIInstance->PSELMISO = g_APinDescription[_uc_pinMiso].ulPin;
+
+#ifdef ARDUINO_NRF52_PRIMO_CORE
+	if(settings._uc_pinMiso != 0 && settings._uc_pinMosi != 0 && settings._uc_pinSCK != 0){
+		// override configuration with pins selected by user
+		pinMode(settings._uc_pinSCK, OUTPUT);
+		pinMode(settings._uc_pinMosi, OUTPUT);
+		pinMode(settings._uc_pinMiso, INPUT);
+
+		_SPIInstance->PSELSCK = g_APinDescription[settings._uc_pinSCK].ulPin;
+		_SPIInstance->PSELMOSI = g_APinDescription[settings._uc_pinMosi].ulPin;
+		_SPIInstance->PSELMISO = g_APinDescription[settings._uc_pinMiso].ulPin;
+	}
+#endif //ARDUINO_NRF52_PRIMO_CORE
 	
 	if(settings.interface_clock < 182000)
 		setClockDivider(SPI_CLOCK_DIV128);
@@ -347,6 +399,4 @@ void SPIClass::detachInterrupt(void)
 	// Should be disableInterrupt()
 }
 
-#ifdef ARDUINO_NRF52_PRIMO
 SPIClass SPI(NRF_SPI2, PIN_SPI_MISO, PIN_SPI_SCK, PIN_SPI_MOSI);
-#endif //ARDUINO_NRF52_PRIMO
