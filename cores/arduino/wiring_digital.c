@@ -279,12 +279,19 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
 
     case OUTPUT:
       // Set pin to output mode
-		 nrf_gpio_pin_dir_set(g_APinDescription[ulPin].ulPin, NRF_GPIO_PIN_DIR_OUTPUT);
-	  break ;
+	  nrf_gpio_pin_dir_set(g_APinDescription[ulPin].ulPin, NRF_GPIO_PIN_DIR_OUTPUT);
+		 
+	  #ifdef ARDUINO_NRF52_PRIMO_CORE
+	  // LEDs on Core work with reverse logic. Turn them off if output mode is selected
+	  if(ulPin == 10 || ulPin == 11 || ulPin == 12 || ulPin == 13)
+		digitalWrite(ulPin, LOW);
+	  #endif //ARDUINO_NRF52_PRIMO_CORE
+	break ;
 
     default:
       // do nothing
     break ;
+
   }
 }
 
