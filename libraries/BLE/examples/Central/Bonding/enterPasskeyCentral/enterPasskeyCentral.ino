@@ -38,7 +38,7 @@ void setup() {
   bleCentral.addRemoteAttribute(dummyRemoteCharacteristic);
 
   // enable bonding and set the type
-  bleCentral.enableBond(LESC_CONFIRM_PASSKEY);
+  bleCentral.enableBond(CONFIRM_PASSKEY);
   
   // assign event handlers
   bleCentral.setEventHandler(BLEScanReceived, receiveAdvPck);

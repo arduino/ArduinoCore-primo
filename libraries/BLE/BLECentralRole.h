@@ -174,7 +174,6 @@ private:
     uint8_t                           _bondData[((sizeof(ble_gap_enc_key_t) + 3) / 4) * 4]  __attribute__ ((__aligned__(4)));
     ble_gap_enc_key_t*                _encKey;
     bool                              _mitm;
-    uint8_t                           _lesc;
     uint8_t                           _io_caps;
     uint8_t                           _passkey[6];
     bool                              _userConfirm;
@@ -195,11 +194,6 @@ private:
     unsigned char                     _numRemoteCharacteristics;
     struct remoteCharacteristicInfo*  _remoteCharacteristicInfo;
     bool                              _remoteRequestInProgress;
-
-    __ALIGN(4) ble_gap_lesc_p256_pk_t            _privateKey;
-    __ALIGN(4) ble_gap_lesc_p256_pk_t            _publicKey;
-    __ALIGN(4) ble_gap_lesc_p256_pk_t            _peerKey;
-    __ALIGN(4) ble_gap_lesc_dhkey_t              _dhkey;
 	
     char*                          _hci_messages[63] = {"Success", "Unknow btle command", "Unknow connection identifier", "", "", "Authentication failure", "Pin or key missing", "Memory capacity exceeded", "Connection timeout", "", "", "", "Command disallowed", "", "", "", "", "", "Invalid btle command parameters", "Remote user terminated connection", "Remote dev termination due to low resources", "Remote dev termination due to power off", "Local host terminated connection", "", "", "", "Unsupported remote feature", "", "", "", "Invalid lmp parameters", "Unspecified error", "", "", "Lmp response timeout", "", "Lmp pdu not allowed", "", "", "", "Instant passed", "Pairing with unit key unsupported", "Different transaction collision", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Controller busy", "Connection interval unacceptable", "Directed advertiser timeout", "Connection terminated due mic failure", "Connection failed to be established" };
     char*                          _gap_sec_status[256] = {"Success", "Timeout", "Pdu invalid", "Rfu range1 begin", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Rfu range1 end", "Passkey entry failed", "Oob not available", "Auth requested", "Confirm value", "Pairing not supported", "Enc key size", "Smp cmd unsupported", "Unspecified", "Repeated attempts", "Invalid params", "Dhkey failure", "Numeric comparison failure", "Bd Edr in prog", "X trans key disallowed", "Rfu range2 begin", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Rfu range2 end"};
