@@ -40,7 +40,7 @@ void setup() {
   blePeripheral.addAttribute(dummyCharacteristic);
 
   //enable bonding and set the type
-  blePeripheral.enableBond(LESC_DISPLAY_PASSKEY);
+  blePeripheral.enableBond(DISPLAY_PASSKEY);
 
   // assign event handlers for connected, disconnected, passkey received and bond to peripheral
   blePeripheral.setEventHandler(BLEConnected, blePeripheralConnectHandler);

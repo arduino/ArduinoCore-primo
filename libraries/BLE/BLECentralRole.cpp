@@ -20,16 +20,7 @@
 #include "BLECentralRole.h"
 #include "BLEUtil.h"
 
-#ifdef __cplusplus
- extern "C"{
-#endif
-#include <ecc.h>
-#ifdef __cplusplus
- }
-#endif
-
-
-#define BLE_CENTRAL_DEBUG
+// #define BLE_CENTRAL_DEBUG
 
 
 BLECentralRole::BLECentralRole() : 
@@ -71,7 +62,6 @@ BLECentralRole::BLECentralRole() :
   _bond(false),
   _bondStore(),
   _mitm(false),
-  _lesc(0),
   _io_caps(BLE_GAP_IO_CAPS_NONE),
   _passkey({0,0,0,0,0,0}),
   _userConfirm(false)
@@ -241,32 +231,10 @@ void BLECentralRole::enableBond(BLEBondingType type){
     case DISPLAY_PASSKEY:
       this->_mitm = true;
       this->_io_caps = BLE_GAP_IO_CAPS_DISPLAY_ONLY;
-      this->_lesc = 0;
     break;
     case CONFIRM_PASSKEY:
       this->_mitm = true;
       this->_io_caps = BLE_GAP_IO_CAPS_KEYBOARD_ONLY;
-      this->_lesc = 0;
-    break;
-    case LESC:
-      this->_mitm = false;
-      this->_io_caps = BLE_GAP_IO_CAPS_NONE;
-      this->_lesc = 1;
-    break;
-    case LESC_NUM_COMPARISON:
-      this->_mitm = true;
-      this->_io_caps = BLE_GAP_IO_CAPS_DISPLAY_YESNO;
-      this->_lesc = 2;
-    break;
-    case LESC_DISPLAY_PASSKEY:
-      this->_mitm = true;
-      this->_io_caps = BLE_GAP_IO_CAPS_DISPLAY_ONLY;
-      this->_lesc = 3;
-    break;
-    case LESC_CONFIRM_PASSKEY:
-      this->_mitm = true;
-      this->_io_caps = BLE_GAP_IO_CAPS_KEYBOARD_ONLY;
-      this->_lesc = 3;
     break;
     default:
 
@@ -402,10 +370,7 @@ void BLECentralRole::begin(){
 
         if (properties & (BLERead | BLENotify | BLEIndicate)) {
           if (this->_bond) {
-            if(this->_lesc > 1)
-                BLE_GAP_CONN_SEC_MODE_SET_LESC_ENC_WITH_MITM(&characteristicValueAttributeMetaData.read_perm);
-            else
-                BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&characteristicValueAttributeMetaData.read_perm);
+            BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&characteristicValueAttributeMetaData.read_perm);
           } else {
             BLE_GAP_CONN_SEC_MODE_SET_OPEN(&characteristicValueAttributeMetaData.read_perm);
           }
@@ -413,10 +378,7 @@ void BLECentralRole::begin(){
 
         if (properties & (BLEWriteWithoutResponse | BLEWrite)) {
           if (this->_bond) {
-            if(this->_lesc > 1)
-                BLE_GAP_CONN_SEC_MODE_SET_LESC_ENC_WITH_MITM(&characteristicValueAttributeMetaData.write_perm);
-            else
-                BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&characteristicValueAttributeMetaData.write_perm);
+            BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&characteristicValueAttributeMetaData.write_perm);
           } else {
             BLE_GAP_CONN_SEC_MODE_SET_OPEN(&characteristicValueAttributeMetaData.write_perm);
           }
@@ -493,10 +455,7 @@ void BLECentralRole::begin(){
       descriptorMetaData.vlen = (valueLength == descriptor->valueLength()) ? 0 : 1;
 
       if (this->_bond) {
-        if(this->_lesc > 1)
-            BLE_GAP_CONN_SEC_MODE_SET_LESC_ENC_WITH_MITM(&descriptorMetaData.read_perm);
-        else
-            BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&descriptorMetaData.read_perm);
+        BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&descriptorMetaData.read_perm);
       } else {
         BLE_GAP_CONN_SEC_MODE_SET_OPEN(&descriptorMetaData.read_perm);
       }
@@ -669,7 +628,6 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
             }
             if(this->_bond){
               if (this->_bondStore.hasData()){ // device already bonded
-			  Serial.println("ALREADY BONDED");
                 sd_ble_gap_encrypt(this->_connectionHandle[index], &this->_encKey->master_id, &this->_encKey->enc_info);
               }
               else{ // first bond. Require authentication
@@ -680,7 +638,7 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
                 gapSecParams.kdist_own.enc = 1;
 
                 gapSecParams.bond             = true;
-                gapSecParams.lesc             = (bool)this->_lesc;
+                gapSecParams.lesc             = false;
                 gapSecParams.mitm             = this->_mitm;
                 gapSecParams.io_caps          = this->_io_caps;
                 gapSecParams.oob              = false;
@@ -766,7 +724,7 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
 
           gapSecParams.kdist_own.enc = 1;
           gapSecParams.bond             = true;
-          gapSecParams.lesc             = (bool)this->_lesc;
+          gapSecParams.lesc             = false;
           gapSecParams.mitm             = this->_mitm;
           gapSecParams.io_caps          = this->_io_caps;
           gapSecParams.oob              = false;
@@ -775,12 +733,6 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
 
           ble_gap_sec_keyset_t keyset;
           memset(&keyset, 0, sizeof(ble_gap_sec_keyset_t));
-          if(this->_lesc > 0){
-            ecc_init();
-            ecc_p256_keypair_gen(this->_privateKey.pk, this->_publicKey.pk);
-            keyset.keys_own.p_pk=&this->_publicKey;
-            keyset.keys_peer.p_pk=&this->_peerKey;
-          }
 		  
           keyset.keys_peer.p_enc_key  = NULL;
           keyset.keys_peer.p_id_key   = NULL;
@@ -928,7 +880,7 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
 
           gapSecParams.kdist_own.enc = 1;
           gapSecParams.bond             = true;
-          gapSecParams.lesc             = (bool)this->_lesc;
+          gapSecParams.lesc             = false;
           gapSecParams.mitm             = this->_mitm;
           gapSecParams.io_caps          = this->_io_caps;
           gapSecParams.oob              = false;
@@ -979,7 +931,7 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
 
           gapSecParams.kdist_own.enc = 1;
           gapSecParams.bond             = true;
-          gapSecParams.lesc             = (bool)this->_lesc;
+          gapSecParams.lesc             = 0;
           gapSecParams.mitm             = this->_mitm;
           gapSecParams.io_caps          = this->_io_caps;
           gapSecParams.oob              = false;
@@ -1110,7 +1062,6 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
             Serial.println(F("Storing bond data"));
 #endif
             this->_bondStore.putData(this->_bondData, 0, sizeof(this->_bondData));
-      //      this->_bondStore.saveTempData(this->_bondData, 0, sizeof(this->_bondData));
           }
 
           uint8_t currentPeripheral;
@@ -1142,16 +1093,16 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
             }
           }
         }
-        if(this->_lesc == 2 && this->_userConfirm){
-          for(int i = 0; i < _allowedPeripherals; i++){
-            if(this->_connectionHandle[i] == bleEvt->evt.gap_evt.conn_handle){
-              sd_ble_gap_auth_key_reply(this->_connectionHandle[i], BLE_GAP_AUTH_KEY_TYPE_PASSKEY, NULL);
-              /* Due to DRGN-7235, dhkey_reply() must come after auth_key_reply() */
-              sd_ble_gap_lesc_dhkey_reply(this->_connectionHandle[i], &_dhkey);
-              break;
-            }
-          }
-        }
+        // if(this->_lesc == 2 && this->_userConfirm){
+          // for(int i = 0; i < _allowedPeripherals; i++){
+            // if(this->_connectionHandle[i] == bleEvt->evt.gap_evt.conn_handle){
+              // sd_ble_gap_auth_key_reply(this->_connectionHandle[i], BLE_GAP_AUTH_KEY_TYPE_PASSKEY, NULL);
+              // /* Due to DRGN-7235, dhkey_reply() must come after auth_key_reply() */
+              // sd_ble_gap_lesc_dhkey_reply(this->_connectionHandle[i], &_dhkey);
+              // break;
+            // }
+          // }
+        // }
       break;
 
       case BLE_GAP_EVT_AUTH_KEY_REQUEST:
@@ -1163,20 +1114,6 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
               eventHandler(_node[i]);
               break;
             }
-          }
-        }
-      break;
-
-      case BLE_GAP_EVT_LESC_DHKEY_REQUEST:
-        ecc_p256_shared_secret_compute(&this->_privateKey.pk[0], &bleEvt->evt.gap_evt.params.lesc_dhkey_request.p_pk_peer->pk[0], &this->_dhkey.key[0]);
-        if(this->_lesc == 1 || this->_lesc == 3){
-          for(int i = 0; i < _allowedPeripherals; i++){
-            if(this->_connectionHandle[i] == bleEvt->evt.gap_evt.conn_handle){
-              sd_ble_gap_auth_key_reply(this->_connectionHandle[i], BLE_GAP_AUTH_KEY_TYPE_PASSKEY, NULL);
-              /* Due to DRGN-7235, dhkey_reply() must come after auth_key_reply() */
-              sd_ble_gap_lesc_dhkey_reply(this->_connectionHandle[i], &_dhkey);
-              break;
-			}
           }
         }
       break;

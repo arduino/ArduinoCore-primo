@@ -18,7 +18,6 @@ BLEDevice::BLEDevice() :
   _bondStore(NULL),
   _eventListener(NULL),
   _mitm(false),
-  _lesc(0),
   _io_caps(BLE_GAP_IO_CAPS_NONE),
   _passkey({0,0,0,0,0,0}),
   _status(1),

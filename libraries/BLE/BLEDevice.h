@@ -113,7 +113,6 @@ class BLEDevice
     unsigned short                _maximumConnectionInterval;
     bool                          _connectable;
     bool                          _mitm;
-    uint8_t                       _lesc;
     uint8_t                       _io_caps;
     uint8_t                       _passkey[6];
     bool                          _userConfirm;

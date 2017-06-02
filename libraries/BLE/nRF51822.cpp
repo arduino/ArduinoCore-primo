@@ -11,15 +11,7 @@
 #elif defined(NRF5) || defined(NRF51_S130)
   #include <ble.h>
   #include <ble_hci.h>
-  #include <nrf_sdm.h>
-  #ifdef __cplusplus
-  extern "C"{
-  #endif
-    #include <ecc.h>
-  #ifdef __cplusplus
-  }
-  #endif
-  
+  #include <nrf_sdm.h>  
 #else
   #include <s110/ble.h>
   #include <s110/ble_hci.h>
@@ -300,10 +292,7 @@ void nRF51822::begin(unsigned char advertisementDataSize,
 
         if (properties & (BLERead | BLENotify | BLEIndicate)) {
           if (this->_bondStore && !this->_bondStore->hasData()) {
-            if(this->_lesc > 1)
-                BLE_GAP_CONN_SEC_MODE_SET_LESC_ENC_WITH_MITM(&characteristicValueAttributeMetaData.read_perm);
-            else
-                BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&characteristicValueAttributeMetaData.read_perm);
+            BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&characteristicValueAttributeMetaData.read_perm);
           } else {
             BLE_GAP_CONN_SEC_MODE_SET_OPEN(&characteristicValueAttributeMetaData.read_perm);
           }
@@ -311,10 +300,7 @@ void nRF51822::begin(unsigned char advertisementDataSize,
 
         if (properties & (BLEWriteWithoutResponse | BLEWrite)) {
           if (this->_bondStore && !this->_bondStore->hasData()) {
-            if(this->_lesc > 1)
-                BLE_GAP_CONN_SEC_MODE_SET_LESC_ENC_WITH_MITM(&characteristicValueAttributeMetaData.write_perm);
-            else
-                BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&characteristicValueAttributeMetaData.write_perm);
+            BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&characteristicValueAttributeMetaData.write_perm);
           } else {
             BLE_GAP_CONN_SEC_MODE_SET_OPEN(&characteristicValueAttributeMetaData.write_perm);
           }
@@ -386,10 +372,7 @@ void nRF51822::begin(unsigned char advertisementDataSize,
       descriptorMetaData.vlen = (valueLength == descriptor->valueLength()) ? 0 : 1;
 
       if (this->_bondStore && !this->_bondStore->hasData()) {
-        if(this->_lesc > 1)
-            BLE_GAP_CONN_SEC_MODE_SET_LESC_ENC_WITH_MITM(&descriptorMetaData.read_perm);
-        else
-            BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&descriptorMetaData.read_perm);
+        BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&descriptorMetaData.read_perm);
       } else {
         BLE_GAP_CONN_SEC_MODE_SET_OPEN(&descriptorMetaData.read_perm);
       }
@@ -616,164 +599,6 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
 #endif
         break;
 
-     // case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
-// #ifdef NRF_51822_DEBUG
-       // Serial.print(F("Evt Sec Params Request "));
-// #if !defined(NRF51_S130) && !defined(S110)
-       // Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.timeout);
-       // Serial.print(F(" "));
-// #endif
-       // Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.bond);
-       // Serial.print(F(" "));
-       // Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.mitm);
-       // Serial.print(F(" "));
-       // Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.io_caps);
-       // Serial.print(F(" "));
-       // Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.oob);
-       // Serial.print(F(" "));
-       // Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.min_key_size);
-       // Serial.print(F(" "));
-       // Serial.print(bleEvt->evt.gap_evt.params.sec_params_request.peer_params.max_key_size);
-       // Serial.println();
-// #endif
-       // if (this->_bondStore && !this->_bondStore->hasData()) {
-         // only allow bonding if bond store exists and there is no data
-
-         // ble_gap_sec_params_t gapSecParams;
-
-         // memset(&gapSecParams, 0x00, sizeof(ble_gap_sec_params_t));
-
-// #if defined(NRF5) && !defined(S110)
-         // gapSecParams.kdist_own.enc = 1;
-// #elif defined(NRF51_S130)
-         // gapSecParams.kdist_periph.enc = 1;
-// #elif !defined(NRF5)
-         // gapSecParams.timeout          = 30; // must be 30s
-// #endif
-         // gapSecParams.bond             = true;
-         // gapSecParams.lesc             = (bool)this->_lesc;
-         // gapSecParams.mitm             = this->_mitm;
-         // gapSecParams.io_caps          = this->_io_caps;
-         // gapSecParams.oob              = false;
-         // gapSecParams.min_key_size     = 7;
-         // gapSecParams.max_key_size     = 16;
-
-// #if defined(NRF5) && !defined(S110)
-         // ble_gap_sec_keyset_t keyset;
-         // memset(&keyset, 0, sizeof(ble_gap_sec_keyset_t));
-         // if(this->_lesc > 0){
-           // ecc_init();
-           // ecc_p256_keypair_gen(this->_privateKey.pk, this->_publicKey.pk);
-           // keyset.keys_own.p_pk=&this->_publicKey;
-           // keyset.keys_peer.p_pk=&this->_peerKey;
-         // }
-         // keyset.keys_peer.p_enc_key  = NULL;
-         // keyset.keys_peer.p_id_key   = NULL;
-         // keyset.keys_peer.p_sign_key = NULL;
-         // keyset.keys_own.p_enc_key   = this->_encKey;
-         // keyset.keys_own.p_id_key    = NULL;
-         // keyset.keys_own.p_sign_key  = NULL;
-		  
-         // sd_ble_gap_sec_params_reply(this->_connectionHandle, BLE_GAP_SEC_STATUS_SUCCESS, &gapSecParams, &keyset);
-// #elif defined(NRF51_S130) || defined(S110)
-         // ble_gap_sec_keyset_t keyset;
-
-         // keyset.keys_central.p_enc_key  = NULL;
-         // keyset.keys_central.p_id_key   = NULL;
-         // keyset.keys_central.p_sign_key = NULL;
-         // keyset.keys_periph.p_enc_key   = this->_encKey;
-         // keyset.keys_periph.p_id_key    = NULL;
-         // keyset.keys_periph.p_sign_key  = NULL;
-
-         // sd_ble_gap_sec_params_reply(this->_connectionHandle, BLE_GAP_SEC_STATUS_SUCCESS, &gapSecParams, &keyset);
-// #else
-         // sd_ble_gap_sec_params_reply(this->_connectionHandle, BLE_GAP_SEC_STATUS_SUCCESS, &gapSecParams);
-// #endif
-       // } else {
-// #if defined(NRF5) || defined(NRF51_S130)
-         // sd_ble_gap_sec_params_reply(this->_connectionHandle, BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP, NULL, NULL);
-// #else
-         // sd_ble_gap_sec_params_reply(this->_connectionHandle, BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP, NULL);
-// #endif
-       // }
-       // break;
-
-//      case BLE_GAP_EVT_SEC_INFO_REQUEST:
-//#ifdef NRF_51822_DEBUG
-//        Serial.print(F("Evt Sec Info Request "));
-//        // Serial.print(bleEvt->evt.gap_evt.params.sec_info_request.peer_addr);
-//        // Serial.print(F(" "));
-//#if defined(NRF5) || defined(NRF51_S130)
-//        Serial.print(bleEvt->evt.gap_evt.params.sec_info_request.master_id.ediv);
-//#else
-//        Serial.print(bleEvt->evt.gap_evt.params.sec_info_request.div);
-//#endif
-//        Serial.print(F(" "));
-//        Serial.print(bleEvt->evt.gap_evt.params.sec_info_request.enc_info);
-//        Serial.print(F(" "));
-//        Serial.print(bleEvt->evt.gap_evt.params.sec_info_request.id_info);
-//        Serial.print(F(" "));
-//        Serial.print(bleEvt->evt.gap_evt.params.sec_info_request.sign_info);
-//        Serial.println();
-//#endif
-//#if defined(NRF5) || defined(NRF51_S130)
-//        if (this->_encKey->master_id.ediv == bleEvt->evt.gap_evt.params.sec_info_request.master_id.ediv) {
-//          sd_ble_gap_sec_info_reply(this->_connectionHandle, &this->_encKey->enc_info, NULL, NULL);
-//        } else {
-//          sd_ble_gap_sec_info_reply(this->_connectionHandle, NULL, NULL, NULL);
-//        }
-//#else
-//        if (this->_authStatus->periph_keys.enc_info.div == bleEvt->evt.gap_evt.params.sec_info_request.div) {
-//          sd_ble_gap_sec_info_reply(this->_connectionHandle, &this->_authStatus->periph_keys.enc_info, NULL);
-//        } else {
-//          sd_ble_gap_sec_info_reply(this->_connectionHandle, NULL, NULL);
-//        }
-//#endif
-//        break;
-
-//      case BLE_GAP_EVT_AUTH_STATUS:
-//#ifdef NRF_51822_DEBUG
-//        Serial.println(F("Evt Auth Status"));
-//        Serial.println(bleEvt->evt.gap_evt.params.auth_status.auth_status);
-//#endif
-//        if (BLE_GAP_SEC_STATUS_SUCCESS == bleEvt->evt.gap_evt.params.auth_status.auth_status) {
-//#if !defined(NRF5) && !defined(NRF51_S130)
-//          *this->_authStatus = bleEvt->evt.gap_evt.params.auth_status;
-//#endif
-//          if (this->_bondStore) {
-//#ifdef NRF_51822_DEBUG
-//            Serial.println(F("Storing bond data"));
-//#endif
-//#if defined(NRF5) || defined(NRF51_S130)
-//            this->_bondStore->saveTempData(this->_bondData, 0, sizeof(this->_bondData));
-//#else
-//			this->_bondStore->putData(this->_authStatusBuffer, 0, sizeof(this->_authStatusBuffer));
-//#endif
-//          }
-
-//          if (this->_eventListener) {
-//            this->_eventListener->BLEDeviceBonded(*this);
-//          }
-//        }
-//        else{
-//          if (this->_eventListener) {
-//            this->_eventListener->BLEMessageReceived(*this, AUTH_STATUS, bleEvt->evt.gap_evt.params.auth_status.auth_status);
-//          }
-//        }
-//        break;
-
-//      case BLE_GAP_EVT_CONN_SEC_UPDATE:
-//#ifdef NRF_51822_DEBUG
-//        Serial.print(F("Evt Conn Sec Update "));
-//        Serial.print(bleEvt->evt.gap_evt.params.conn_sec_update.conn_sec.sec_mode.sm);
-//        Serial.print(F(" "));
-//        Serial.print(bleEvt->evt.gap_evt.params.conn_sec_update.conn_sec.sec_mode.lv);
-//        Serial.print(F(" "));
-//        Serial.print(bleEvt->evt.gap_evt.params.conn_sec_update.conn_sec.encr_key_size);
-//        Serial.println();
-//#endif
-//        break;
-
       case BLE_GATTS_EVT_WRITE: {
 #ifdef NRF_51822_DEBUG
         Serial.print(F("Evt Write, handle = "));
@@ -936,7 +761,7 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
           gapSecParams.timeout          = 30; // must be 30s
 #endif
           gapSecParams.bond             = true;
-          gapSecParams.lesc             = (bool)this->_lesc;
+          gapSecParams.lesc             = false;
           gapSecParams.mitm             = this->_mitm;
           gapSecParams.io_caps          = this->_io_caps;
           gapSecParams.oob              = false;
@@ -986,7 +811,7 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
           gapSecParams.timeout          = 30; // must be 30s
 #endif
           gapSecParams.bond             = true;
-          gapSecParams.lesc             = (bool)this->_lesc;
+          gapSecParams.lesc             = false;
           gapSecParams.mitm             = this->_mitm;
           gapSecParams.io_caps          = this->_io_caps;
           gapSecParams.oob              = false;
@@ -1030,25 +855,16 @@ void nRF51822::poll(ble_evt_t *bleEvt) {
         if (this->_eventListener) {
           this->_eventListener->BLEDevicePasskeyReceived(*this);
         }
-        if(this->_lesc == 2 && this->_userConfirm){
-          sd_ble_gap_auth_key_reply(this->_connectionHandle, BLE_GAP_AUTH_KEY_TYPE_PASSKEY, NULL);
-          /* Due to DRGN-7235, dhkey_reply() must come after auth_key_reply() */
-          sd_ble_gap_lesc_dhkey_reply(this->_connectionHandle, &_dhkey);
-        }
+//        if(this->_lesc == 2 && this->_userConfirm){
+//          sd_ble_gap_auth_key_reply(this->_connectionHandle, BLE_GAP_AUTH_KEY_TYPE_PASSKEY, NULL);
+//          /* Due to DRGN-7235, dhkey_reply() must come after auth_key_reply() */
+//          sd_ble_gap_lesc_dhkey_reply(this->_connectionHandle, &_dhkey);
+//        }
       break;
 
       case BLE_GAP_EVT_AUTH_KEY_REQUEST:
         if (this->_eventListener) {
          this->_eventListener->BLEDevicePasskeyRequested(*this);
-        }
-      break;
-
-      case BLE_GAP_EVT_LESC_DHKEY_REQUEST:
-        ecc_p256_shared_secret_compute(&this->_privateKey.pk[0], &bleEvt->evt.gap_evt.params.lesc_dhkey_request.p_pk_peer->pk[0], &this->_dhkey.key[0]);
-        if(this->_lesc == 1 || this->_lesc == 3){
-          sd_ble_gap_auth_key_reply(this->_connectionHandle, BLE_GAP_AUTH_KEY_TYPE_PASSKEY, NULL);
-          /* Due to DRGN-7235, dhkey_reply() must come after auth_key_reply() */
-          sd_ble_gap_lesc_dhkey_reply(this->_connectionHandle, &_dhkey);
         }
       break;
 
