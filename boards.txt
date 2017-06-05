@@ -40,7 +40,7 @@ primo.firmware.softdevice.file=primo/softdevice/s132_nrf52_2.0.0_softdevice.hex
 
 
 #####################################
-########### ARDUINO PRIMO ###########
+######## ARDUINO PRIMO CORE #########
 
 primo_core.name=Arduino Primo Core
 
