@@ -14,10 +14,6 @@ class BLEBondStore
     void clearData();
     void putData(const unsigned char* data, unsigned int offset, unsigned int length);
     void getData(unsigned char* data, unsigned int offset, unsigned int length);
-    void saveTempData(const unsigned char* data, unsigned int offset, unsigned int length);
-    const unsigned char* getTempData();
-    unsigned int getTempOffset();
-	unsigned int getTempLength();
 
   private:
 #if defined(__AVR__) || defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MKL26Z64__)
@@ -25,9 +21,6 @@ class BLEBondStore
 #elif defined(NRF51)|| defined(NRF52) || defined(__RFduino__)
     uint32_t*       _flashPageStartAddress;
 #endif
-    const unsigned char*      _tempData;
-    unsigned int              _tempOffset;
-    unsigned int              _tempLength;
 };
 
 #endif

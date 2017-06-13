@@ -60,19 +60,18 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
 
         case BLE_GAP_EVT_DISCONNECTED:
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
-//-----start advertising again here ? ------------			
-		ble_gap_adv_params_t advertisingParameters;
-		memset(&advertisingParameters, 0x00, sizeof(advertisingParameters));
+			// start advertising again			
+			ble_gap_adv_params_t advertisingParameters;
+			memset(&advertisingParameters, 0x00, sizeof(advertisingParameters));
 
-		advertisingParameters.type        = BLE_GAP_ADV_TYPE_ADV_IND;
-		advertisingParameters.p_peer_addr = NULL;
-		advertisingParameters.fp          = BLE_GAP_ADV_FP_ANY;
-		advertisingParameters.p_whitelist = NULL;
-		advertisingParameters.interval    = (100 * 16) / 10; // advertising interval (in units of 0.625 ms)
-		advertisingParameters.timeout     = 0;
+			advertisingParameters.type        = BLE_GAP_ADV_TYPE_ADV_IND;
+			advertisingParameters.p_peer_addr = NULL;
+			advertisingParameters.fp          = BLE_GAP_ADV_FP_ANY;
+			advertisingParameters.p_whitelist = NULL;
+			advertisingParameters.interval    = (100 * 16) / 10; // advertising interval (in units of 0.625 ms)
+			advertisingParameters.timeout     = 0;
 
-		sd_ble_gap_adv_start(&advertisingParameters);
-//------let it manage to BLE library ? ------------
+			sd_ble_gap_adv_start(&advertisingParameters);
             break;
 
         default:

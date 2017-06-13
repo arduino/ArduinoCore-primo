@@ -247,11 +247,6 @@ void BLECentralRole::clearBondStoreData() {
   this->_bondStore.clearData(); 
 }
 
-void BLECentralRole::saveBondData(){
-  if(this->_bondStore.getTempData() != NULL)
-    this->_bondStore.putData(this->_bondStore.getTempData(), this->_bondStore.getTempOffset(), this->_bondStore.getTempLength());
-}
-
 char * BLECentralRole::getPasskey(){
   if(this->_passkey[0] != 0)
     return (char *)this->_passkey;
