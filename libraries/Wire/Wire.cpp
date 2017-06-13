@@ -390,6 +390,8 @@ void TwoWire::onService(void)
 
 TwoWire Wire(PIN_WIRE_SDA, PIN_WIRE_SCL);
 
+TwoWire Wire1(PIN_WIRE_SDA1, PIN_WIRE_SCL1);
+
 #ifdef __cplusplus
 extern "C" {
 #endif
