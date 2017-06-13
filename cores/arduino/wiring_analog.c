@@ -146,13 +146,32 @@ uint32_t analogRead( uint32_t ulPin ){
 void analogWrite(uint32_t ulPin, uint32_t ulValue) {
 	
 	uint16_t val;
-	if(writeResolution==8)
+	if(writeResolution==8){
+#if defined ARDUINO_NRF52_PRIMO_CORE
+		// if a LED is chosen reverse the value because of the LEDs' reverse logic
+		if(ulPin == 10 || ulPin == 11 || ulPin == 12 || ulPin == 13)
+			ulValue = 255 - ulValue;
+#endif //ARDUINO_NRF52_PRIMO_CORE
 		val=(uint16_t) (ulValue*10000/255);
-	else if(writeResolution==10)
+	}
+	
+	else if(writeResolution==10){
+#if defined ARDUINO_NRF52_PRIMO_CORE
+		// if a LED is chosen reverse the value because of the LEDs' reverse logic
+		if(ulPin == 10 || ulPin == 11 || ulPin == 12 || ulPin == 13)
+			ulValue = 1023 - ulValue;
+#endif //ARDUINO_NRF52_PRIMO_CORE
 		val=(uint16_t) (ulValue*10000/1024);
-	else //assuming 12 bit resolution
+	}
+	
+	else{ //assuming 12 bit resolution
+#if defined ARDUINO_NRF52_PRIMO_CORE
+		// if a LED is chosen reverse the value because of the LEDs' reverse logic
+		if(ulPin == 10 || ulPin == 11 || ulPin == 12 || ulPin == 13)
+			ulValue = 4095 - ulValue;
+#endif //ARDUINO_NRF52_PRIMO_CORE
 		val=(uint16_t) (ulValue*10000/4096);
-		
+	}
 	// This array cannot be allocated on stack (hence "static") and it must
     // be in RAM (hence no "const", though its content is not changed).
 	static uint16_t /*const*/ seq_values[]={0};
