@@ -1,12 +1,30 @@
-/* Copyright (C) 2013 Nordic Semiconductor. All Rights Reserved.
+/* Copyright (c) 2010 - 2017, Nordic Semiconductor ASA All rights reserved.
  *
- * The information contained herein is property of Nordic Semiconductor ASA.
- * SEMICONDUCTOR STANDARD SOFTWARE LICENSE AGREEMENT.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- * Licensees are granted free, non-transferable use of the information. NO
- * WARRANTY of ANY KIND is provided. This heading must NOT be removed from
- * the file.
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
  *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of Nordic Semiconductor ASA nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL NORDIC SEMICONDUCTOR ASA OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 
 #include "device_manager.h"
@@ -757,14 +775,14 @@ static __INLINE ret_code_t device_instance_free(uint32_t device_index)
 
     //Get the block handle.
     err_code = pstorage_block_identifier_get(&m_storage_handle, device_index, &block_handle);
-dbgMsg("block identification = "); dbgMsgn(err_code); dbgMsg("\r\n");
+
     if (err_code == NRF_SUCCESS)
     {
         DM_TRC("[DM]:[DI 0x%02X]: Freeing Instance.\r\n", device_index);
 
         //Request clearing of the block.
         err_code = pstorage_clear(&block_handle, ALL_CONTEXT_SIZE);
-dbgMsg("storage clear = "); dbgMsgn(err_code); dbgMsg("\r\n");
+
         if (err_code == NRF_SUCCESS)
         {
             peer_instance_init(device_index);
@@ -954,10 +972,9 @@ static __INLINE void device_context_store(dm_handle_t const * p_handle, device_s
         }
         else if (state == FIRST_BOND_STORE)
         {
-            dbgMsg("[DM]:[DI %02X]:[CI %02X]: -> Storing bonding information.\r\n");
-                   dbgMsgn(p_handle->device_id);
-				   dbgMsgn(p_handle->connection_id);
-dbgMsg("\r\n");
+            printf("[DM]:[DI %02X]:[CI %02X]: -> Storing bonding information.\r\n",
+                   p_handle->device_id, p_handle->connection_id);
+
             store_fn = pstorage_store;
         }
         else
@@ -974,8 +991,11 @@ dbgMsg("\r\n");
                             (uint8_t *)&m_peer_table[p_handle->device_id],
                             PEER_ID_SIZE,
                             PEER_ID_STORAGE_OFFSET);
-dbgMsg("bond info, src: "); dbgMsgn((uint8_t *)&m_peer_table[p_handle->device_id]);
-dbgMsg(", size : "); dbgMsgn(PEER_ID_SIZE); dbgMsg(", offset : "); dbgMsgn(PEER_ID_STORAGE_OFFSET);dbgMsg("\r\n");
+
+				printf("bond info, src : %p, size : [DI %02X], offset : [DI %02X]\r\n", (uint8_t *)&m_peer_table[p_handle->device_id],
+                            PEER_ID_SIZE,
+                            PEER_ID_STORAGE_OFFSET);
+ 
         if ((err_code == NRF_SUCCESS) && (state != UPDATE_PEER_ADDR))
         {
             m_connection_table[p_handle->connection_id].state &= (~STATE_BOND_INFO_UPDATE);
@@ -1941,23 +1961,19 @@ ret_code_t dm_device_add(dm_handle_t               * p_handle,
 
 
 ret_code_t dm_device_delete(dm_handle_t const * p_handle)
-{dbgMsg("INSIDE FUNCTION");
+{
     VERIFY_MODULE_INITIALIZED();
-	dbgMsg("Module initialized passed");
     NULL_PARAM_CHECK(p_handle);
-	dbgMsg("null param check passed");
-//    VERIFY_APP_REGISTERED(p_handle->appl_id);
-	dbgMsg("app registered passed");
-//    VERIFY_DEVICE_INSTANCE(p_handle->device_id);
-	dbgMsg("device instance passed");
+    VERIFY_APP_REGISTERED(p_handle->appl_id);
+    VERIFY_DEVICE_INSTANCE(p_handle->device_id);
 
     DM_MUTEX_LOCK();
 
-    dbgMsg("[DM]: >> dm_device_delete\r\n");
+    DM_TRC("[DM]: >> dm_device_delete\r\n");
 
     uint32_t err_code = device_instance_free(p_handle->device_id);
 
-    dbgMsg("[DM]: << dm_device_delete\r\n");
+    DM_TRC("[DM]: << dm_device_delete\r\n");
 
     DM_MUTEX_UNLOCK();
 
@@ -2485,14 +2501,13 @@ void bond_data_load(dm_handle_t * p_handle)
                                                        &block_handle);
     if (err_code == NRF_SUCCESS)
     {
-        dbgMsg(
-            "[DM]:");dbgMsgn(p_handle->connection_id);
-			dbgMsg(":[Block ID ");dbgMsgn(block_handle.block_id);
-			dbgMsg(":Loading bond information at ");
-			dbgMsgn(&m_bond_table[p_handle->connection_id]);
-			dbgMsg(", size "); dbgMsgn(BOND_SIZE);
-			dbgMsg(", offset ");dbgMsgn(BOND_STORAGE_OFFSET);
-      	dbgMsg("\r\n");
+        printf(
+            "[DM]:[%02X]:[Block ID 0x%08X]:Loading bond information at %p, size 0x%08X, offset 0x%08X.\r\n",
+            p_handle->connection_id,
+            block_handle.block_id,
+            &m_bond_table[p_handle->connection_id],
+            BOND_SIZE,
+            BOND_STORAGE_OFFSET);
 
         err_code = pstorage_load((uint8_t *)&m_bond_table[p_handle->connection_id],
                                  &block_handle,
@@ -2501,17 +2516,17 @@ void bond_data_load(dm_handle_t * p_handle)
 
         if (err_code != NRF_SUCCESS)
         {
-            dbgMsg("[DM]:[%02X]: Failed to load Bond information, reason %08X\r\n");
-                  dbgMsgn(p_handle->connection_id);
-                   dbgMsgn(err_code);
-				   dbgMsg("\r\n");
+            printf("[DM]:[%02X]: Failed to load Bond information, reason %08X\r\n",
+                   p_handle->connection_id,
+                   err_code);
         }
 
-        dbgMsg(
-            "[DM]:");dbgMsgn(p_handle->connection_id);dbgMsg(":Loading service context at "); 
-			dbgMsgn(&m_gatts_table[p_handle->connection_id]);dbgMsg(", size ");
-			dbgMsgn(sizeof(dm_gatts_context_t));dbgMsg("offset ");
-			dbgMsgn(SERVICE_STORAGE_OFFSET);dbgMsg("\r\n");
+        printf(
+            "[DM]:[%02X]:Loading service context at %p, size 0x%08X, offset 0x%08X.\r\n",
+            p_handle->connection_id,
+            &m_gatts_table[p_handle->connection_id],
+            sizeof(dm_gatts_context_t),
+            SERVICE_STORAGE_OFFSET);
 
         err_code = m_service_context_load[m_application_table[0].service](
             &block_handle,
@@ -2519,18 +2534,16 @@ void bond_data_load(dm_handle_t * p_handle)
 
         if (err_code != NRF_SUCCESS)
         {
-            dbgMsg(
-                "[DM]:[%02X]: Failed to load service information, reason %08X\r\n");
-                dbgMsgn(p_handle->connection_id);
-                dbgMsgn(err_code);
-				dbgMsg("\r\n");
+            printf(
+                "[DM]:[%02X]: Failed to load service information, reason %08X\r\n",
+                p_handle->connection_id,
+                err_code);
         }
     }
     else
     {
-        dbgMsg("[DM]:[%02X]: Failed to get block identifier for "
-               "device %08X, reason %08X "); dbgMsgn(p_handle->connection_id); dbgMsgn(p_handle->device_id); dbgMsgn(err_code);
-			   dbgMsg("\r\n");
+        printf("[DM]:[%02X]: Failed to get block identifier for "
+               "device %08X, reason %08X.\r\n", p_handle->connection_id, p_handle->device_id, err_code);
     }
 }
 
@@ -2549,7 +2562,7 @@ void dm_ble_evt_handler(ble_evt_t * p_ble_evt)
     VERIFY_MODULE_INITIALIZED_VOID();
     VERIFY_APP_REGISTERED_VOID(0);
     DM_MUTEX_LOCK();
-	
+
     err_code = dm_handle_initialize(&handle);
     APP_ERROR_CHECK(err_code);
 
@@ -2577,7 +2590,11 @@ void dm_ble_evt_handler(ble_evt_t * p_ble_evt)
     switch (p_ble_evt->header.evt_id)
     {
         case BLE_GAP_EVT_CONNECTED:
-			dbgMsg("[DM]: Connected\r\n");
+					printf("[DM]: Connected\r\n");
+
+					NRF_GPIO->DIRSET = (1UL << 28); //A2
+					NRF_GPIO->OUTSET = (1UL << 28); //A2
+
             //Allocate connection instance for a new connection.
             err_code = connection_instance_allocate(&index);
 
@@ -2595,7 +2612,7 @@ void dm_ble_evt_handler(ble_evt_t * p_ble_evt)
                     p_ble_evt->evt.gap_evt.params.connected.peer_addr;
 
                 if (p_ble_evt->evt.gap_evt.params.connected.irk_match == 1)
-                {	
+                {
                     if (m_irk_index_table[p_ble_evt->evt.gap_evt.params.connected.irk_match_idx] != DM_INVALID_ID)
                     {
                         device_index = m_irk_index_table[p_ble_evt->evt.gap_evt.params.connected.irk_match_idx];
@@ -2623,16 +2640,16 @@ void dm_ble_evt_handler(ble_evt_t * p_ble_evt)
         case BLE_GAP_EVT_DISCONNECTED:
             //Disconnection could be peer or self initiated hence disconnecting and connecting
             //both states are permitted, however, connection handle must be known.
-            dbgMsg("[DM]: Disconnect Reason 0x%04X\r\n");
-                   dbgMsgn(p_ble_evt->evt.gap_evt.params.disconnected.reason);
-					dbgMsg("\r\n");
+            printf("[DM]: Disconnect Reason 0x%04X\r\n",
+                   p_ble_evt->evt.gap_evt.params.disconnected.reason);
+
             m_connection_table[index].state &= (~STATE_CONNECTED);
 
             if ((m_connection_table[index].state & STATE_BONDED) == STATE_BONDED)
             {
                 if ((m_connection_table[index].state & STATE_LINK_ENCRYPTED) == STATE_LINK_ENCRYPTED)
                 {
-                    //Write bond information persistently.
+					          //Write bond information persistently.
                     device_context_store(&handle, STORE_ALL_CONTEXT);
                 }
             }
@@ -2653,22 +2670,21 @@ void dm_ble_evt_handler(ble_evt_t * p_ble_evt)
             break;
 
         case BLE_GAP_EVT_SEC_INFO_REQUEST:
-            dbgMsg("[DM]: >> BLE_GAP_EVT_SEC_INFO_REQUEST\r\n");
+            printf("[DM]: >> BLE_GAP_EVT_SEC_INFO_REQUEST\r\n");
 
             //If the device is already bonded, respond with existing info, else NULL.
             if (m_connection_table[index].bonded_dev_id == DM_INVALID_ID)
-            {dbgMsg("device already bonded\r\n");
+            {
                 //Find device based on div.
                 err_code = device_instance_find(NULL,&device_index, p_ble_evt->evt.gap_evt.params.sec_info_request.master_id.ediv);
                 if (err_code == NRF_SUCCESS)
-                {dbgMsg("device found\r\n");
+                {
                     //Load needed bonding information.
                     m_connection_table[index].bonded_dev_id = device_index;
                     m_connection_table[index].state        |= STATE_BONDED;
                     handle.device_id                        = device_index;
                     bond_data_load(&handle);
-			    }
-				dbgMsg("device not found\r\n");
+                }
             }
 
             if (m_connection_table[index].bonded_dev_id != DM_INVALID_ID)
@@ -2684,17 +2700,13 @@ void dm_ble_evt_handler(ble_evt_t * p_ble_evt)
 
             if (err_code != NRF_SUCCESS)
             {
-                dbgMsg("[DM]:[CI %02X]:[DI %02X]: Security information response failed, reason "
-                       "0x%08X\r\n");
-					   dbgMsgn(index);
-					   dbgMsgn(m_connection_table[index].bonded_dev_id);
-					   dbgMsgn(err_code);
-					   dbgMsg("\r\n");
+                DM_ERR("[DM]:[CI %02X]:[DI %02X]: Security information response failed, reason "
+                       "0x%08X\r\n", index, m_connection_table[index].bonded_dev_id, err_code);
             }
             break;
 
         case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
-            dbgMsg("[DM]: >> BLE_GAP_EVT_SEC_PARAMS_REQUEST\r\n");
+            printf("[DM]: >> BLE_GAP_EVT_SEC_PARAMS_REQUEST\r\n");
 
             event.event_id = DM_EVT_SECURITY_SETUP;
 
@@ -2710,30 +2722,26 @@ void dm_ble_evt_handler(ble_evt_t * p_ble_evt)
                 //Allocation successful.
                 if (err_code == NRF_SUCCESS)
                 {
-                    dbgMsg("[DM]:[CI 0x%02X]:[DI 0x%02X]: Bonded!\r\n");
-					dbgMsgn(index);
-					dbgMsgn(device_index);
-dbgMsg("\r\n");
+                    printf("[DM]:[CI 0x%02X]:[DI 0x%02X]: Bonded!\r\n",index, device_index);
+
                     handle.device_id                        = device_index;
                     m_connection_table[index].bonded_dev_id = device_index;
                 }
                 else
                 {
-                    dbgMsg("[DM]: Security parameter request failed, reason 0x%08X.\r\n");
-					dbgMsgn(err_code);
-					dbgMsg("\r\n");
+                    printf("[DM]: Security parameter request failed, reason 0x%08X.\r\n", err_code);
                     event_result = err_code;
                     notify_app   = true;
                 }
 
                 ble_gap_sec_keyset_t keys_exchanged;
 
-                dbgMsg("[DM]: 0x%02X, 0x%02X, 0x%02X, 0x%02X\r\n");
-                       dbgMsgn(p_ble_evt->evt.gap_evt.params.sec_params_request.peer_params.kdist_peer.enc);
-                       dbgMsgn(p_ble_evt->evt.gap_evt.params.sec_params_request.peer_params.kdist_own.id);
-                       dbgMsgn(p_ble_evt->evt.gap_evt.params.sec_params_request.peer_params.kdist_peer.sign);
-                       dbgMsgn(p_ble_evt->evt.gap_evt.params.sec_params_request.peer_params.bond);
-dbgMsg("\r\n");
+                printf("[DM]: 0x%02X, 0x%02X, 0x%02X, 0x%02X\r\n",
+                       p_ble_evt->evt.gap_evt.params.sec_params_request.peer_params.kdist_peer.enc,
+                       p_ble_evt->evt.gap_evt.params.sec_params_request.peer_params.kdist_own.id,
+                       p_ble_evt->evt.gap_evt.params.sec_params_request.peer_params.kdist_peer.sign,
+                       p_ble_evt->evt.gap_evt.params.sec_params_request.peer_params.bond);
+
                 keys_exchanged.keys_peer.p_enc_key  = NULL;
                 keys_exchanged.keys_peer.p_id_key   = &m_peer_table[m_connection_table[index].bonded_dev_id].peer_id; 
                 keys_exchanged.keys_peer.p_sign_key = NULL;
@@ -2750,9 +2758,7 @@ dbgMsg("\r\n");
 
                 if (err_code != NRF_SUCCESS)
                 {
-                    dbgMsg("[DM]: Security parameter reply request failed, reason 0x%08X.\r\n"); 
-					dbgMsgn(err_code);
-					dbgMsg("\r\n");
+                    printf("[DM]: Security parameter reply request failed, reason 0x%08X.\r\n", err_code);
                     event_result = err_code;
                     notify_app   = false;
                 }
@@ -2761,7 +2767,7 @@ dbgMsg("\r\n");
             else
             {
                 //Bond/key refresh. 
-                dbgMsg("[DM]: !!! Bond/key refresh !!!\r\n");
+                printf("[DM]: !!! Bond/key refresh !!!\r\n");
                 //Set the update flag for bond data.
                 m_connection_table[index].state |= STATE_BOND_INFO_UPDATE;
                 event.event_id                   = DM_EVT_SECURITY_SETUP_REFRESH;
@@ -2773,7 +2779,7 @@ dbgMsg("\r\n");
 
                 if (err_code != NRF_SUCCESS)
                 {
-                    dbgMsg("[DM]: Security parameter reply request failed, reason 0x%08X.\r\n");dbgMsgn(err_code);
+                    printf("[DM]: Security parameter reply request failed, reason 0x%08X.\r\n", err_code);
                     event_result = err_code;
                     notify_app   = false;
                 }
@@ -2783,9 +2789,9 @@ dbgMsg("\r\n");
 
         case BLE_GAP_EVT_AUTH_STATUS:
         {
-            dbgMsg("[DM]: >> BLE_GAP_EVT_AUTH_STATUS, status %08X\r\n");
-                   dbgMsgn(p_ble_evt->evt.gap_evt.params.auth_status.auth_status);
-dbgMsg("\r\n");
+            printf("[DM]: >> BLE_GAP_EVT_AUTH_STATUS, status %08X\r\n",
+                   p_ble_evt->evt.gap_evt.params.auth_status.auth_status);
+
             m_application_table[0].state    &= (~STATE_CONTROL_PROCEDURE_IN_PROGRESS);
             m_connection_table[index].state &= (~STATE_PAIRING);
             event.event_id                   = DM_EVT_SECURITY_SETUP_COMPLETE;
@@ -2813,7 +2819,7 @@ dbgMsg("\r\n");
                 {
                     if (handle.device_id != DM_INVALID_ID)
                     {
-		                m_connection_table[index].state |= STATE_BONDED;
+                        m_connection_table[index].state |= STATE_BONDED;
 
                         //IRK and/or public address is shared, update it.
                         if (p_ble_evt->evt.gap_evt.params.auth_status.kdist_peer.id == 1)
@@ -2823,10 +2829,10 @@ dbgMsg("\r\n");
 
                         if (m_connection_table[index].bonded_dev_id != DM_INVALID_ID)
                         {
-                            dbgMsg("[DM]:[CI 0x%02X]:[DI 0x%02X]: Bonded!\r\n");
-                            dbgMsgn(index);
-							dbgMsgn(handle.device_id);
-dbgMsg("\r\n");
+                            printf("[DM]:[CI 0x%02X]:[DI 0x%02X]: Bonded!\r\n",
+                                   index,
+                                   handle.device_id);
+
                             if (m_connection_table[index].peer_addr.addr_type !=
                                 BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE)
                             {
@@ -2857,10 +2863,10 @@ dbgMsg("\r\n");
         }
 
         case BLE_GAP_EVT_CONN_SEC_UPDATE:
-            dbgMsg("[DM]: >> BLE_GAP_EVT_CONN_SEC_UPDATE, Mode 0x%02X, Level 0x%02X\r\n");
-                   dbgMsgn(p_ble_evt->evt.gap_evt.params.conn_sec_update.conn_sec.sec_mode.sm);
-                   dbgMsgn(p_ble_evt->evt.gap_evt.params.conn_sec_update.conn_sec.sec_mode.lv);
-dbgMsg("\r\n");
+            printf("[DM]: >> BLE_GAP_EVT_CONN_SEC_UPDATE, Mode 0x%02X, Level 0x%02X\r\n",
+                   p_ble_evt->evt.gap_evt.params.conn_sec_update.conn_sec.sec_mode.sm,
+                   p_ble_evt->evt.gap_evt.params.conn_sec_update.conn_sec.sec_mode.lv);
+
             if ((p_ble_evt->evt.gap_evt.params.conn_sec_update.conn_sec.sec_mode.lv == 1) &&
                 (p_ble_evt->evt.gap_evt.params.conn_sec_update.conn_sec.sec_mode.sm == 1) &&
                 ((m_connection_table[index].state & STATE_BONDED) == STATE_BONDED))
@@ -2883,10 +2889,10 @@ dbgMsg("\r\n");
 
                 if (err_code != NRF_SUCCESS)
                 {
-                    dbgMsg("[DM]:[CI 0x%02X]:[DI 0x%02X]: Failed to apply service context\r\n");
-                      dbgMsgn(handle.connection_id); 
-                            dbgMsgn(handle.device_id);
-dbgMsg("\r\n");
+                    DM_ERR("[DM]:[CI 0x%02X]:[DI 0x%02X]: Failed to apply service context\r\n",
+                            handle.connection_id, 
+                            handle.device_id);
+
                     event_result = DM_SERVICE_CONTEXT_NOT_APPLIED;
                 }
             }
@@ -2896,14 +2902,14 @@ dbgMsg("\r\n");
             break;
 
         case BLE_GATTS_EVT_SYS_ATTR_MISSING:
-            dbgMsg("[DM]: >> BLE_GATTS_EVT_SYS_ATTR_MISSING\r\n");
+            printf("[DM]: >> BLE_GATTS_EVT_SYS_ATTR_MISSING\r\n");
 
             //Apply service context.
             event_result = m_service_context_apply[m_application_table[0].service](&handle);
             break;
 
         case BLE_GAP_EVT_SEC_REQUEST:
-            dbgMsg("[DM]: >> BLE_GAP_EVT_SEC_REQUEST\r\n");
+            printf("[DM]: >> BLE_GAP_EVT_SEC_REQUEST\r\n");
             
             //Verify if the device is already bonded, and if it is bonded, initiate encryption.
             //If the device is not bonded, an instance needs to be allocated in order to initiate 
