@@ -101,10 +101,10 @@ static void reset_prepare(void)
 void ble_evt_dispatch(ble_evt_t * p_ble_evt)
 {
 	uint16_t handler = p_ble_evt->evt.gap_evt.conn_handle;
-	uint16_t role = p_ble_evt->evt.gap_evt.params.connected.role;
+	uint16_t role = ble_conn_state_role(handler);
 	if(dfuService){
 		//DFU service works with peripheral role, don't forward events central related
-		if(role != BLE_GAP_ROLE_CENTRAL){
+		if(role != BLE_GAP_ROLE_CENTRAL && p_ble_evt->evt.gap_evt.params.connected.role != BLE_GAP_ROLE_CENTRAL){
 			dm_ble_evt_handler(p_ble_evt);
 			ble_dfu_on_ble_evt(&m_dfus, p_ble_evt);
 			on_ble_evt(p_ble_evt);
