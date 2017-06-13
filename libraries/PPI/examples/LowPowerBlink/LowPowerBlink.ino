@@ -27,10 +27,10 @@ void setup() {
   PPI.setOutputPin(LED_BUILTIN);
   //bind TIMER event to PIN_TOGGLE action
   PPI.setShortcut(TIMER, PIN_TOGGLE);
-  
-  //put the board in low power mode to save power
-  LowPower.sleep();
 }
 
 
-void loop() {}
+void loop() {
+  //put the board in low power mode to save power
+  LowPower.sleep();
+}
