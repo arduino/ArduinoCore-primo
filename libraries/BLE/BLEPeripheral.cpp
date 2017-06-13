@@ -190,11 +190,6 @@ void BLEPeripheral::clearBondStoreData() {
   eraseBond();
 }
 
-void BLEPeripheral::saveBondData(){
-  if(this->_bleBondStore.getTempData() != NULL)
-    this->_bleBondStore.putData(this->_bleBondStore.getTempData(), this->_bleBondStore.getTempOffset(), this->_bleBondStore.getTempLength());
-}
-
 char * BLEPeripheral::getPasskey(){
   if(this->_device->_passkey[0] != 0)
     return (char *)this->_device->_passkey;

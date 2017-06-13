@@ -84,7 +84,6 @@ public:
     void setBondStore(BLEBondStore& bondStore);
     void enableBond(BLEBondingType type = JUST_WORKS);
     void clearBondStoreData();
-    void saveBondData();
     char *getPasskey();
     void sendPasskey(char passkey[]);
     void confirmPasskey(bool confirm);
