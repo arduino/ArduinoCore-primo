@@ -1,3 +1,7 @@
+## 1.0.2
+###### Core:
+  - Added Primo Core platform
+
 ## 1.0.1
 ###### Core:
   - Fixed Tone issue if no duration was indicate
