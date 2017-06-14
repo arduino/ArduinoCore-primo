@@ -518,3 +518,10 @@ void BLEPeripheral::addFieldInPck(uint8_t type, uint8_t len, unsigned char* data
 		*pckLen += len + 2;
 	}
 }
+
+void BLEPeripheral::callEvtListener(uint32_t type, uint32_t code){
+	if(type == 1) // BLEBonded event
+		this->BLEDeviceBonded(*this->_device);
+	else if(type == 2) // BLEMessage event
+		this->BLEMessageReceived(*this->_device, AUTH_STATUS, code);
+}

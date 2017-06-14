@@ -4,7 +4,11 @@
 
    This example shows how to enable bonding features on BLEPeripheral module.
    To know all the possible bonding types please refer to the documentation.
-  
+
+   To delete bond information an interrupt has been attached to USER1_BUTTON (in Primo board).
+   If you're using a Primo Core connect a button to the board and change USER1_BUTTON with the
+   number of pin the button is connected to.
+   
    Use the complementary example enterPasskeyCentral.ino in File->Examples->BLE->Central->Bonding
    to test this feature.  
 
@@ -25,8 +29,12 @@ BLEService              dummyService           = BLEService("19b10000e8f2537e4f6
 // create characteristic
 BLECharCharacteristic   dummyCharacteristic = BLECharCharacteristic("19b10001e8f2537e4f6cd104768a1214", BLERead | BLEWrite);
 
+int BUTTON = USER1_BUTTON;
+
 void setup() {
   Serial.begin(9600);
+
+  attachInterrupt(BUTTON, deleteBondInformation, LOW);
 
   //initialize BLE led
   pinMode(BLE_LED, OUTPUT);
@@ -81,6 +89,12 @@ void showPasskey(BLECentral& central) {
 void bond(BLECentral& central) {
   // central bonded event handler
   Serial.println("Bonded");
+}
+
+void deleteBondInformation(){
+  // button has been pressed. Delete bond
+  blePeripheral.clearBondStoreData();
+  Serial.println("Bond data cleared");
 }
 
 void blePeripheralConnectHandler(BLECentral& central) {

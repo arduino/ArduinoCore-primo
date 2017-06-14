@@ -982,6 +982,13 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
         Serial.print(bleEvt->evt.gap_evt.params.conn_sec_update.conn_sec.encr_key_size);
         Serial.println();
 #endif
+		if(bleEvt->evt.gap_evt.params.conn_sec_update.conn_sec.sec_mode.sm == 1){
+			// we are bonded
+            eventHandler = _eventHandlers[BLEBonded];
+            if (eventHandler) {
+              eventHandler(_node[currentPeripheral]);
+            }
+		}			
         break;
 
      case BLE_GATTS_EVT_WRITE: {
@@ -1063,11 +1070,6 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
             for(currentPeripheral = 0; currentPeripheral < _allowedPeripherals; currentPeripheral++)
               if(this->_connectionHandle[currentPeripheral] == bleEvt->evt.gap_evt.conn_handle)
                 break;
-
-          eventHandler = _eventHandlers[BLEBonded];
-            if (eventHandler) {
-              eventHandler(_node[currentPeripheral]);
-            }
         }
 
         else{
@@ -1088,16 +1090,6 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
             }
           }
         }
-        // if(this->_lesc == 2 && this->_userConfirm){
-          // for(int i = 0; i < _allowedPeripherals; i++){
-            // if(this->_connectionHandle[i] == bleEvt->evt.gap_evt.conn_handle){
-              // sd_ble_gap_auth_key_reply(this->_connectionHandle[i], BLE_GAP_AUTH_KEY_TYPE_PASSKEY, NULL);
-              // /* Due to DRGN-7235, dhkey_reply() must come after auth_key_reply() */
-              // sd_ble_gap_lesc_dhkey_reply(this->_connectionHandle[i], &_dhkey);
-              // break;
-            // }
-          // }
-        // }
       break;
 
       case BLE_GAP_EVT_AUTH_KEY_REQUEST:
