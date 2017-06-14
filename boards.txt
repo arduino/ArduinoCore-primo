@@ -16,7 +16,7 @@ primo.pid.0=0x805a
 
 primo.upload.tool=openocd
 primo.upload.protocol=sam-ba
-primo.upload.maximum_size=409600
+primo.upload.maximum_size=385024
 primo.upload.use_1200bps_touch=false
 primo.upload.speed=115200
 primo.upload.wait_for_upload_port=false
