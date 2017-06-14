@@ -117,6 +117,8 @@ class BLEPeripheral : public BLEDeviceEventListener,
     void setEventHandler(BLEPeripheralEvent event, BLEPeripheralEventHandler eventHandler);
     void setEventHandler(BLEPeripheralEvent event, BLEMessageEventHandler eventHandler);
 
+	void callEvtListener(uint32_t type, uint32_t code);
+
   protected:
     bool characteristicValueChanged(BLECharacteristic& characteristic);
     bool broadcastCharacteristic(BLECharacteristic& characteristic);

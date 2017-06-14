@@ -58,5 +58,12 @@ extern void initDM();
  */
 extern void ble_evt_dispatch(ble_evt_t * p_ble_evt);
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+extern void forwardEvent(uint32_t type, uint32_t code);
+#ifdef __cplusplus
+}
+#endif
 
 #endif /*_DFU_SERVICE_H*/

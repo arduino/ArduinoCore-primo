@@ -44,6 +44,7 @@ uint8_t io_caps = BLE_GAP_IO_CAPS_NONE;
 extern void processBleEvents(ble_evt_t * p_ble_evt) __attribute__((weak));
 extern bool isPeripheralRunning()                   __attribute__((weak));
 extern bool isCentralRunning()                      __attribute__((weak));
+extern void callEvtListener(uint32_t type, uint32_t code)          __attribute__((weak));
 
 void removeDfuService(bool remove){
 	if(remove == true)
@@ -275,3 +276,15 @@ bool dfuIsEnabled(){
 void eraseBond(){
 	dm_device_delete_all(&m_app_handle);
 }
+#include "Arduino.h"
+#ifdef __cplusplus
+extern "C"{
+#endif
+void forwardEvent(uint32_t type, uint32_t code){
+	// if callEvtListener is defined forward events to the BLE library
+	if(callEvtListener)
+		callEvtListener(type, code);
+}
+#ifdef __cplusplus
+}
+#endif

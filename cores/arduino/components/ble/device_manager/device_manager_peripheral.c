@@ -2723,7 +2723,7 @@ void dm_ble_evt_handler(ble_evt_t * p_ble_evt)
                 if (err_code == NRF_SUCCESS)
                 {
                     printf("[DM]:[CI 0x%02X]:[DI 0x%02X]: Bonded!\r\n",index, device_index);
-
+					
                     handle.device_id                        = device_index;
                     m_connection_table[index].bonded_dev_id = device_index;
                 }
@@ -2808,6 +2808,8 @@ void dm_ble_evt_handler(ble_evt_t * p_ble_evt)
                     (void) result;
                     event_result = p_ble_evt->evt.gap_evt.params.auth_status.auth_status;
                 }
+				// forward event to BLEPeripheral library
+				forwardEvent(2, p_ble_evt->evt.gap_evt.params.auth_status.auth_status);
             }
             else
             {
@@ -2881,6 +2883,9 @@ void dm_ble_evt_handler(ble_evt_t * p_ble_evt)
             }
             else
             {
+				// forward event to BLEPeripheral library
+				forwardEvent(1, 0);
+
                 m_connection_table[index].state |= STATE_LINK_ENCRYPTED;
                 event.event_id                   = DM_EVT_LINK_SECURED;
 

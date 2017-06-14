@@ -68,4 +68,8 @@ bool isCentralRunning(){
 	return (BLEManagerClass::_centralList[0] != 0) ? true : false;
 }
 
+void callEvtListener(uint32_t type, uint32_t code){
+	BLEManagerClass::_peripheralList[0]->callEvtListener(type, code);
+}
+
 BLEManagerClass BLEManager;	
