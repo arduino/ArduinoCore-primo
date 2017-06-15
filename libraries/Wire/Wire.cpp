@@ -390,7 +390,10 @@ void TwoWire::onService(void)
 
 TwoWire Wire(PIN_WIRE_SDA, PIN_WIRE_SCL);
 
+// define Wire1 for Primo Core only
+#ifdef ARDUINO_NRF52_PRIMO_CORE
 TwoWire Wire1(PIN_WIRE_SDA1, PIN_WIRE_SCL1);
+#endif //ARDUINO_NRF52_PRIMO_CORE
 
 #ifdef __cplusplus
 extern "C" {
