@@ -42,8 +42,8 @@ void CoreSensors::begin(){
     HumTemp  = new HTS221Sensor (*dev_i2c);
     HumTemp->Enable();
 
-    Magneto  = new LIS3MDLSensor(*dev_i2c);
-    Magneto->Enable();
+    //Magneto  = new LIS3MDLSensor(*dev_i2c);
+    //Magneto->Enable();
 
     AccGyr = new LSM6DS3Sensor(*dev_i2c);
     AccGyr->Enable_X();

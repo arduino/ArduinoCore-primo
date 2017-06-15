@@ -5,7 +5,7 @@
 
   This example for the Arduino Primo Core shows how to use
   CoreSensors library.
-  Gatting data from Humidity, Temperature, Magnetometer, Accelerometer
+  Gatting data from Humidity, Temperature, Accelerometer
   and Gyroscope sensors.
 
   This example code is in the public domain.
@@ -30,15 +30,12 @@ void setup() {
 void loop() {
   char report[256];
   float humidity, temperature;
-  int32_t magnetometers[3];
   int32_t accelerometers[3];
   int32_t gyroscope[3];
   
   humidity = coresensors.getHumidity();
   
   temperature = coresensors.getTemperature();
-  
-  coresensors.getMagnetometer(magnetometers);
   
   coresensors.getAccelerometer(accelerometers);
   
@@ -50,7 +47,7 @@ void loop() {
   Serial.print(temperature);
   Serial.print(" ");
 
-  snprintf(report, sizeof(report), "| Mag[mGauss]: %6ld %6ld %6ld | Acc[mg]: %6ld %6ld %6ld | Gyr[mdps]: %8ld %8ld %8ld |", magnetometers[0], magnetometers[1], magnetometers[2], accelerometers[0], accelerometers[1], accelerometers[2], gyroscope[0], gyroscope[1], gyroscope[2]);
+  snprintf(report, sizeof(report), "| Acc[mg]: %6ld %6ld %6ld | Gyr[mdps]: %8ld %8ld %8ld |", accelerometers[0], accelerometers[1], accelerometers[2], gyroscope[0], gyroscope[1], gyroscope[2]);
   
   Serial.println(report);
   Serial.println();
