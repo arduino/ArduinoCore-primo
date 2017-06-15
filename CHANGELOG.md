@@ -1,6 +1,9 @@
 ## 1.0.2
 ###### Core:
   - Added Primo Core platform
+  
+###### Libraries:
+  - Added CoreSensor library
 
 ## 1.0.1
 ###### Core:
