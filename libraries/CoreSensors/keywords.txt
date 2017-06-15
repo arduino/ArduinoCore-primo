@@ -1,0 +1,24 @@
+#######################################
+# Syntax Coloring Map CoreSensors
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+coresensors		KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin 	KEYWORD2
+getHumidity 	KEYWORD2
+getTemperature 	KEYWORD2
+getMagnetometer 	KEYWORD2
+getAccelerometer 	KEYWORD2
+getGyroscope 	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
