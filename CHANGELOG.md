@@ -1,10 +1,14 @@
 ## 1.0.2
 ###### Core:
   - Added Primo Core platform
+  - Added DFU service in all Primo and Primo Core sketches
   
 ###### Libraries:
   - Added CoreSensor library
 
+###### Misc:
+  - Added bootloader files
+  
 ## 1.0.1
 ###### Core:
   - Fixed Tone issue if no duration was indicate
