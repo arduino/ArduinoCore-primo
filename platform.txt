@@ -87,7 +87,7 @@ recipe.objcopy.eep.pattern="{compiler.path}{compiler.elf2bin.cmd}" {compiler.elf
 recipe.objcopy.hex.pattern="{compiler.path}{compiler.elf2hex.cmd}" {compiler.elf2hex.flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.hex"
 
 ## Create merged hex file with softdevice and bootloader
-recipe.objcopy.mergehex.pattern="{tools.mergehex.path}/{tools.mergehex.cmd}" --merge "{runtime.platform.path}/firmwares/{firmware.softdevice.file}" "{build.path}/{build.project_name}.hex" --output "{build.path}/{build.project_name}-merged.hex" {tools.mergehex.upload.params.quiet}
+recipe.objcopy.mergehex.pattern="{tools.mergehex.path}/{tools.mergehex.cmd}" --merge "{runtime.platform.path}/firmwares/{firmware.softdevice.file}" "{runtime.platform.path}/bootloaders/{bootloader.file}" "{build.path}/{build.project_name}.hex" --output "{build.path}/{build.project_name}-merged.hex" {tools.mergehex.upload.params.quiet}
 
 ## Save hex
 recipe.output.tmp_file={build.project_name}.hex
