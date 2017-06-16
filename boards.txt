@@ -34,8 +34,7 @@ primo.build.components=components
 primo.build.vid=0x2a03
 primo.build.pid=0x805a
 
-#new defined attributes
-#primo.bootloader.file=
+primo.bootloader.file=primo/bootloader_primo_v1.0.0.hex
 primo.firmware.softdevice.file=primo/softdevice/s132_nrf52_2.0.0_softdevice.hex
 
 
@@ -66,6 +65,5 @@ primo_core.build.openocdscript=openocd_scripts/arduino_primo.cfg
 primo_core.build.variant=arduino_primo_core
 primo_core.build.components=components
 
-#new defined attributes
-#primo_core.bootloader.file=
+primo_core.bootloader.file=primo_core/bootloader_primo_core_v1.0.0.hex
 primo_core.firmware.softdevice.file=primo/softdevice/s132_nrf52_2.0.0_softdevice.hex
