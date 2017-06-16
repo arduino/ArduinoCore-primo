@@ -20,7 +20,7 @@
 # ----------------------
 
 name=Arduino nRF52 (32-bits ARM) Boards
-version=1.0.1
+version=1.0.2
 
 # Compile tool path
 compiler.path={runtime.tools.arm-none-eabi-gcc.path}/bin/
