@@ -50,7 +50,7 @@ primo_core.name=Arduino Primo Core
 
 primo_core.upload.tool=openocd
 primo_core.upload.protocol=sam-ba
-primo_core.upload.maximum_size=409600
+primo_core.upload.maximum_size=385024
 primo_core.upload.use_1200bps_touch=false
 primo_core.upload.speed=115200
 primo_core.upload.wait_for_upload_port=false
