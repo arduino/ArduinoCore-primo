@@ -53,6 +53,27 @@ class CoreSensors {
     void getMagnetometer(int32_t *pData);
     void getAccelerometer(int32_t *pData);
     void getGyroscope(int32_t *pData);
+    void enableSingleTapDetection();
+    void getStatusSingleTapDetection(uint8_t *pData);
+    void enableDoubleTapDetection();
+    void getStatusDoubleTapDetection(uint8_t *pData);
+    void enableFreeFallDetection();
+    void getStatusFreeFallDetection(uint8_t *pData);
+    void enableTiltDetection();
+    void getStatusTiltDetection(uint8_t *pData);
+    void enableWakeUpDetection();
+    void getStatusWakeUpDetection(uint8_t *pData);
+    void enablePedometer();
+    void getStatusPedometer(uint8_t *pData);
+    void getStepCounter(uint16_t *pData);
+    void enable6DOrientation();
+    void getStatus6DOrientation(uint8_t *pData);
+    void get6DOrientationXL(uint8_t *pData);
+    void get6DOrientationXH(uint8_t *pData);
+    void get6DOrientationYL(uint8_t *pData);
+    void get6DOrientationYH(uint8_t *pData);
+    void get6DOrientationZL(uint8_t *pData);
+    void get6DOrientationZH(uint8_t *pData);
 
  private:
     float humidity;
