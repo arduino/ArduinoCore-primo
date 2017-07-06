@@ -85,6 +85,7 @@ void Uart::end()
 void Uart::flush()
 {
 	nrf_uarte_task_trigger(NRF_UARTE0, NRF_UARTE_TASK_STARTTX);
+	rxBuffer.clear();
 }
 
 void Uart::IrqHandler()
