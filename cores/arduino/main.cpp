@@ -46,12 +46,3 @@ int main(void)
 	}
 	return 0;
 }
-
-extern "C" void dbgMsg(const char* msg)
-{
-    Serial.print(msg);
-}
-extern "C" void dbgMsgn(uint32_t msg)
-{
-    Serial.print(msg, HEX);
-}
