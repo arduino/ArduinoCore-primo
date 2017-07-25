@@ -5,8 +5,8 @@
   bat library.
 
   This example allows you to get Battery Voltage Value of Primo
-  board, disabling STM32 enter to standby mode to avoid Primo board 
-  enter to standby mode when Primo board is powered only by battery.
+  board, disabling STM32 enter to standby mode when Primo board is powered
+  only by battery.
   Primo board is able to send voltage value over serial port or BLE serial, 
   Create UART service compatible with Nordic's *nRF Toolbox* and Adafruit's 
   *Bluefruit LE* iOS/Android apps. You can also use another board with 
