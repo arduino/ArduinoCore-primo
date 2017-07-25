@@ -41,6 +41,7 @@ class bat {
 public:
 	bat(void);
 	double analogRead(void);
+  int capacity(void);
 private:
 	uint8_t recBuffer[REC_BUF_LENGTH];
 
