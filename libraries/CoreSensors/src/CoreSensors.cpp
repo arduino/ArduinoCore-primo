@@ -75,84 +75,84 @@ void CoreSensors::enableSingleTapDetection(){
     AccGyr->Enable_Single_Tap_Detection();
 }
 
-void CoreSensors::getStatusSingleTapDetection(uint8_t *pData){
-    AccGyr->Get_Status_Single_Tap_Detection(pData);
+void CoreSensors::getStatusSingleTapDetection(uint8_t &Data){
+    AccGyr->Get_Status_Single_Tap_Detection((uint8_t *)&Data);
 }
 
 void CoreSensors::enableDoubleTapDetection(){
     AccGyr->Enable_Double_Tap_Detection();
 }
 
-void CoreSensors::getStatusDoubleTapDetection(uint8_t *pData){
-    AccGyr->Get_Status_Double_Tap_Detection(pData);
+void CoreSensors::getStatusDoubleTapDetection(uint8_t &Data){
+    AccGyr->Get_Status_Double_Tap_Detection((uint8_t *)&Data);
 }
 
 void CoreSensors::enableFreeFallDetection(){
     AccGyr->Enable_Free_Fall_Detection();
 }
 
-void CoreSensors::getStatusFreeFallDetection(uint8_t *pData){
-    AccGyr->Get_Status_Free_Fall_Detection(pData);
+void CoreSensors::getStatusFreeFallDetection(uint8_t &Data){
+    AccGyr->Get_Status_Free_Fall_Detection((uint8_t *)&Data);
 }
 
 void CoreSensors::enableTiltDetection(){
     AccGyr->Enable_Tilt_Detection();
 }
 
-void CoreSensors::getStatusTiltDetection(uint8_t *pData){
-    AccGyr->Get_Status_Tilt_Detection(pData);
+void CoreSensors::getStatusTiltDetection(uint8_t &Data){
+    AccGyr->Get_Status_Tilt_Detection((uint8_t *)&Data);
 }
 
 void CoreSensors::enableWakeUpDetection(){
     AccGyr->Enable_Wake_Up_Detection();
 }
 
-void CoreSensors::getStatusWakeUpDetection(uint8_t *pData){
-    AccGyr->Get_Status_Wake_Up_Detection(pData);
+void CoreSensors::getStatusWakeUpDetection(uint8_t &Data){
+    AccGyr->Get_Status_Wake_Up_Detection((uint8_t *)&Data);
 }
 
 void CoreSensors::enablePedometer(){
     AccGyr->Enable_Pedometer();
 }
 
-void CoreSensors::getStatusPedometer(uint8_t *pData){
-    AccGyr->Get_Status_Pedometer(pData);
+void CoreSensors::getStatusPedometer(uint8_t &Data){
+    AccGyr->Get_Status_Pedometer((uint8_t *)&Data);
 }
 
-void CoreSensors::getStepCounter(uint16_t *pData){
-    AccGyr->Get_Step_Counter(pData);
+void CoreSensors::getStepCounter(uint16_t &Data){
+    AccGyr->Get_Step_Counter((uint16_t *)&Data);
 }
 
 void CoreSensors::enable6DOrientation(){
     AccGyr->Enable_6D_Orientation();
 }
 
-void CoreSensors::getStatus6DOrientation(uint8_t *pData){
-    AccGyr->Get_Status_6D_Orientation(pData);
+void CoreSensors::getStatus6DOrientation(uint8_t &Data){
+    AccGyr->Get_Status_6D_Orientation((uint8_t *)&Data);
 }
 
-void CoreSensors::get6DOrientationXL(uint8_t *pData){
-    AccGyr->Get_6D_Orientation_XL(pData);
+void CoreSensors::get6DOrientationXL(uint8_t &Data){
+    AccGyr->Get_6D_Orientation_XL((uint8_t *)&Data);
 }
 
-void CoreSensors::get6DOrientationXH(uint8_t *pData){
-    AccGyr->Get_6D_Orientation_XH(pData);
+void CoreSensors::get6DOrientationXH(uint8_t &Data){
+    AccGyr->Get_6D_Orientation_XH((uint8_t *)&Data);
 }
 
-void CoreSensors::get6DOrientationYL(uint8_t *pData){
-    AccGyr->Get_6D_Orientation_YL(pData);
+void CoreSensors::get6DOrientationYL(uint8_t &Data){
+    AccGyr->Get_6D_Orientation_YL((uint8_t *)&Data);
 }
 
-void CoreSensors::get6DOrientationYH(uint8_t *pData){
-    AccGyr->Get_6D_Orientation_YH(pData);
+void CoreSensors::get6DOrientationYH(uint8_t &Data){
+    AccGyr->Get_6D_Orientation_YH((uint8_t *)&Data);
 }
 
-void CoreSensors::get6DOrientationZL(uint8_t *pData){
-    AccGyr->Get_6D_Orientation_ZL(pData);
+void CoreSensors::get6DOrientationZL(uint8_t &Data){
+    AccGyr->Get_6D_Orientation_ZL((uint8_t *)&Data);
 }
 
-void CoreSensors::get6DOrientationZH(uint8_t *pData){
-    AccGyr->Get_6D_Orientation_ZH(pData);
+void CoreSensors::get6DOrientationZH(uint8_t &Data){
+    AccGyr->Get_6D_Orientation_ZH((uint8_t *)&Data);
 }
 
 CoreSensors coresensors;

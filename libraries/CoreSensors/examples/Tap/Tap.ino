@@ -68,7 +68,7 @@ void loop() {
     tap = 0;
     uint8_t status = 0;
     // get single tap detection status
-    coresensors.getStatusSingleTapDetection(&status);
+    coresensors.getStatusSingleTapDetection(status);
     if (status)
     {
       digitalWrite(LED_BUILTIN, HIGH);

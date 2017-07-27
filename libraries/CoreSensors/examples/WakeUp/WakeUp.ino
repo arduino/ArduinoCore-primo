@@ -68,7 +68,7 @@ void loop() {
     wake_up = 0;
     uint8_t status = 0;
     // get wake up detection status
-    coresensors.getStatusWakeUpDetection(&status);
+    coresensors.getStatusWakeUpDetection(status);
     if (status)
     {
       digitalWrite(LED_BUILTIN, HIGH);

@@ -68,7 +68,7 @@ void loop() {
     tilt = 0;
     uint8_t status = 0;
     // get tilt detection status
-    coresensors.getStatusTiltDetection(&status);
+    coresensors.getStatusTiltDetection(status);
     if (status)
     {
       digitalWrite(LED_BUILTIN, HIGH);

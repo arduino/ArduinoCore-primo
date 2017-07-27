@@ -69,7 +69,7 @@ void loop() {
     free_fall = 0;
     uint8_t status = 0;
     // get free fall detection status
-    coresensors.getStatusFreeFallDetection(&status);
+    coresensors.getStatusFreeFallDetection(status);
     if (status)
     {
       digitalWrite(LED_BUILTIN, HIGH);

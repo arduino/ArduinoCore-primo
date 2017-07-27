@@ -74,7 +74,7 @@ void loop() {
     orientation = 0;
     uint8_t status = 0;
     // get 6D orientation status
-    coresensors.getStatus6DOrientation(&status);
+    coresensors.getStatus6DOrientation(status);
     if (status)
     {
       // print 6D Orientation
@@ -102,12 +102,12 @@ void sendOrientation( void )
   uint8_t zl = 0;
   uint8_t zh = 0;
   
-  coresensors.get6DOrientationXL(&xl);
-  coresensors.get6DOrientationXH(&xh);
-  coresensors.get6DOrientationYL(&yl);
-  coresensors.get6DOrientationYH(&yh);
-  coresensors.get6DOrientationZL(&zl);
-  coresensors.get6DOrientationZH(&zh);
+  coresensors.get6DOrientationXL(xl);
+  coresensors.get6DOrientationXH(xh);
+  coresensors.get6DOrientationYL(yl);
+  coresensors.get6DOrientationYH(yh);
+  coresensors.get6DOrientationZL(zl);
+  coresensors.get6DOrientationZH(zh);
   
   if ( xl == 0 && yl == 0 && zl == 0 && xh == 1 && yh == 0 && zh == 0 )
   {

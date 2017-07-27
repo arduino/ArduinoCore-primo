@@ -75,11 +75,11 @@ void loop() {
     step = 0;
     uint8_t status = 0;
     // get pedometer status
-    coresensors.getStatusPedometer(&status);
+    coresensors.getStatusPedometer(status);
     if (status)
     {
       // New step detected, print the step counter
-      coresensors.getStepCounter(&step_count);
+      coresensors.getStepCounter(step_count);
       snprintf(report, sizeof(report), "Step counter: %d", step_count);
       Serial.println(report);
       bleSerial.println(report);
@@ -94,7 +94,7 @@ void loop() {
   current_tick = millis();
   if((current_tick - previous_tick) >= 3000)
   {
-    coresensors.getStepCounter(&step_count);
+    coresensors.getStepCounter(step_count);
     snprintf(report, sizeof(report), "Step counter: %d", step_count);
     Serial.println(report);
     bleSerial.println(report);
