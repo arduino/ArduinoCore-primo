@@ -510,6 +510,11 @@ void BLECentralRole::begin(){
   this->_remoteServiceInfo = (struct remoteServiceInfo*)malloc(sizeof(struct remoteServiceInfo) * this->_numRemoteServices);
   this->_remoteCharacteristicInfo = (struct remoteCharacteristicInfo*)malloc(sizeof(struct remoteCharacteristicInfo) * this->_numRemoteCharacteristics);
 
+  for(int i = 0; i < this->_numRemoteCharacteristics; i++){
+	  for(int j = 0; j < 7; j++)
+		  this->_remoteCharacteristicInfo[i].connectionIndex[j] = 0;
+  }
+  
   BLERemoteService *lastRemoteService = NULL;
   unsigned char remoteServiceIndex = 0;
   unsigned char remoteCharacteristicIndex = 0;
@@ -548,7 +553,7 @@ void BLECentralRole::begin(){
       this->_remoteCharacteristicInfo[remoteCharacteristicIndex].characteristic = (BLERemoteCharacteristic *)remoteAttribute;
       this->_remoteCharacteristicInfo[remoteCharacteristicIndex].service = lastRemoteService;
       this->_remoteCharacteristicInfo[remoteCharacteristicIndex].uuid = nordicUUID;
-
+	  
       memset(&this->_remoteCharacteristicInfo[remoteCharacteristicIndex].properties, 0, sizeof(this->_remoteCharacteristicInfo[remoteCharacteristicIndex].properties));
       this->_remoteCharacteristicInfo[remoteCharacteristicIndex].valueHandle = 0;
 
@@ -824,6 +829,7 @@ void BLECentralRole::poll(ble_evt_t *bleEvt){
                   (bleEvt->evt.gattc_evt.params.char_disc_rsp.chars[i].uuid.uuid == this->_remoteCharacteristicInfo[j].uuid.uuid)) {
                 this->_remoteCharacteristicInfo[j].properties = bleEvt->evt.gattc_evt.params.char_disc_rsp.chars[i].char_props;
                 this->_remoteCharacteristicInfo[j].valueHandle = bleEvt->evt.gattc_evt.params.char_disc_rsp.chars[i].handle_value;
+				this->_remoteCharacteristicInfo[j].connectionIndex[periphIndex] = 1;
               }
             }
 
@@ -1258,7 +1264,9 @@ bool BLECentralRole::readRemoteCharacteristic(BLERemoteCharacteristic& character
         this->_remoteRequestInProgress = true;
         for(int currentPeripheral = 0; currentPeripheral < _allowedPeripherals; currentPeripheral++)
           if(this->_connectionHandle[currentPeripheral] != BLE_CONN_HANDLE_INVALID)
-            success = (sd_ble_gattc_read(this->_connectionHandle[currentPeripheral], this->_remoteCharacteristicInfo[i].valueHandle, 0) == NRF_SUCCESS);
+		    // check if this characteristic belongs to this peripheral
+			if(this->_remoteCharacteristicInfo[i].connectionIndex[currentPeripheral])  
+                success = (sd_ble_gattc_read(this->_connectionHandle[currentPeripheral], this->_remoteCharacteristicInfo[i].valueHandle, 0) == NRF_SUCCESS);
       }
       break;
     }
@@ -1288,12 +1296,11 @@ bool BLECentralRole::canWriteRemoteCharacteristic(BLERemoteCharacteristic& chara
 
 bool BLECentralRole::writeRemoteCharacteristic(BLERemoteCharacteristic& characteristic, const unsigned char value[], unsigned char length) {
   bool success = false;
-
   for (int i = 0; i < this->_numRemoteCharacteristics; i++) {
+	  
     if (this->_remoteCharacteristicInfo[i].characteristic == &characteristic) {
       if (this->_remoteCharacteristicInfo[i].valueHandle &&
                   (this->_remoteCharacteristicInfo[i].properties.write_wo_resp || this->_remoteCharacteristicInfo[i].properties.write)) {
-
         ble_gattc_write_params_t writeParams;
 
         writeParams.write_op = (this->_remoteCharacteristicInfo[i].properties.write) ? BLE_GATT_OP_WRITE_REQ : BLE_GATT_OP_WRITE_CMD;
@@ -1303,14 +1310,19 @@ bool BLECentralRole::writeRemoteCharacteristic(BLERemoteCharacteristic& characte
         writeParams.p_value = (uint8_t*)value;
 
         this->_remoteRequestInProgress = true;
-
         for(int currentPeripheral = 0; currentPeripheral < _allowedPeripherals; currentPeripheral++)
-          if(this->_connectionHandle[currentPeripheral] != BLE_CONN_HANDLE_INVALID)
-            success = (sd_ble_gattc_write(this->_connectionHandle[currentPeripheral], &writeParams) == NRF_SUCCESS);
+	      if(this->_connectionHandle[currentPeripheral] != BLE_CONN_HANDLE_INVALID)
+
+			// check if this characteristic belongs to this peripheral
+			if(this->_remoteCharacteristicInfo[i].connectionIndex[currentPeripheral]){
+                success = (sd_ble_gattc_write(this->_connectionHandle[currentPeripheral], &writeParams) == NRF_SUCCESS);
+			}
       }
       break;
     }
-  }
+  
+		
+}
 
   return success;
 }
@@ -1352,7 +1364,9 @@ bool BLECentralRole::subscribeRemoteCharacteristic(BLERemoteCharacteristic& char
 
         for(int currentPeripheral = 0; currentPeripheral < _allowedPeripherals; currentPeripheral++)
           if(this->_connectionHandle[currentPeripheral] != BLE_CONN_HANDLE_INVALID)
-            success = (sd_ble_gattc_write(this->_connectionHandle[currentPeripheral], &writeParams) == NRF_SUCCESS);
+  			// check if this characteristic belongs to this peripheral
+			if(this->_remoteCharacteristicInfo[i].connectionIndex[currentPeripheral])
+                success = (sd_ble_gattc_write(this->_connectionHandle[currentPeripheral], &writeParams) == NRF_SUCCESS);
       }
       break;
     }
@@ -1387,7 +1401,9 @@ bool BLECentralRole::unsubcribeRemoteCharacteristic(BLERemoteCharacteristic& cha
 
         for(int currentPeripheral = 0; currentPeripheral < _allowedPeripherals; currentPeripheral++)
           if(this->_connectionHandle[currentPeripheral] != BLE_CONN_HANDLE_INVALID)
-            success = (sd_ble_gattc_write(this->_connectionHandle[currentPeripheral], &writeParams) == NRF_SUCCESS);
+			// check if this characteristic belongs to this peripheral
+			if(this->_remoteCharacteristicInfo[i].connectionIndex[currentPeripheral])
+                success = (sd_ble_gattc_write(this->_connectionHandle[currentPeripheral], &writeParams) == NRF_SUCCESS);
       }
       break;
     }
