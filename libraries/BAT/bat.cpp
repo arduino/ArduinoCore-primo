@@ -62,3 +62,16 @@ double bat::analogRead(void) {
 
 	return voltage;
 }
+
+int bat::capacity(void) {
+    double calculate_voltage;
+    double get_voltage;
+	int capacity;
+	get_voltage = analogRead();
+	calculate_voltage = get_voltage - 2.9;
+	capacity = calculate_voltage / 0.0124;
+	if (capacity > 100)
+    capacity = 100;
+
+  	return capacity;
+}

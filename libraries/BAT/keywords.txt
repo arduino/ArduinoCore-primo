@@ -13,6 +13,7 @@ bat	KEYWORD1
 #######################################
 
 analogRead	KEYWORD2
+capacity	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
