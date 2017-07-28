@@ -114,6 +114,7 @@ void writePasskey(BLEPeripheralPeer& peer) {
   int i=0;
   int j=0;
   Serial.println("Type the 6 digits code you see on the other device");
+  Serial.flush();
   while(i < 6){
     j=Serial.available();
       for(int k=0; k<j; k++){
