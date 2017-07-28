@@ -134,6 +134,7 @@ private:
       BLERemoteCharacteristic* characteristic;
       BLERemoteService* service;
 
+      bool connectionIndex[7];
       ble_uuid_t uuid;
       ble_gatt_char_props_t properties;
       uint16_t valueHandle;
