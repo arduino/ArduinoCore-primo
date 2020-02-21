@@ -1,3 +1,5 @@
+> **Note:** this core is deprecated and no longer maintained.
+
 # Arduino core for nRF52 CPU
 
 This repository contains the source code and the configuration files of the Arduino Core for Nordic's nRF52 processor (used on
