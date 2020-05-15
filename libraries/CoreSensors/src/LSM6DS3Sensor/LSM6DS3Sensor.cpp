@@ -42,7 +42,7 @@
 #include "Arduino.h"
 #include "DevI2C_Arduino/DevI2C.h"
 #include "LSM6DS3Sensor.h"
-#include "LSM6DS3_ACC_GYRO_Driver.h"
+#include "LSM6DS3_ACC_GYRO_driver.h"
 
 
 /* Class Implementation ------------------------------------------------------*/
